@@ -116,7 +116,7 @@ export default {
   font-size: 16px;
   cursor: pointer;
   transition: all 0.3s ease;
-  color: white;
+  color: black;
 }
 
 .controls button:hover {
