@@ -3,12 +3,12 @@
     <h1>Dashboard</h1>
     <div class="controls">
       <!-- Verkeerslichten knoppen -->
-      <button @click="toggleVerkeerslicht('rood')" :class="{ 'on': verkeerslichtRood }">Rood</button>
-      <button @click="toggleVerkeerslicht('oranje')" :class="{ 'on': verkeerslichtOranje }">Oranje</button>
-      <button @click="toggleVerkeerslicht('groen')" :class="{ 'on': verkeerslichtGroen }">Groen</button>
+      <button @click="toggleVerkeerslicht('rood')" :class="{ 'on red': verkeerslichtRood }">Rood</button>
+      <button @click="toggleVerkeerslicht('oranje')" :class="{ 'on orange': verkeerslichtOranje }">Oranje</button>
+      <button @click="toggleVerkeerslicht('groen')" :class="{ 'on green': verkeerslichtGroen }">Groen</button>
       <!-- Slagbomen knoppen -->
-      <button @click="toggleSlagboom(1)" :class="{ 'on': slagboomStatus1 }">Slagboom 1: {{ slagboomStatus1 ? 'Open' : 'Gesloten' }}</button>
-      <button @click="toggleSlagboom(2)" :class="{ 'on': slagboomStatus2 }">Slagboom 2: {{ slagboomStatus2 ? 'Open' : 'Gesloten' }}</button>
+      <button @click="toggleSlagboom(1)" :class="{ 'on slagboomOpen': slagboomStatus1, 'on slagboomClosed': !slagboomStatus1 }">Slagboom 1: {{ slagboomStatus1 ? 'Open' : 'Gesloten' }}</button>
+      <button @click="toggleSlagboom(2)" :class="{ 'on slagboomOpen': slagboomStatus2, 'on slagboomClosed': !slagboomStatus2 }">Slagboom 2: {{ slagboomStatus2 ? 'Open' : 'Gesloten' }}</button>
     </div>
     <div class="sidebar" :class="{ 'open': sidebarOpen }">
       <h2>Status Overzicht</h2>
@@ -19,6 +19,11 @@
         <li>Slagboom 1: {{ slagboomStatus1 ? 'Open' : 'Gesloten' }}</li>
         <li>Slagboom 2: {{ slagboomStatus2 ? 'Open' : 'Gesloten' }}</li>
       </ul>
+      <!-- Ultrasone sensor status -->
+      <div class="sensor-status">
+        <h2>Ultrasone Sensor Status</h2>
+        <p>{{ ultrasoneSensorWaarde ? 'Object gedetecteerd' : 'Geen object gedetecteerd' }}</p>
+      </div>
     </div>
   </div>
 </template>
@@ -36,6 +41,7 @@ export default {
       verkeerslichtGroen: false,
       slagboomStatus1: false,
       slagboomStatus2: false,
+      ultrasoneSensorWaarde: null, // Nieuwe data-eigenschap voor de sensorwaarde
       client: null,
       sidebarOpen: false,
       mqttHost: config.mqttHost
@@ -52,10 +58,8 @@ export default {
   methods: {
     toggleVerkeerslicht(kleur) {
       // Update de juiste verkeerslicht status gebaseerd op 'kleur'
-      
       if (kleur === 'rood') {
         this.verkeerslichtRood = !this.verkeerslichtRood;
-        // Zorg ervoor dat de andere lichten uit zijn
         this.verkeerslichtOranje = false;
         this.verkeerslichtGroen = false;
       } else if (kleur === 'oranje') {
@@ -67,7 +71,6 @@ export default {
         this.verkeerslichtRood = false;
         this.verkeerslichtOranje = false; 
       }
-      // Stuur een MQTT bericht met de nieuwe status
       this.client.publish(`verkeerslichten/${kleur}`, this[`verkeerslicht${kleur.charAt(0).toUpperCase() + kleur.slice(1)}`] ? '1' : '0');
     },
     toggleSlagboom(nummer) {
@@ -77,10 +80,25 @@ export default {
     connectMQTT() {
       this.client = mqtt.connect(this.mqttHost);
       this.client.on('connect', () => {
-        this.client.subscribe(['verkeerslichten/rood', 'verkeerslichten/oranje', 'verkeerslichten/groen', 'slagboom/status1', 'slagboom/status2']);
+        this.client.subscribe([
+          'verkeerslichten/rood', 
+          'verkeerslichten/oranje', 
+          'verkeerslichten/groen', 
+          'slagboom/status1', 
+          'slagboom/status2',
+          'ultrasoneSensor/topic' // Abonneer op het nieuwe topic van de ultrasone sensor
+        ]);
       }); 
       this.client.on('message', (topic, message) => {
-        // Logica om de statussen te updaten gebaseerd op de inkomende MQTT berichten
+        if (topic.startsWith('verkeerslichten/')) {
+          let kleur = topic.split('/')[1];
+          this[`verkeerslicht${kleur.charAt(0).toUpperCase() + kleur.slice(1)}`] = message.toString() === '1';
+        } else if (topic.startsWith('slagboom/status')) {
+          let nummer = topic.split('status')[1];
+          this[`slagboomStatus${nummer}`] = message.toString() === '1';
+        } else if (topic === 'ultrasoneSensor/topic') {
+          this.ultrasoneSensorWaarde = message.toString(); // Update de sensorwaarde
+        }
       });
       this.client.on('error', (error) => {
         console.error('MQTT-verbinding fout:', error);
@@ -91,111 +109,118 @@ export default {
 </script>
 
 <style scoped>
+body {
+  background-color: #34495e; 
+  font-family: 'Arial', sans-serif;
+  color: #ffffff;
+  height: 100vh;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .dashboard {
-  max-width: 800px;
-  margin: 20px auto;
-  padding: 20px;
-  border-radius: 15px;
-  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
   background-color: #fff;
-  text-align: center;
+  border-radius: 12px;
+  box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.1);
+  width: 400px;
+  padding: 25px;
+  box-sizing: border-box;
+  color: #2c3e50;
 }
 
 .controls {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
 }
 
 .controls button {
-  margin: 10px;
-  padding: 10px 20px;
+  background-color: #ecf0f1;
   border: none;
-  border-radius: 5px;
-  font-size: 16px;
+  border-radius: 6px;
+  padding: 10px 15px;
+  margin: 5px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  color: black;
+  transition: background-color 0.3s ease;
+  color: #7f8c8d;
+  font-size: 14px;
+  width: 90px;
 }
 
 .controls button:hover {
-  opacity: 0.8;
+  background-color: #bdc3c7;
 }
 
-.on {
-  background-color: #4CAF50; /* Green */
+.controls button.on.green {
+  color: #fff;
+  background-color: #2ecc71; /* Groen */
 }
 
-.off {
-  background-color: #f44336; /* Red */
+.controls button.on.red {
+  color: #fff;
+  background-color: #e74c3c; /* Rood */
 }
 
-/* Custom colors for traffic lights */
-.verkeerslichten button {
-  width: 100px; /* Ensure equal width for all traffic light buttons */
+.controls button.on.orange {
+  color: #fff;
+  background-color: #f39c12; /* Oranje */
 }
 
-.rood.on {
-  background-color: #ff4136; /* Red */
-}
-
-.oranje.on {
-  background-color: #ff851b; /* Orange */
-}
-
-.groen.on {
-  background-color: #2ecc40; /* Green */
+.controls button.on.slagboomOpen {
+  color: #fff;
+  background-color: #2ecc71; /* Groen voor open */
 }
 
 .sidebar {
-  position: fixed;
-  top: 0;
-  right: -350px;
-  width: 300px;
-  height: 100%;
-  background-color: #f4f4f4;
-  transition: right 0.3s ease;
+  background-color: #2c3e50; 
+  border-radius: 8px;
   padding: 20px;
-}
-
-.sidebar.open {
-  right: 0;
+  color: #ecf0f1; 
+  margin-top: 20px;
 }
 
 .sidebar h2 {
-  margin-top: 0;
+  border-bottom: 1px solid #ecf0f1; 
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+  font-size: 18px;
 }
 
 .sidebar ul {
-  list-style-type: none;
+  list-style: none;
   padding: 0;
+  margin: 0;
 }
 
 .sidebar li {
-  margin-bottom: 10px;
+  margin-bottom: 12px;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.sidebar li:before {
+  content: '•';
+  color: #ecf0f1;
+  font-weight: bold;
+  display: inline-block; 
+  width: 1em;
+  margin-left: -1em; 
+}
+
+.sensor-status {
+  margin-top: 25px;
+  padding: 15px;
+  background-color: #34495e;
+  border-radius: 8px;
+  text-align: center;
   font-size: 16px;
 }
 
 @media (max-width: 768px) {
   .dashboard {
+    width: 90%; 
     margin: 20px;
   }
-
-  .controls {
-    flex-direction: column;
-  }
-
-  .sidebar {
-    position: static;
-    width: auto;
-    height: auto;
-    padding-top: 20px;
-  }
-
-  .sidebar.open {
-    right: initial;
-  }
 }
-</style>
 
+</style>
