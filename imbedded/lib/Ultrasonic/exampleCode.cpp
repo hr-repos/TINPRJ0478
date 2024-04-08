@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include "Ultrasonic/SonicPair/SonicPair.h"
+#include "SonicPair/SonicPair.h"
 
 void runExample() 
 {

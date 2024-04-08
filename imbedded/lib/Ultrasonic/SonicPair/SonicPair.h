@@ -1,7 +1,7 @@
 #ifndef __SONICPAIR_H__
 #define __SONICPAIR_H__
 
-#include "Ultrasonic/Ultrasonic.h"
+#include "../Ultrasonic.h"
 
 class SonicPair
 {
