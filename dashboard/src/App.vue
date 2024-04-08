@@ -6,11 +6,24 @@
 
 <script>
 import Dashboard from './components/Dashboard.vue';
+import client from "@/assets/mqtt.js";
 
 export default {
   name: 'App',
   components: {
     Dashboard
+  },
+  async mounted() {
+    client.on("message", (topic, message) => {
+      // als er een mqtt message is..
+    })
+
+    await client.publish('asb', 'true', (error) => {
+      if (error) return
+
+      // publish een mqtt bericht..
+      console.log(`[MQTT] Published message on topic '${topic}': ${message}`)
+    })
   }
 };
 </script>
