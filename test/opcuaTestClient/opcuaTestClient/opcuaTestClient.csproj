@@ -7,4 +7,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="OpcLabs.QuickOpc" Version="5.80.82" />
+  </ItemGroup>
+
 </Project>
