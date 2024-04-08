@@ -2,19 +2,30 @@
 #include "ServoBarrier.h"
 
 uint8_t servoPin = 26;
-auto servo = new ServoBarrier(servoPin);
+auto servo = new ServoBarrier(servoPin, LED_BUILTIN);
+static Timer *timer = new Timer(SET_TIMER_IN_MS);
 
 void setup()
 {
     Serial.begin(115200);
+    servo->setLocationDown();
+    Serial.println("set servo down");
 }
 
 void loop()
 {
-    servo->setLocationDown();     
-    Serial.println("set servo down");
-    delay(3000);
-    servo->setLocationUp();    
-    Serial.println("set servo up");
-    delay(3000);
+
+    if (timer->waitTime(5000))
+    {
+        if (servo->isDown())
+        {
+            servo->setLocationUp();
+        }
+        else
+        {
+            servo->setLocationDown();
+        }
+    }
+
+    servo->callback();
 }
