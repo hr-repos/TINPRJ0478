@@ -1,6 +1,7 @@
 <template>
   <div id="app">
     <Dashboard/>
+    <button @click="publishMessage">Publish Message</button>
   </div>
 </template>
 
@@ -13,26 +14,22 @@ export default {
   components: {
     Dashboard
   },
-  async mounted() {
-    client.on("message", (topic, message) => {
-      // als er een mqtt message is..
-    })
-
-    await client.publish('asb', 'true', (error) => {
-      if (error) return
-
-      // publish een mqtt bericht..
-      console.log(`[MQTT] Published message on topic '${topic}': ${message}`)
-    })
+  methods: {
+    publishMessage() {
+      const topic = 'example/topic';
+      const message = 'Hello, MQTT!';
+      client.publish(topic, message, (error) => {
+        if (error) {
+          console.error(`[MQTT] Publish error on topic '${topic}':`, error);
+          return;
+        }
+        console.log(`[MQTT] Published message on topic '${topic}': ${message}`);
+      });
+    }
   }
 };
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+/* Your styles here */
 </style>

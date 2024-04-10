@@ -1,5 +1,5 @@
 // src/config.js
 export default {
-    mqttHost: 'ws://localhost:5173'
+    mqttHost: 'ws://broker.hivemq.com:8000/mqtt'
   };
   

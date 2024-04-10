@@ -2,124 +2,81 @@
   <div class="dashboard">
     <h1>Dashboard</h1>
     <div class="controls">
-      <!-- Verkeerslichten knoppen -->
-      <button @click="toggleVerkeerslicht('rood')" :class="{ 'on red': verkeerslichtRood }">Rood</button>
-      <button @click="toggleVerkeerslicht('oranje')" :class="{ 'on orange': verkeerslichtOranje }">Oranje</button>
-      <button @click="toggleVerkeerslicht('groen')" :class="{ 'on green': verkeerslichtGroen }">Groen</button>
-      <!-- Slagbomen knoppen -->
-      <button @click="toggleSlagboom(1)" :class="{ 'on slagboomOpen': slagboomStatus1, 'on slagboomClosed': !slagboomStatus1 }">Slagboom 1: {{ slagboomStatus1 ? 'Open' : 'Gesloten' }}</button>
-      <button @click="toggleSlagboom(2)" :class="{ 'on slagboomOpen': slagboomStatus2, 'on slagboomClosed': !slagboomStatus2 }">Slagboom 2: {{ slagboomStatus2 ? 'Open' : 'Gesloten' }}</button>
+      <button @click="toggleStoplicht('rood')" :class="{ 'on red': stoplichtKleur === 'rood' }">Rood</button>
+      <button @click="toggleStoplicht('oranje')" :class="{ 'on orange': stoplichtKleur === 'oranje' }">Oranje</button>
+      <button @click="toggleStoplicht('groen')" :class="{ 'on green': stoplichtKleur === 'groen' }">Groen</button>
+      <button @click="toggleSlagboom(1)" :class="{ 'on': slagboomStatus1 }">Slagboom 1: {{ slagboomStatus1 ? 'Open' : 'Gesloten' }}</button>
+      <button @click="toggleSlagboom(2)" :class="{ 'on': slagboomStatus2 }">Slagboom 2: {{ slagboomStatus2 ? 'Open' : 'Gesloten' }}</button>
+      <button @click="resetAlles">Reset</button>
     </div>
-    <div class="sidebar" :class="{ 'open': sidebarOpen }">
-      <h2>Status Overzicht</h2>
+    <div class="stoplicht">
+      <h2>Stoplicht</h2>
+      <div class="stoplicht-container">
+        <div class="stoplicht-light red" :class="{ 'on': stoplichtKleur === 'rood' }"></div>
+        <div class="stoplicht-light orange" :class="{ 'on': stoplichtKleur === 'oranje' }"></div>
+        <div class="stoplicht-light green" :class="{ 'on': stoplichtKleur === 'groen' }"></div>
+      </div>
+    </div>
+    <div class="situatie-overzicht">
+      <h2>Situatieoverzicht</h2>
       <ul>
-        <li>Verkeerslicht Rood: {{ verkeerslichtRood ? 'Aan' : 'Uit' }}</li>
-        <li>Verkeerslicht Oranje: {{ verkeerslichtOranje ? 'Aan' : 'Uit' }}</li>
-        <li>Verkeerslicht Groen: {{ verkeerslichtGroen ? 'Aan' : 'Uit' }}</li>
+        <li>Stoplichtkleur: {{ stoplichtKleur || 'Uit' }}</li>
         <li>Slagboom 1: {{ slagboomStatus1 ? 'Open' : 'Gesloten' }}</li>
         <li>Slagboom 2: {{ slagboomStatus2 ? 'Open' : 'Gesloten' }}</li>
+        <li>Verkeersintensiteit: {{ verkeersintensiteit }}</li>
       </ul>
-      <!-- Ultrasone sensor status -->
-      <div class="sensor-status">
-        <h2>Ultrasone Sensor Status</h2>
-        <p>{{ ultrasoneSensorWaarde ? 'Object gedetecteerd' : 'Geen object gedetecteerd' }}</p>
-      </div>
     </div>
   </div>
 </template>
 
 <script>
-import mqtt from 'mqtt';
-import config from '@/config'; // Zorg ervoor dat dit pad overeenkomt met de locatie van je config-bestand.
+import client from "@/assets/mqtt.js"; // Zorg dat dit pad klopt voor jouw projectstructuur
 
 export default {
   name: 'Dashboard',
   data() {
     return {
-      verkeerslichtRood: false,
-      verkeerslichtOranje: false,
-      verkeerslichtGroen: false,
+      stoplichtKleur: null,
       slagboomStatus1: false,
       slagboomStatus2: false,
-      ultrasoneSensorWaarde: null, // Nieuwe data-eigenschap voor de sensorwaarde
-      client: null,
-      sidebarOpen: false,
-      mqttHost: config.mqttHost
+      verkeersintensiteit: 'laag',
     };
   },
-  created() {
-    this.connectMQTT();
-  },
-  beforeDestroy() {
-    if (this.client) {
-      this.client.end();
-    }
-  },
   methods: {
-    toggleVerkeerslicht(kleur) {
-      // Update de juiste verkeerslicht status gebaseerd op 'kleur'
-      if (kleur === 'rood') {
-        this.verkeerslichtRood = !this.verkeerslichtRood;
-        this.verkeerslichtOranje = false;
-        this.verkeerslichtGroen = false;
-      } else if (kleur === 'oranje') {
-        this.verkeerslichtOranje = !this.verkeerslichtOranje;
-        this.verkeerslichtRood = false;
-        this.verkeerslichtGroen = false;
-      } else if (kleur === 'groen') {
-        this.verkeerslichtGroen = !this.verkeerslichtGroen;
-        this.verkeerslichtRood = false;
-        this.verkeerslichtOranje = false; 
-      }
-      this.client.publish(`verkeerslichten/${kleur}`, this[`verkeerslicht${kleur.charAt(0).toUpperCase() + kleur.slice(1)}`] ? '1' : '0');
+    toggleStoplicht(kleur) {
+      this.stoplichtKleur = this.stoplichtKleur === kleur ? null : kleur;
+      const topic = `verkeerslichten/${kleur}`;
+      const message = this.stoplichtKleur ? '1' : '0';
+      this.publishMessage(topic, message);
     },
     toggleSlagboom(nummer) {
       this[`slagboomStatus${nummer}`] = !this[`slagboomStatus${nummer}`];
-      this.client.publish(`slagboom/status${nummer}`, this[`slagboomStatus${nummer}`] ? '1' : '0');
+      const topic = `slagboom/status${nummer}`;
+      const message = this[`slagboomStatus${nummer}`] ? '1' : '0';
+      this.publishMessage(topic, message);
     },
-    connectMQTT() {
-      this.client = mqtt.connect(this.mqttHost);
-      this.client.on('connect', () => {
-        this.client.subscribe([
-          'verkeerslichten/rood', 
-          'verkeerslichten/oranje', 
-          'verkeerslichten/groen', 
-          'slagboom/status1', 
-          'slagboom/status2',
-          'ultrasoneSensor/topic' // Abonneer op het nieuwe topic van de ultrasone sensor
-        ]);
-      }); 
-      this.client.on('message', (topic, message) => {
-        if (topic.startsWith('verkeerslichten/')) {
-          let kleur = topic.split('/')[1];
-          this[`verkeerslicht${kleur.charAt(0).toUpperCase() + kleur.slice(1)}`] = message.toString() === '1';
-        } else if (topic.startsWith('slagboom/status')) {
-          let nummer = topic.split('status')[1];
-          this[`slagboomStatus${nummer}`] = message.toString() === '1';
-        } else if (topic === 'ultrasoneSensor/topic') {
-          this.ultrasoneSensorWaarde = message.toString(); // Update de sensorwaarde
+    resetAlles() {
+      this.stoplichtKleur = null;
+      this.slagboomStatus1 = false;
+      this.slagboomStatus2 = false;
+      this.verkeersintensiteit = 'laag';
+      
+      const topics = ['verkeerslichten/rood', 'verkeerslichten/oranje', 'verkeerslichten/groen', 'slagboom/status1', 'slagboom/status2'];
+      topics.forEach(topic => this.publishMessage(topic, '0'));
+    },
+    publishMessage(topic, message) {
+      client.publish(topic, message, {qos: 1}, (error) => {
+        if (error) {
+          console.error(`[MQTT] Publish error on topic '${topic}':`, error);
+        } else {
+          console.log(`[MQTT] Published message on topic '${topic}': ${message}`);
         }
       });
-      this.client.on('error', (error) => {
-        console.error('MQTT-verbinding fout:', error);
-      });
-    }
+    },
   }
 };
 </script>
-
 <style scoped>
-body {
-  background-color: #34495e; 
-  font-family: 'Arial', sans-serif;
-  color: #ffffff;
-  height: 100vh;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 .dashboard {
   background-color: #fff;
   border-radius: 12px;
@@ -151,11 +108,6 @@ body {
   background-color: #bdc3c7;
 }
 
-.controls button.on.green {
-  color: #fff;
-  background-color: #2ecc71; /* Groen */
-}
-
 .controls button.on.red {
   color: #fff;
   background-color: #e74c3c; /* Rood */
@@ -166,61 +118,66 @@ body {
   background-color: #f39c12; /* Oranje */
 }
 
-.controls button.on.slagboomOpen {
+.controls button.on.green {
   color: #fff;
-  background-color: #2ecc71; /* Groen voor open */
+  background-color: #2ecc71; /* Groen */
 }
 
-.sidebar {
-  background-color: #2c3e50; 
-  border-radius: 8px;
-  padding: 20px;
-  color: #ecf0f1; 
+.stoplicht {
   margin-top: 20px;
 }
 
-.sidebar h2 {
-  border-bottom: 1px solid #ecf0f1; 
-  padding-bottom: 10px;
-  margin-bottom: 20px;
-  font-size: 18px;
+.stoplicht h2 {
+  text-align: center;
 }
 
-.sidebar ul {
+.stoplicht-container {
+  display: flex;
+  justify-content: center;
+}
+
+.stoplicht-light {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin: 5px;
+}
+
+.red {
+  background-color: red;
+}
+
+.orange {
+  background-color: orange;
+}
+
+.green {
+  background-color: green;
+}
+
+.on {
+  border: 2px solid #000;
+}
+
+.situatie-overzicht {
+  padding: 15px;
+  margin-top: 20px;
+  background-color: #ecf0f1;
+  border-radius: 6px;
+}
+
+.situatie-overzicht h2 {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.situatie-overzicht ul {
   list-style: none;
   padding: 0;
-  margin: 0;
 }
 
-.sidebar li {
-  margin-bottom: 12px;
-  font-size: 16px;
-  line-height: 1.6;
+.situatie-overzicht li {
+  margin-bottom: 10px;
+  font-size: 14px;
 }
-
-.sidebar li:before {
-  content: '•';
-  color: #ecf0f1;
-  font-weight: bold;
-  display: inline-block; 
-  width: 1em;
-  margin-left: -1em; 
-}
-
-.sensor-status {
-  margin-top: 25px;
-  padding: 15px;
-  background-color: #34495e;
-  border-radius: 8px;
-  text-align: center;
-  font-size: 16px;
-}
-
-@media (max-width: 768px) {
-  .dashboard {
-    width: 90%; 
-    margin: 20px;
-  }
-}
-
 </style>
