@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <Dashboard/>
-    <button @click="publishMessage">Publish Message</button>
+<!--    <button @click="publishMessage">Publish Message</button>-->
   </div>
 </template>
 

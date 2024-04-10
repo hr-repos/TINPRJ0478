@@ -45,13 +45,13 @@ export default {
   methods: {
     toggleStoplicht(kleur) {
       this.stoplichtKleur = this.stoplichtKleur === kleur ? null : kleur;
-      const topic = `verkeerslichten/${kleur}`;
+      const topic = `vkl/${kleur}`;
       const message = this.stoplichtKleur ? '1' : '0';
       this.publishMessage(topic, message);
     },
     toggleSlagboom(nummer) {
       this[`slagboomStatus${nummer}`] = !this[`slagboomStatus${nummer}`];
-      const topic = `slagboom/status${nummer}`;
+      const topic = `asb/${nummer}`;
       const message = this[`slagboomStatus${nummer}`] ? '1' : '0';
       this.publishMessage(topic, message);
     },
@@ -61,7 +61,7 @@ export default {
       this.slagboomStatus2 = false;
       this.verkeersintensiteit = 'laag';
       
-      const topics = ['verkeerslichten/rood', 'verkeerslichten/oranje', 'verkeerslichten/groen', 'slagboom/status1', 'slagboom/status2'];
+      const topics = ['vkl/rood', 'vkl/oranje', 'vkl/groen', 'asb/1', 'asb/2'];
       topics.forEach(topic => this.publishMessage(topic, '0'));
     },
     publishMessage(topic, message) {
