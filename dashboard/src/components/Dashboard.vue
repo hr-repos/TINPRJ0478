@@ -10,7 +10,7 @@
       <button @click="resetAlles">Reset</button>
     </div>
     <div class="stoplicht">
-      <h2>Stoplicht</h2>
+      <h2>Verkeerslicht</h2>
       <div class="stoplicht-container">
         <div class="stoplicht-light red" :class="{ 'on': stoplichtKleur === 'rood' }"></div>
         <div class="stoplicht-light orange" :class="{ 'on': stoplichtKleur === 'oranje' }"></div>
@@ -21,8 +21,8 @@
       <h2>Situatieoverzicht</h2>
       <ul>
         <li>Stoplichtkleur: {{ stoplichtKleur || 'Uit' }}</li>
-        <li>Slagboom 1: {{ slagboomStatus1 ? 'Open' : 'Gesloten' }}</li>
-        <li>Slagboom 2: {{ slagboomStatus2 ? 'Open' : 'Gesloten' }}</li>
+        <li>Afsluitboom 1: {{ slagboomStatus1 ? 'Open' : 'Gesloten' }}</li>
+        <li>Afsluitboom 2: {{ slagboomStatus2 ? 'Open' : 'Gesloten' }}</li>
         <li>Verkeersintensiteit: {{ verkeersintensiteit }}</li>
       </ul>
     </div>
@@ -101,7 +101,6 @@ export default {
   transition: background-color 0.3s ease;
   color: #7f8c8d;
   font-size: 14px;
-  width: 90px;
 }
 
 .controls button:hover {
