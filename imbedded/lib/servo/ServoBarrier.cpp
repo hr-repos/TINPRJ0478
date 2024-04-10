@@ -2,7 +2,7 @@
 #include "Timer/Timer.h"
 
 // create object and set the pin for the stepper motor
-ServoBarrier::ServoBarrier(uint8_t servoPin, u_int8_t ledPin) : servoPin(servoPin), ledPin(ledPin)
+ServoBarrier::ServoBarrier(uint8_t servoPin, uint8_t ledPin) : servoPin(servoPin), ledPin(ledPin)
 {
     pinMode(servoPin, OUTPUT);
     pinMode(ledPin, OUTPUT);
@@ -12,7 +12,6 @@ ServoBarrier::ServoBarrier(uint8_t servoPin, u_int8_t ledPin) : servoPin(servoPi
     ESP32PWM::allocateTimer(3);
     servo.setPeriodHertz(50);
     servo.attach(servoPin);
-    //timer_us = new Timer(SET_TIMER_IN_MS);
 }
 
 // set new servo location
@@ -67,7 +66,7 @@ void ServoBarrier::switchLeds()
 // get current location of the servo
 void ServoBarrier::callback()
 {
-    static Timer* timer = new Timer(SET_TIMER_IN_MS);
+    static Timer *timer = new Timer(SET_TIMER_IN_MS);
     if (isDown())
     {
         if (timer->waitTime(500))
