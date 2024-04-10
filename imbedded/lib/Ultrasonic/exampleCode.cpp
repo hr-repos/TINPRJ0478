@@ -28,8 +28,6 @@ void runExample()
       Serial.println(line);
     }
   }
-
-  delete Utrasonic1;
-  delete Utrasonic2;
+  
   delete sonicPair;
 }
