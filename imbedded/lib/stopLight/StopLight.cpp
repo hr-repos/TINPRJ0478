@@ -30,5 +30,9 @@ void StopLight::setLicht(Colors color, bool ledOn)
             return;
     }
 
+    digitalWrite(pinRedLed, LOW);
+    digitalWrite(pinOrangeLed, LOW);
+    digitalWrite(pinGreenLed, LOW);
+
     digitalWrite(pin, ledOn);
 }
