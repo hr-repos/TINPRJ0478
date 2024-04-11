@@ -1,13 +1,12 @@
 #include "MqttHandler.h"
 
-
-static char* botID = (char*)"1";
-static Mqtt* MqttClient = new Mqtt(SECRET_SSID, SECRET_PASS, botID, MQTT_USER, MQTT_PASS);
+static char *botID = (char *)"1";
+static Mqtt *MqttClient = new Mqtt(SECRET_SSID, SECRET_PASS, botID, MQTT_USER, MQTT_PASS);
 
 const uint8_t triggerPin = 35;
 const uint8_t echoPin = 34;
 
-Ultrasonic* sonic = new Ultrasonic(triggerPin, echoPin);
+Ultrasonic *sonic = new Ultrasonic(triggerPin, echoPin);
 
 const uint8_t asbServoPin = 26;
 const uint8_t asbLed1Pin = 32;
@@ -26,11 +25,11 @@ void moveBarrier(bool pos)
     pos ? servo->setLocationUp() : servo->setLocationDown();
 }
 
-void pubSub(PubSubClient* client)
+void pubSub(PubSubClient *client)
 {
     Serial.println("connected");
 
-    //Once connected, publish an announcement...
+    // Once connected, publish an announcement...
     client->publish(PUBLISH_TOPIC, "Bot connected!");
 
     //... and resubscribe
@@ -40,7 +39,7 @@ void pubSub(PubSubClient* client)
 
 void messageHandler(PubSubClient *client, char *topic, char *message, unsigned int length)
 {
-    //expects X:Y:Z where X, Y, Z is a number
+    // expects X:Y:Z where X, Y, Z is a number
 
     if (strcmp(topic, SUBSCRIBE_TOPIC) == 0)
     {
@@ -51,19 +50,19 @@ void messageHandler(PubSubClient *client, char *topic, char *message, unsigned i
         Serial.println(returnMessage);
     }
 
-    if(strcmp(topic, "vkl/groen") == 0)
+    if (strcmp(topic, "vkl/groen") == 0)
     {
         bool isOn = message[0] - '0';
         stopLight->setLicht(green, isOn);
     }
 
-    if(strcmp(topic, "vkl/oranje") == 0)
+    if (strcmp(topic, "vkl/oranje") == 0)
     {
         bool isOn = message[0] - '0';
         stopLight->setLicht(orange, isOn);
     }
 
-    if(strcmp(topic, "vkl/rood") == 0)
+    if (strcmp(topic, "vkl/rood") == 0)
     {
         bool isOn = message[0] - '0';
         stopLight->setLicht(red, isOn);
@@ -90,7 +89,7 @@ void MqttLoop()
     if (!client->connected())
     {
         delay(2000);
-        MqttClient-> reconnect();
+        MqttClient->reconnect();
     }
     client->loop();
     servo->callback();

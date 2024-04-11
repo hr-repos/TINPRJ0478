@@ -1,21 +1,20 @@
 #include "SonicPair.h"
 
-SonicPair::SonicPair(Ultrasonic* ultrasonicOne, Ultrasonic* ultrasonicTwo)
-: ultrasonicArray(new Ultrasonic*[2]{ultrasonicOne, ultrasonicTwo})
+SonicPair::SonicPair(Ultrasonic *ultrasonicOne, Ultrasonic *ultrasonicTwo)
+    : ultrasonicArray(new Ultrasonic *[2]{ ultrasonicOne, ultrasonicTwo })
 {
-
 }
 
 SonicPair::~SonicPair()
 {
-    if(ultrasonicArray != nullptr)
+    if (ultrasonicArray != nullptr)
         delete[] ultrasonicArray;
 
-    if(distanceArray != nullptr)
+    if (distanceArray != nullptr)
         delete[] distanceArray;
 }
 
-int* SonicPair::readDistances()
+int *SonicPair::readDistances()
 {
     static uint8_t switchCounter = 0;
     static bool switchSonic = false;
@@ -24,7 +23,7 @@ int* SonicPair::readDistances()
 
     distance = ultrasonicArray[switchSonic]->readUltrasonic_cm();
 
-    if(distance != READING_NOT_FOUND)
+    if (distance != READING_NOT_FOUND)
     {
         distanceArray[switchSonic] = distance;
 
@@ -32,11 +31,11 @@ int* SonicPair::readDistances()
         switchCounter++;
     }
 
-    if(switchCounter >= 3)
+    if (switchCounter >= 3)
     {
         switchCounter = 0;
         return distanceArray;
-    } 
+    }
 
     return nullptr;
 }

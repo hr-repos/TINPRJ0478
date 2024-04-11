@@ -1,6 +1,6 @@
 #include "Mqtt.h"
 
-static void(*globalCallBack)(PubSubClient *client, char *topic, char *message, unsigned int length);
+static void (*globalCallBack)(PubSubClient *client, char *topic, char *message, unsigned int length);
 static PubSubClient *globalClient;
 
 void callback(char *topic, uint8_t *payload, unsigned int length)
@@ -13,13 +13,13 @@ void callback(char *topic, uint8_t *payload, unsigned int length)
     }
     message[length] = '\0';
 
-    globalCallBack(globalClient, topic, message, length); 
+    globalCallBack(globalClient, topic, message, length);
 }
 
 //----------------------------------------------------------------
 
-Mqtt::Mqtt(char* ssid, char* password, char* ID, char* MqttUser, char* MqttPass)
-: ssid(ssid), password(password), BOT_ID(ID), MqttUser(MqttUser), MqttPass(MqttPass)
+Mqtt::Mqtt(char *ssid, char *password, char *ID, char *MqttUser, char *MqttPass)
+    : ssid(ssid), password(password), BOT_ID(ID), MqttUser(MqttUser), MqttPass(MqttPass)
 {
     globalClient = client = new PubSubClient(espClient);
 
@@ -28,11 +28,11 @@ Mqtt::Mqtt(char* ssid, char* password, char* ID, char* MqttUser, char* MqttPass)
 
 Mqtt::~Mqtt()
 {
-    if(client != nullptr) 
+    if (client != nullptr)
         delete client;
 }
 
-void Mqtt::connectMqtt(char* mqttHost, int mqttPort, void(*pubSub)(PubSubClient* client), void(*myCallBack)(PubSubClient *client, char *topic, char *message, unsigned int length))
+void Mqtt::connectMqtt(char *mqttHost, int mqttPort, void (*pubSub)(PubSubClient *client), void (*myCallBack)(PubSubClient *client, char *topic, char *message, unsigned int length))
 {
     this->pubSub = pubSub;
     globalCallBack = myCallBack;
@@ -100,7 +100,7 @@ void Mqtt::reconnect()
     }
 }
 
-PubSubClient* Mqtt::getClient()
+PubSubClient *Mqtt::getClient()
 {
     return client;
 }

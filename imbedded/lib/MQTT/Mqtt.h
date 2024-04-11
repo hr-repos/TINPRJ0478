@@ -19,26 +19,25 @@ private:
     const char *password;
 
     const char *MqttUser;
-    const char *MqttPass;          
-    
-    WiFiClient espClient;
-    PubSubClient* client;
+    const char *MqttPass;
 
-    void(*pubSub)(PubSubClient* client);
+    WiFiClient espClient;
+    PubSubClient *client;
+
+    void (*pubSub)(PubSubClient *client);
 
 public:
-    Mqtt(char* const ssid, char* const password, char* const ID, char* const MqttUser, char* const MqttPass);
+    Mqtt(char *ssid, char *password, char *ID, char *MqttUser, char *MqttPass);
     ~Mqtt();
 
-    void connectMqtt(char* mqttServer, int mqttPort, void(*pubSub)(PubSubClient* client), void(*myCallBack)(PubSubClient *client, char *topic, char *message, unsigned int length));
+    void connectMqtt(char *mqttServer, int mqttPort, void (*pubSub)(PubSubClient *client), void (*myCallBack)(PubSubClient *client, char *topic, char *message, unsigned int length));
     void printLocalTime();
     void reconnect();
 
-    PubSubClient* getClient();
+    PubSubClient *getClient();
 
 private:
     void setupWifi();
-
 };
 
 #endif

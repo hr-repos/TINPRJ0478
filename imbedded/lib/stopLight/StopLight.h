@@ -18,7 +18,7 @@ private:
     uint8_t pinOrangeLed;
     uint8_t pinGreenLed;
 
-public: 
+public:
     StopLight(uint8_t pinRedLed, uint8_t pinOrangeLed, uint8_t pinGreenLed);
 
     void setLicht(Colors color, bool ledOn);

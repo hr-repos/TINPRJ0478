@@ -1,9 +1,8 @@
 #include "ServoBarrier.h"
 #include "Timer/Timer.h"
 
-
-ServoBarrier::ServoBarrier(uint8_t servoPin, uint8_t ledPin1, uint8_t ledPin2, Ultrasonic* sonic) 
-: servoPin(servoPin), ledPin1(ledPin1), ledPin2(ledPin2), sonic(sonic)
+ServoBarrier::ServoBarrier(uint8_t servoPin, uint8_t ledPin1, uint8_t ledPin2, Ultrasonic *sonic)
+    : servoPin(servoPin), ledPin1(ledPin1), ledPin2(ledPin2), sonic(sonic)
 {
     pinMode(servoPin, OUTPUT);
     pinMode(ledPin1, OUTPUT);
@@ -23,19 +22,16 @@ void ServoBarrier::setServoPos(uint64_t pos)
     servo.write(servoPos);
 }
 
-
 void ServoBarrier::setLocationDown()
 {
     servoPos = closingPosition;
     servo.write(servoPos);
 }
 
-
 void ServoBarrier::setLocationUp()
 {
     servoPos = openingPosition;
     servo.write(servoPos);
-
 
     digitalWrite(ledPin1, LOW);
     digitalWrite(ledPin2, LOW);
@@ -46,12 +42,10 @@ u_int8_t ServoBarrier::getLocation()
     return servoPos;
 }
 
-
 bool ServoBarrier::isDown()
 {
     return servoPos == closingPosition;
 }
-
 
 void ServoBarrier::switchLeds()
 {
@@ -59,7 +53,6 @@ void ServoBarrier::switchLeds()
     digitalWrite(ledPin2, !ledSwitch);
     ledSwitch = !ledSwitch;
 }
-
 
 void ServoBarrier::callback()
 {

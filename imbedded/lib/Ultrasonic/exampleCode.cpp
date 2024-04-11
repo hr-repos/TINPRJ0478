@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include "SonicPair/SonicPair.h"
 
-void runExample() 
+void runExample()
 {
   Serial.begin(9600);
   Serial.println("started");
@@ -15,19 +15,19 @@ void runExample()
   auto Utrasonic1 = new Ultrasonic(triggerPin1, echoPin1);
   auto Utrasonic2 = new Ultrasonic(triggerPin2, echoPin2);
 
-  auto sonicPair  = new SonicPair(Utrasonic1, Utrasonic2);
+  auto sonicPair = new SonicPair(Utrasonic1, Utrasonic2);
 
-  while(true)
+  while (true)
   {
-    int* dist = sonicPair->readDistances();
+    int *dist = sonicPair->readDistances();
 
-    //if reading is not done then dist = nullptr
-    if(dist != nullptr)
-    {      
+    // if reading is not done then dist = nullptr
+    if (dist != nullptr)
+    {
       String line = "ultra1: " + String(dist[0]) + ", " + "ultra2: " + String(dist[1]);
       Serial.println(line);
     }
   }
-  
+
   delete sonicPair;
 }
