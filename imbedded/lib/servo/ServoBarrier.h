@@ -5,27 +5,46 @@
 #include <Arduino.h>
 #include <ESP32Servo.h>
 #include "Timer/Timer.h"
+#include "./Ultrasonic.h"
+#include <StopLight.h>
 
 class ServoBarrier
 {
 private:
-    uint8_t ledPin;   // pin of the servo
-    uint8_t servoPin; // pin of the servo
-    uint8_t servoPos; // current position of the servo
-    Servo servo;       // servo object
-    bool ledsOn = false;
+    uint8_t ledPin1;  
+    uint8_t ledPin2;      
+    uint8_t servoPin;       
+    uint8_t servoPos;       // current position of the servo
+    Servo servo;           
+    bool ledSwitch = false;
+    Ultrasonic* sonic;
 
-    void switchLeds();              // switch the leds of the barrier
+    uint8_t closingPosition = 106;
+    uint8_t openingPosition = 25;
+
+    void switchLeds();      // switch the leds of the barrier
 
 public:
-    ServoBarrier(uint8_t servoPin, uint8_t ledPin); // create object and set the pin for the stepper motor
+    // create object and set the pin for the stepper motor
+    ServoBarrier(uint8_t servoPin, uint8_t ledPin1, uint8_t ledPin2, Ultrasonic* sonic);
 
-    void callback();                // update the leds of the barrier
-    void setServoPos(uint64_t pos); // set the position of the servo
-    void setLocationUp();           // set the position of the servo to 25
-    void setLocationDown();         // set the position of the servo to 100
-    bool isDown();                  // get boolean if the servo is down
-    uint8_t getLocation();         // get current location of the servo
+    // update the leds of the barrier
+    void callback();   
+
+    // set the position of the servo             
+    void setServoPos(uint64_t pos); 
+
+    // set the position of the servo to 25
+    void setLocationUp();  
+
+    // set the position of the servo to 100         
+    void setLocationDown(); 
+
+    // get boolean if the servo is down        
+    bool isDown();
+
+    // get current location of the servo                  
+    uint8_t getLocation();         
     
 };
 

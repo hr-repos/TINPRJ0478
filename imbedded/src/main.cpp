@@ -5,8 +5,11 @@
 #include "./secret.h"
 #include "ServoBarrier.h"
 #include "Ultrasonic.h"
-#define PUBLISHTOPIC "data/asb1"
-#define SUBSCRIBETOPIC "asb/1"
+#include "StopLight.h"
+#define PUBLISH_TOPIC "data/asb1"
+#define SUBSCRIBE_TOPIC "asb/1"
+#define SUBSCRIBE_TOPIC_VKL "vkl/#"
+#define MSG_BUFFER_SIZE (50)
 
 const char *BOT_ID = "1";
 
@@ -20,18 +23,31 @@ const char *mqtt_server = MQTT_HOST;
 
 WiFiClient espClient;
 PubSubClient client(espClient);
+
+const uint8_t triggerPin = 35;
+const uint8_t echoPin = 34;
+
+Ultrasonic* sonic = new Ultrasonic(triggerPin, echoPin);
+
 unsigned long lastMsg = 0;
-#define MSG_BUFFER_SIZE (50)
 char msg[MSG_BUFFER_SIZE];
 
-uint8_t asbServoPin = 26;
-uint8_t asbLedPin = LED_BUILTIN;
-// ServoBarrier servo(asbServoPin, asbLedPin);
-auto servo = new ServoBarrier(asbServoPin, asbLedPin);
+const uint8_t asbServoPin = 26;
+const uint8_t asbLed1Pin = 32;
+const uint8_t asbLed2Pin = 33;
+
+const uint8_t greenLedPin = 21;
+const uint8_t orangeLedPin = 19;
+const uint8_t redLedPin = 18;
+
+auto stopLight = new StopLight(greenLedPin, orangeLedPin, redLedPin);
+
+auto servo = new ServoBarrier(asbServoPin, asbLed1Pin, asbLed2Pin, sonic);
 
 void setup_wifi()
 {
     delay(10);
+
     // We start by connecting to a WiFi network
     Serial.println();
     Serial.print("Connecting to ");
@@ -54,14 +70,14 @@ void setup_wifi()
 
 void printLocalTime()
 {
-    struct tm timeinfo;
+    struct tm timeInfo;
 
-    if (!getLocalTime(&timeinfo))
+    if (!getLocalTime(&timeInfo))
     {
         Serial.println("Failed to obtain time");
         return;
     }
-    Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
+    Serial.println(&timeInfo, "%A, %B %d %Y %H:%M:%S");
 }
 
 void moveBarrier(bool pos)
@@ -82,20 +98,38 @@ void callback(char *topic, byte *payload, unsigned int length)
     // Serial.printf("Message arrived [%s] %s\n", topic, message);
 
     // expects X:Y:Z where X, Y, Z is a number
-    if (strcmp(topic, SUBSCRIBETOPIC) == 0)
+    if (strcmp(topic, SUBSCRIBE_TOPIC) == 0)
     {
         moveBarrier(atoi(&message[0]));
 
         String returnMessage = "Barrier is " + String((message[0] - '0' == 1) ? "up" : "down");
-        client.publish(PUBLISHTOPIC, returnMessage.c_str());
+        client.publish(PUBLISH_TOPIC, returnMessage.c_str());
         Serial.println(returnMessage);
+    }
+
+    if(strcmp(topic, "vkl/groen") == 0)
+    {
+        bool isOn = message[0] - '0';
+        stopLight->setLicht(green, isOn);
+    }
+
+    if(strcmp(topic, "vkl/oranje") == 0)
+    {
+        bool isOn = message[0] - '0';
+        stopLight->setLicht(orange, isOn);
+    }
+
+    if(strcmp(topic, "vkl/rood") == 0)
+    {
+        bool isOn = message[0] - '0';
+        stopLight->setLicht(red, isOn);
     }
 
     // Print out the message for debugging
     if (strcmp(message, "test") == 0)
     {
         Serial.println("Test message received");
-        client.publish(PUBLISHTOPIC, "Test message received");
+        client.publish(PUBLISH_TOPIC, "Test message received");
     }
 }
 
@@ -112,10 +146,12 @@ void reconnect()
             Serial.println("connected");
 
             // Once connected, publish an announcement...
-            client.publish(PUBLISHTOPIC, "Bot connected!");
+            client.publish(PUBLISH_TOPIC, "Bot connected!");
 
             // ... and resubscribe
-            client.subscribe(SUBSCRIBETOPIC);
+            client.subscribe(SUBSCRIBE_TOPIC);
+
+            client.subscribe(SUBSCRIBE_TOPIC_VKL);
         }
         else
         {

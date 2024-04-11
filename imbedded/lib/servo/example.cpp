@@ -2,7 +2,8 @@
 #include "ServoBarrier.h"
 
 uint8_t servoPin = 26;
-auto servo = new ServoBarrier(servoPin, LED_BUILTIN);
+uint8_t dummyLed = 69;
+auto servo = new ServoBarrier(servoPin, LED_BUILTIN, dummyLed, new Ultrasonic(1, 2));
 static Timer *timer = new Timer(SET_TIMER_IN_MS);
 
 void setup()

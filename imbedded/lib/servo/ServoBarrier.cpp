@@ -1,76 +1,77 @@
 #include "ServoBarrier.h"
 #include "Timer/Timer.h"
 
-// create object and set the pin for the stepper motor
-ServoBarrier::ServoBarrier(uint8_t servoPin, uint8_t ledPin) : servoPin(servoPin), ledPin(ledPin)
+
+ServoBarrier::ServoBarrier(uint8_t servoPin, uint8_t ledPin1, uint8_t ledPin2, Ultrasonic* sonic) 
+: servoPin(servoPin), ledPin1(ledPin1), ledPin2(ledPin2), sonic(sonic)
 {
     pinMode(servoPin, OUTPUT);
-    pinMode(ledPin, OUTPUT);
+    pinMode(ledPin1, OUTPUT);
+    pinMode(ledPin2, OUTPUT);
+
     ESP32PWM::allocateTimer(0);
     ESP32PWM::allocateTimer(1);
     ESP32PWM::allocateTimer(2);
     ESP32PWM::allocateTimer(3);
-    servo.setPeriodHertz(50);
+    servo.setPeriodHertz(3);
     servo.attach(servoPin);
 }
-// set new servo location
+
 void ServoBarrier::setServoPos(uint64_t pos)
 {
     servoPos = pos;
     servo.write(servoPos);
 }
 
-// set new servo location to down (100)
+
 void ServoBarrier::setLocationDown()
 {
-    servoPos = 100;
+    //if(sonic->ultrasoonDetectAtDistance_cm(20));
+       //return;
+
+    servoPos = closingPosition;
     servo.write(servoPos);
 }
 
-// set new servo location to up (25)
+
 void ServoBarrier::setLocationUp()
 {
-    servoPos = 25;
+    servoPos = openingPosition;
     servo.write(servoPos);
-    digitalWrite(ledPin, LOW);
+
+
+    digitalWrite(ledPin1, LOW);
+    digitalWrite(ledPin2, LOW);
 }
 
-// get current location of the servo
 u_int8_t ServoBarrier::getLocation()
 {
     return servoPos;
 }
 
-// get current location of the servo
+
 bool ServoBarrier::isDown()
 {
-    return servoPos == 100;
+    return servoPos == closingPosition;
 }
 
-// switch the leds of the barrier on or off
+
 void ServoBarrier::switchLeds()
 {
-    if (ledsOn)
-    {
-        digitalWrite(ledPin, LOW);
-        ledsOn = false;
-    }
-    else
-    {
-        digitalWrite(ledPin, HIGH);
-        ledsOn = true;
-    }
+    digitalWrite(ledPin1, ledSwitch);
+    digitalWrite(ledPin2, !ledSwitch);
+    ledSwitch = !ledSwitch;
 }
 
-// get current location of the servo
+
 void ServoBarrier::callback()
 {
     static Timer *timer = new Timer(SET_TIMER_IN_MS);
-    if (isDown())
+    if (!isDown())
+        return;
+
+    if (timer->waitTime(500))
     {
-        if (timer->waitTime(500))
-        {
-            switchLeds();
-        }
+        switchLeds();
     }
 }
