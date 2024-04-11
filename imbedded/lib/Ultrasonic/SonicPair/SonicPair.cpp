@@ -22,7 +22,7 @@ int* SonicPair::readDistances()
 
     int distance;
 
-    distance = ultrasonicArray[switchSonic]->readUltrasoon_cm();
+    distance = ultrasonicArray[switchSonic]->readUltrasonic_cm();
 
     if(distance != READING_NOT_FOUND)
     {

@@ -7,16 +7,16 @@ Ultrasonic::Ultrasonic(uint8_t triggerPin, uint8_t echoPin)
   this->triggerPin = triggerPin;
   this->echoPin = echoPin;
 
-  ultrasoonStartup();
+  ultrasonicStartup();
 }
 
-void Ultrasonic::ultrasoonStartup()
+void Ultrasonic::ultrasonicStartup()
 {
   pinMode(triggerPin, OUTPUT);
   pinMode(echoPin, INPUT);
 }
 
-int Ultrasonic::readUltrasoon_cm()
+int Ultrasonic::readUltrasonic_cm()
 {
   static Timer *timer_us = new Timer(SET_TIMER_IN_US);
 
@@ -47,7 +47,7 @@ int Ultrasonic::readUltrasoon_cm()
       digitalWrite(triggerPin, LOW);
 
       int sensorOutput = pulseIn(echoPin, HIGH);
-      int distance = CALULATE_DISTANCE(sensorOutput);
+      int distance = CALCULATE_DISTANCE(sensorOutput);
 
       mode = reset;
       return distance;
@@ -66,11 +66,11 @@ int Ultrasonic::readUltrasoon_cm()
   return READING_NOT_FOUND;
 }
 
-bool Ultrasonic::ultrasoonDetectAtDistance_cm(int distance_cm)
+bool Ultrasonic::ultrasonicDetectAtDistance_cm(int distance_cm)
 {
   static int timer = 0;
   static int safetyBuffer = 0;
-  int newDistance = readUltrasoon_cm();
+  int newDistance = readUltrasonic_cm();
 
   if (newDistance == READING_NOT_FOUND)
     return false;

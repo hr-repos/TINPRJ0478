@@ -26,9 +26,6 @@ void ServoBarrier::setServoPos(uint64_t pos)
 
 void ServoBarrier::setLocationDown()
 {
-    //if(sonic->ultrasoonDetectAtDistance_cm(20));
-       //return;
-
     servoPos = closingPosition;
     servo.write(servoPos);
 }

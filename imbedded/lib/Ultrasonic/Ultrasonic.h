@@ -5,7 +5,7 @@
 #include "Timer/Timer.h"
 
 #define READING_NOT_FOUND -69
-#define CALULATE_DISTANCE(outputSensor) (int)( (double)outputSensor * 0.01715 )
+#define CALCULATE_DISTANCE(outputSensor) (int)( (double)outputSensor * 0.01715 )
 
 enum ultrasonicMode
 {
@@ -24,11 +24,11 @@ private:
 public:
     Ultrasonic(uint8_t triggerPin, uint8_t echoPin);
 
-    bool ultrasoonDetectAtDistance_cm(int distance_cm);
-    int readUltrasoon_cm();
+    bool ultrasonicDetectAtDistance_cm(int distance_cm);
+    int readUltrasonic_cm();
 
 private:
-    void ultrasoonStartup();
+    void ultrasonicStartup();
 };
 
 #endif
