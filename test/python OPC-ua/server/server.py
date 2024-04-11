@@ -2,6 +2,8 @@
 # import random
 from opcua import Server
 
+print("\n OPC_UA TEST SERVER \n")
+
 server = Server()
 
 server.set_endpoint("opc.tcp://127.0.0.1:8080")

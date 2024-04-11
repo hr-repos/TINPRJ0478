@@ -13,7 +13,6 @@ ServoBarrier::ServoBarrier(uint8_t servoPin, uint8_t ledPin) : servoPin(servoPin
     servo.setPeriodHertz(50);
     servo.attach(servoPin);
 }
-
 // set new servo location
 void ServoBarrier::setServoPos(uint64_t pos)
 {
