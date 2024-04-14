@@ -3,7 +3,7 @@
 
 uint8_t servoPin = 26;
 uint8_t dummyLed = 69;
-auto servo = new ServoBarrier(servoPin, LED_BUILTIN, dummyLed, new Ultrasonic(1, 2));
+auto servo = new ServoBarrier(servoPin, 2, dummyLed, new Ultrasonic(1, 2));
 static Timer *timer = new Timer(SET_TIMER_IN_MS);
 
 void setup()

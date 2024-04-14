@@ -18,7 +18,7 @@ void callback(char *topic, uint8_t *payload, unsigned int length)
 
 //----------------------------------------------------------------
 
-Mqtt::Mqtt(char *ssid, char *password, char *ID, char *MqttUser, char *MqttPass)
+Mqtt::Mqtt(String ssid, String password, String ID, String MqttUser, String MqttPass)
     : ssid(ssid), password(password), BOT_ID(ID), MqttUser(MqttUser), MqttPass(MqttPass)
 {
     globalClient = client = new PubSubClient(espClient);
@@ -32,12 +32,12 @@ Mqtt::~Mqtt()
         delete client;
 }
 
-void Mqtt::connectMqtt(char *mqttHost, int mqttPort, void (*pubSub)(PubSubClient *client), void (*myCallBack)(PubSubClient *client, char *topic, char *message, unsigned int length))
+void Mqtt::connectMqtt(String mqttHost, int mqttPort, void (*pubSub)(PubSubClient *client), void (*myCallBack)(PubSubClient *client, char *topic, char *message, unsigned int length))
 {
     this->pubSub = pubSub;
     globalCallBack = myCallBack;
 
-    client->setServer(mqttHost, mqttPort);
+    client->setServer(mqttHost.c_str(), mqttPort);
     client->setCallback(callback);
 }
 
@@ -85,7 +85,7 @@ void Mqtt::reconnect()
         Serial.print("Attempting MQTT connection...");
 
         // Attempt to connect
-        if (client->connect(BOT_ID, MqttUser, MqttPass))
+        if (client->connect(BOT_ID.c_str(), MqttUser.c_str(), MqttPass.c_str()))
         {
             pubSub(client);
         }

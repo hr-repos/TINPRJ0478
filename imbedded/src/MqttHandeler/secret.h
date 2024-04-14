@@ -1,6 +1,6 @@
 #ifndef SECRET
-#define SECRET_SSID "tesla iot"
-#define SECRET_PASS "fsL6HgjN"
+#define SECRET_SSID "Kibi-iot"//"tesla iot"
+#define SECRET_PASS "SlimmeDingenInHuis"//"fsL6HgjN"
 
 #define MQTT_HOST   "mq.nl.eu.org"
 #define MQTT_PORT   8883               // Voer hier de MQTT-broker poort in op de aangegeven plek

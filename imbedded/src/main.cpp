@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include "MqttHandeler/MqttHandler.h"
 
 #define MSG_BUFFER_SIZE (50)
 
@@ -11,10 +12,13 @@ char msg[MSG_BUFFER_SIZE];
 
 void setup()
 {
-    pinMode(BUILTIN_LED, OUTPUT); // Initialize the BUILTIN_LED pin as an output
+    //pinMode(BUILTIN_LED, OUTPUT); // Initialize the BUILTIN_LED pin as an output
     Serial.begin(115200);
+
+    MqttSetup();
 }
 
 void loop()
 {
+    MqttLoop();
 }

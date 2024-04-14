@@ -20,6 +20,22 @@ auto stopLight = new StopLight(greenLedPin, orangeLedPin, redLedPin);
 
 auto servo = new ServoBarrier(asbServoPin, asbLed1Pin, asbLed2Pin, sonic);
 
+int charToInt(char ch)
+{
+    return ch - '0';
+}
+
+int charToInt(char* ch)
+{
+    return (*ch) - '0';
+}
+
+void publishAndLogMessage(String message, PubSubClient* client)
+{
+    client->publish(PUBLISH_TOPIC, message.c_str());
+    Serial.println(message);
+}
+
 void moveBarrier(bool pos)
 {
     pos ? servo->setLocationUp() : servo->setLocationDown();
@@ -43,29 +59,38 @@ void messageHandler(PubSubClient *client, char *topic, char *message, unsigned i
 
     if (strcmp(topic, SUBSCRIBE_TOPIC) == 0)
     {
-        moveBarrier(atoi(&message[0]));
+        bool isUp = charToInt(&message[0]);
+        moveBarrier(isUp);
 
-        String returnMessage = "Barrier is " + String((message[0] - '0' == 1) ? "up" : "down");
-        client->publish(PUBLISH_TOPIC, returnMessage.c_str());
-        Serial.println(returnMessage);
+        String returnMessage = "Barrier is " + String((isUp) ? "up" : "down");
+        publishAndLogMessage(returnMessage, client);
     }
 
     if (strcmp(topic, "vkl/groen") == 0)
     {
-        bool isOn = message[0] - '0';
+        bool isOn = charToInt(message[0]);
         stopLight->setLicht(green, isOn);
+
+        String returnMessage = "greenLed is " + String((isOn) ? "on" : "off");
+        publishAndLogMessage(returnMessage, client);
     }
 
     if (strcmp(topic, "vkl/oranje") == 0)
     {
-        bool isOn = message[0] - '0';
+        bool isOn = charToInt(message[0]);
         stopLight->setLicht(orange, isOn);
+
+        String returnMessage = "orangeLed is " + String((isOn) ? "on" : "off");
+        publishAndLogMessage(returnMessage, client);
     }
 
     if (strcmp(topic, "vkl/rood") == 0)
     {
-        bool isOn = message[0] - '0';
+        bool isOn = charToInt(message[0]);
         stopLight->setLicht(red, isOn);
+
+        String returnMessage = "redLed is " + String((isOn) ? "on" : "off");
+        publishAndLogMessage(returnMessage, client);
     }
 
     // Print out the message for debugging
@@ -76,9 +101,10 @@ void messageHandler(PubSubClient *client, char *topic, char *message, unsigned i
     }
 }
 
-void MqttSetUp()
+void MqttSetup()
 {
     servo->setLocationUp();
+
     MqttClient->connectMqtt(MQTT_HOST, MQTT_PORT, pubSub, messageHandler);
 }
 
@@ -91,6 +117,7 @@ void MqttLoop()
         delay(2000);
         MqttClient->reconnect();
     }
+
     client->loop();
     servo->callback();
 }

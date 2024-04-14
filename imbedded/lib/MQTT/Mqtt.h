@@ -14,12 +14,12 @@
 class Mqtt
 {
 private:
-    const char *BOT_ID;
-    const char *ssid;
-    const char *password;
+    const String BOT_ID;
+    const String ssid;
+    const String password;
 
-    const char *MqttUser;
-    const char *MqttPass;
+    const String MqttUser;
+    const String MqttPass;
 
     WiFiClient espClient;
     PubSubClient *client;
@@ -27,10 +27,10 @@ private:
     void (*pubSub)(PubSubClient *client);
 
 public:
-    Mqtt(char *ssid, char *password, char *ID, char *MqttUser, char *MqttPass);
+    Mqtt(String ssid, String password, String ID, String MqttUser, String MqttPass);
     ~Mqtt();
 
-    void connectMqtt(char *mqttServer, int mqttPort, void (*pubSub)(PubSubClient *client), void (*myCallBack)(PubSubClient *client, char *topic, char *message, unsigned int length));
+    void connectMqtt(String mqttServer, int mqttPort, void (*pubSub)(PubSubClient *client), void (*myCallBack)(PubSubClient *client, char *topic, char *message, unsigned int length));
     void printLocalTime();
     void reconnect();
 

@@ -12,4 +12,7 @@
 #include <PubSubClient.h>
 #include "ServoBarrier.h"
 
+void MqttSetup();
+void MqttLoop();
+
 #endif
