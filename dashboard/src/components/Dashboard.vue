@@ -75,21 +75,29 @@ export default {
   },
   methods: {
     toggleStoplicht(kleur, nummer) {
-  // Zet de oude kleur van het relevante stoplicht naar 0
-  if (this.stoplichtKleur[nummer] === 'rood' && kleur !== 'rood') {
-    this.publishMessage(`vkl${nummer}/rood`, '0');
-  } else if (this.stoplichtKleur[nummer] === 'oranje' && kleur !== 'oranje') {
-    this.publishMessage(`vkl${nummer}/oranje`, '0');
-  } else if (this.stoplichtKleur[nummer] === 'groen' && kleur !== 'groen') {
-    this.publishMessage(`vkl${nummer}/groen`, '0');
-  }
+  // Als de huidige kleur van het stoplicht gelijk is aan de geselecteerde kleur,
+  // zet deze dan op 0 (uit).
+  if (this.stoplichtKleur[nummer] === kleur) {
+    this.stoplichtKleur[nummer] = null;
+    this.publishMessage(`vkl${nummer}/${kleur}`, '0');
+  } else {
+    // Zet de oude kleur van het relevante stoplicht naar 0
+    if (this.stoplichtKleur[nummer] === 'rood') {
+      this.publishMessage(`vkl${nummer}/rood`, '0');
+    } else if (this.stoplichtKleur[nummer] === 'oranje') {
+      this.publishMessage(`vkl${nummer}/oranje`, '0');
+    } else if (this.stoplichtKleur[nummer] === 'groen') {
+      this.publishMessage(`vkl${nummer}/groen`, '0');
+    }
 
-  // Stel de kleur van het stoplicht in op de geselecteerde kleur
-  this.stoplichtKleur[nummer] = kleur;
-  const topic = `vkl${nummer}/${kleur}`;
-  const message = kleur ? '1' : '0';
-  this.publishMessage(topic, message);
+    // Stel de kleur van het stoplicht in op de geselecteerde kleur
+    this.stoplichtKleur[nummer] = kleur;
+    const topic = `vkl${nummer}/${kleur}`;
+    const message = kleur ? '1' : '0';
+    this.publishMessage(topic, message);
+  }
 }
+
 
 ,
     toggleSlagboom(nummer) {
