@@ -1,0 +1,17 @@
+{
+  "host": "test.mosquitto.org", //"mq.nl.eu.org",
+  "port": 8883,
+  "username": "connectedsystems",
+  "passord": "tincos",
+
+  "subscribe_topics": [
+    "topic/topic"
+  ],
+
+  "publish_topics": [
+    {
+      "topic": "topic/topic",
+      "message": "hello this is a test"
+    }
+  ]
+}

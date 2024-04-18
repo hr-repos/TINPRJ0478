@@ -9,16 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="LibUA" Version="1.0.1" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.4" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="..\.dockerignore" Link="Properties\.dockerignore" />
+    <PackageReference Include="MQTTnet" Version="4.3.3.952" />
   </ItemGroup>
 
 </Project>

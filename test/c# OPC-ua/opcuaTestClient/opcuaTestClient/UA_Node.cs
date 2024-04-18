@@ -1,4 +1,6 @@
-﻿using OpcLabs.EasyOpc.UA;
+﻿using Opc.Ua;
+using Opc.Ua.Gds;
+using OpcLabs.EasyOpc.UA;
 using OpcLabs.EasyOpc.UA.OperationModel;
 
 namespace opcuaTestClient
@@ -6,48 +8,52 @@ namespace opcuaTestClient
     public class UA_Node
     {
         public UAEndpointDescriptor Endpoint { get; set; }
-        public string NodeDescriptor { get; set; }
+        public string NodeDescriptor { get; private set; }
+        public string NamespaceID { get; set; }
 
-        public Dictionary<string/*Name*/, string/*ID*/> values { get; set; } = new();
+        public Dictionary<string/*Name*/, string/*ID*/> Values { get; set; } = new();
 
         public string this[string name] 
         {
             get
             {
-                return values[name];
+                return Values[name];
             }
 
             set
             {
-                values[name] = value;
+                Values[name] = MakeUA_ID(NamespaceID, value);
             } 
         }
 
-        public UA_Node(UAEndpointDescriptor endpoint, string nodeDescriptor)
+        public UA_Node(UAEndpointDescriptor endpoint, string namespaceID, string nodeID)
         {
             Endpoint = endpoint;
-            NodeDescriptor = nodeDescriptor;
+            NamespaceID = namespaceID;
+            NodeDescriptor = MakeUA_ID(namespaceID, nodeID);
         }
 
-        public UA_Node(UAEndpointDescriptor endpoint, string nodeDescriptor, Dictionary<string/*Name*/, string/*ID*/> values)
+        public UA_Node(UAEndpointDescriptor endpoint, string namespaceID, string nodeID, Dictionary<string/*Name*/, string/*ID*/> values)
         {
             Endpoint = endpoint;
-            NodeDescriptor = nodeDescriptor;
+            NamespaceID = namespaceID;
+            NodeDescriptor = MakeUA_ID(namespaceID, nodeID);
 
             foreach (string name in values.Keys)
             {
-                this.values[name] = values[name];
+                this.Values[name] = values[name];
             }
         }
 
-        public UA_Node(UAEndpointDescriptor endpoint, string nodeDescriptor, List<(string name, string ID)> values) 
+        public UA_Node(UAEndpointDescriptor endpoint, string namespaceID, string nodeID, List<(string name, string ID)> values) 
         {
             Endpoint = endpoint;
-            NodeDescriptor = nodeDescriptor;
+            NamespaceID = namespaceID;
+            NodeDescriptor = MakeUA_ID(namespaceID, nodeID);
 
             foreach ((string name, string ID) in values) 
             {
-                this.values[name] = ID;
+                this.Values[name] = ID;
             }
         }
 
@@ -57,7 +63,7 @@ namespace opcuaTestClient
 
             try
             {
-                value = client.ReadValue(Endpoint, values[ValueName]);
+                value = client.ReadValue(Endpoint, Values[ValueName]);
             }
             catch (UAException ex)
             {
@@ -71,7 +77,7 @@ namespace opcuaTestClient
         {
             try
             {
-                client.WriteValue(Endpoint, values[ValueName], value);
+                client.WriteValue(Endpoint, Values[ValueName], value);
             }
             catch (UAException ex)
             {
@@ -84,8 +90,17 @@ namespace opcuaTestClient
 
         public string? TryGetValueNameFromID(string ID)
         {
-            return values.FirstOrDefault(pair => pair.Value == ID).Key;
+            return Values.FirstOrDefault(pair => pair.Value == ID).Key;
         }
 
+        public string[] GetValueNames() 
+        {
+            return Values.Keys.ToArray();
+        }
+
+        private string MakeUA_ID(string namespaceID, string objID)
+        {
+            return string.Format("ns={0};s=\"{1}\"", namespaceID, objID);
+        }
     }
 }
