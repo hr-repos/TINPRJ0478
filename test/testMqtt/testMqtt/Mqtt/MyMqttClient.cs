@@ -69,6 +69,11 @@ namespace testMqtt.Mqtt
             await Publish(new(topic, message));
         }
 
+        public async Task Subscribe(string topic)
+        {
+            await mqttClient.SubscribeAsync(topic);
+        }
+
         private async Task SubscribeTopics(List<string> topics)
         {
             foreach(string topic in topics)
