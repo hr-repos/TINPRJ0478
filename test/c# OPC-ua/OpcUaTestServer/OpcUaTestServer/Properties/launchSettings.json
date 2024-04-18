@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "OpcUaTestServer": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}
