@@ -2,53 +2,34 @@
   <div class="dashboard">
     <h1>Dashboard</h1>
     <div class="controls">
-      
-      <!-- Eerste verkeerslicht controls -->
-      <button @click="toggleStoplicht('rood')" :class="{ 'on red': stoplichtKleur === 'rood' }">Rood</button>
-      <button @click="toggleStoplicht('oranje')" :class="{ 'on orange': stoplichtKleur === 'oranje' }">Oranje</button>
-      <button @click="toggleStoplicht('groen')" :class="{ 'on green': stoplichtKleur === 'groen' }">Groen</button>
-      
-      <!-- Tweede verkeerslicht controls -->
-      <h2>----------</h2>
-      <button @click="toggleStoplicht2('rood')" :class="{ 'on red': stoplichtKleur2 === 'rood' }">Rood</button>
-      <button @click="toggleStoplicht2('oranje')" :class="{ 'on orange': stoplichtKleur2 === 'oranje' }">Oranje</button>
-      <button @click="toggleStoplicht2('groen')" :class="{ 'on green': stoplichtKleur2 === 'groen' }">Groen</button>
-     
-      <!-- Slagboom controls -->
-      <h2>----------</h2>
-      <button @click="toggleSlagboom(1)" :class="{ 'on': slagboomStatus1 }">Slagboom 1: {{ slagboomStatus1 ? 'Open' : 'Gesloten' }}</button>
-      <button @click="toggleSlagboom(2)" :class="{ 'on': slagboomStatus2 }">Slagboom 2: {{ slagboomStatus2 ? 'Open' : 'Gesloten' }}</button>
-     
+      <!-- Verkeerslicht controls voor elke weg -->
+      <div v-for="i in 2" :key="'stoplicht' + i">
+        <h2>Verkeerslicht {{ i }}</h2>
+        <button @click="toggleStoplicht('rood', i)" :class="{ 'on red': stoplichtKleur[i] === 'rood' }">Rood</button>
+        <button @click="toggleStoplicht('oranje', i)" :class="{ 'on orange': stoplichtKleur[i] === 'oranje' }">Oranje</button>
+        <button @click="toggleStoplicht('groen', i)" :class="{ 'on green': stoplichtKleur[i] === 'groen' }">Groen</button>
+        
+        <!-- Verkeerslichten -->
+        <div class="stoplicht">
+          <div class="stoplicht-container">
+            <div class="stoplicht-light red" :class="{ 'on': stoplichtKleur[i] === 'rood' }"></div>
+            <div class="stoplicht-light orange" :class="{ 'on': stoplichtKleur[i] === 'oranje' }"></div>
+            <div class="stoplicht-light green" :class="{ 'on': stoplichtKleur[i] === 'groen' }"></div>
+          </div>
+        </div>
+        
+        <!-- Slagboom control -->
+        <button @click="toggleSlagboom(i)" :class="{ 'on': slagboomStatus[i] }">Slagboom {{ i }}: {{ slagboomStatus[i] ? 'Open' : 'Gesloten' }}</button>
+      </div>
       <!-- Resetknop -->
       <h2>----------</h2>
       <button @click="resetAlles">Reset</button>
-
-    </div>
-    <!-- Eerste verkeerslicht indicator -->
-    <div class="stoplicht">
-      <h2>Verkeerslicht</h2>
-      <div class="stoplicht-container">
-        <div class="stoplicht-light red" :class="{ 'on': stoplichtKleur === 'rood' }"></div>
-        <div class="stoplicht-light orange" :class="{ 'on': stoplichtKleur === 'oranje' }"></div>
-        <div class="stoplicht-light green" :class="{ 'on': stoplichtKleur === 'groen' }"></div>
-      </div>
-    </div>
-    <!-- Tweede verkeerslicht indicator -->
-    <div class="stoplicht">
-      <h2>Tweede Verkeerslicht</h2>
-      <div class="stoplicht-container">
-        <div class="stoplicht-light red" :class="{ 'on': stoplichtKleur2 === 'rood' }"></div>
-        <div class="stoplicht-light orange" :class="{ 'on': stoplichtKleur2 === 'oranje' }"></div>
-        <div class="stoplicht-light green" :class="{ 'on': stoplichtKleur2 === 'groen' }"></div>
-      </div>
     </div>
     <div class="situatie-overzicht">
       <h2>Situatieoverzicht</h2>
       <ul>
-        <li>Stoplichtkleur: {{ stoplichtKleur || 'Uit' }}</li>
-        <li>Tweede Stoplichtkleur: {{ stoplichtKleur2 || 'Uit' }}</li>
-        <li>Afsluitboom 1: {{ slagboomStatus1 ? 'Open' : 'Gesloten' }}</li>
-        <li>Afsluitboom 2: {{ slagboomStatus2 ? 'Open' : 'Gesloten' }}</li>
+        <li v-for="i in 2" :key="'situatie' + i">Stoplichtkleur {{ i }}: {{ stoplichtKleur[i] || 'Uit' }}</li>
+        <li v-for="i in 2" :key="'slagboom' + i">Afsluitboom {{ i }}: {{ slagboomStatus[i] ? 'Open' : 'Gesloten' }}</li>
         <li>Verkeersintensiteit: {{ verkeersintensiteit }}</li>
       </ul>
     </div>
@@ -62,40 +43,32 @@ export default {
   name: 'Dashboard',
   data() {
     return {
-      stoplichtKleur: null,
-      stoplichtKleur2: null,
-      slagboomStatus1: false,
-      slagboomStatus2: false,
+      stoplichtKleur: {},
+      slagboomStatus: {},
       verkeersintensiteit: 'laag',
     };
   },
   methods: {
-    toggleStoplicht(kleur) {
-      this.stoplichtKleur = this.stoplichtKleur === kleur ? null : kleur;
-      const topic = `vkl/${kleur}`;
-      const message = this.stoplichtKleur ? '1' : '0';
-      this.publishMessage(topic, message);
-    },
-    toggleStoplicht2(kleur) {
-      this.stoplichtKleur2 = this.stoplichtKleur2 === kleur ? null : kleur;
-      const topic = `vkl2/${kleur}`;
-      const message = this.stoplichtKleur2 ? '1' : '0';
+    toggleStoplicht(kleur, nummer) {
+      this.stoplichtKleur[nummer] = this.stoplichtKleur[nummer] === kleur ? null : kleur;
+      const topic = `vkl${nummer}/${kleur}`;
+      const message = this.stoplichtKleur[nummer] ? '1' : '0';
       this.publishMessage(topic, message);
     },
     toggleSlagboom(nummer) {
-      this[`slagboomStatus${nummer}`] = !this[`slagboomStatus${nummer}`];
+      this.slagboomStatus[nummer] = !this.slagboomStatus[nummer];
       const topic = `asb/${nummer}`;
-      const message = this[`slagboomStatus${nummer}`] ? '1' : '0';
+      const message = this.slagboomStatus[nummer] ? '1' : '0';
       this.publishMessage(topic, message);
     },
     resetAlles() {
-      this.stoplichtKleur = null;
-      this.stoplichtKleur2 = null;
-      this.slagboomStatus1 = false;
-      this.slagboomStatus2 = false;
+      this.stoplichtKleur = {};
+      this.slagboomStatus = {};
       this.verkeersintensiteit = 'laag';
-      const topics = ['vkl/rood', 'vkl/oranje', 'vkl/groen', 'vkl2/rood', 'vkl2/oranje', 'vkl2/groen', 'asb/1', 'asb/2'];
-      topics.forEach(topic => this.publishMessage(topic, '0'));
+      for (let i = 1; i <= 2; i++) {
+        const topics = [`vkl${i}/rood`, `vkl${i}/oranje`, `vkl${i}/groen`, `asb/${i}`];
+        topics.forEach(topic => this.publishMessage(topic, '0'));
+      }
     },
     publishMessage(topic, message) {
       client.publish(topic, message, {qos: 1}, (error) => {
@@ -194,5 +167,20 @@ export default {
 .situatie-overzicht li {
   margin-bottom: 10px;
   font-size: 14px;
+}
+
+/* Autoweg toevoeging */
+.autoweg {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.auto {
+  width: 60px;
+  height: 30px;
+  background-color: #34495e; /* bijvoorbeeld */
+  margin-bottom: 10px;
 }
 </style>
