@@ -2,42 +2,67 @@
   <div class="dashboard">
     <h1>Dashboard</h1>
     <div class="controls">
-      <!-- Verkeerslicht controls voor elke weg -->
-      <div v-for="i in 2" :key="'stoplicht' + i">
-        <h2>Verkeerslicht {{ i }}</h2>
-        <button @click="toggleStoplicht('rood', i)" :class="{ 'on red': stoplichtKleur[i] === 'rood' }">Rood</button>
-        <button @click="toggleStoplicht('oranje', i)" :class="{ 'on orange': stoplichtKleur[i] === 'oranje' }">Oranje</button>
-        <button @click="toggleStoplicht('groen', i)" :class="{ 'on green': stoplichtKleur[i] === 'groen' }">Groen</button>
-        
-        <!-- Verkeerslichten -->
-        <div class="stoplicht">
-          <div class="stoplicht-container">
-            <div class="stoplicht-light red" :class="{ 'on': stoplichtKleur[i] === 'rood' }"></div>
-            <div class="stoplicht-light orange" :class="{ 'on': stoplichtKleur[i] === 'oranje' }"></div>
-            <div class="stoplicht-light green" :class="{ 'on': stoplichtKleur[i] === 'groen' }"></div>
-          </div>
+      <!-- Verkeerslicht en slagboom controls voor de eerste weg -->
+      <div class="verkeerslicht-controls">
+        <h2>Verkeerslichten en slagbomen voor weg 1</h2>
+        <!-- Stoplicht 1 controls -->
+        <div class="stoplicht-control">
+          <h3>Stoplicht 1</h3>
+          <button @click="toggleStoplicht('rood', 1)" :class="{ 'on': stoplichtKleur[1] === 'rood', 'red': true }">Rood</button>
+          <button @click="toggleStoplicht('oranje', 1)" :class="{ 'on': stoplichtKleur[1] === 'oranje', 'orange': true }">Oranje</button>
+          <button @click="toggleStoplicht('groen', 1)" :class="{ 'on': stoplichtKleur[1] === 'groen', 'green': true }">Groen</button>
         </div>
-        
-        <!-- Slagboom control -->
-        <button @click="toggleSlagboom(i)" :class="{ 'on': slagboomStatus[i] }">Slagboom {{ i }}: {{ slagboomStatus[i] ? 'Open' : 'Gesloten' }}</button>
+        <!-- Stoplicht 2 controls -->
+        <div class="stoplicht-control">
+          <h3>Stoplicht 2</h3>
+          <button @click="toggleStoplicht('rood', 2)" :class="{ 'on': stoplichtKleur[2] === 'rood', 'red': true }">Rood</button>
+          <button @click="toggleStoplicht('oranje', 2)" :class="{ 'on': stoplichtKleur[2] === 'oranje', 'orange': true }">Oranje</button>
+          <button @click="toggleStoplicht('groen', 2)" :class="{ 'on': stoplichtKleur[2] === 'groen', 'green': true }">Groen</button>
+        </div>
+        <!-- Slagbomen controls -->
+        <div class="slagboom-controls">
+          <h3>Slagbomen voor weg 1</h3>
+          <button @click="toggleSlagboom(1)" :class="{ 'on': slagboomStatus[1] }">Slagboom 1: {{ slagboomStatus[1] ? 'Open' : 'Gesloten' }}</button>
+          <button @click="toggleSlagboom(2)" :class="{ 'on': slagboomStatus[2] }">Slagboom 2: {{ slagboomStatus[2] ? 'Open' : 'Gesloten' }}</button>
+        </div>
       </div>
       <!-- Resetknop -->
-      <h2>----------</h2>
       <button @click="resetAlles">Reset</button>
     </div>
+    
     <div class="situatie-overzicht">
       <h2>Situatieoverzicht</h2>
       <ul>
-        <li v-for="i in 2" :key="'situatie' + i">Stoplichtkleur {{ i }}: {{ stoplichtKleur[i] || 'Uit' }}</li>
-        <li v-for="i in 2" :key="'slagboom' + i">Afsluitboom {{ i }}: {{ slagboomStatus[i] ? 'Open' : 'Gesloten' }}</li>
-        <li>Verkeersintensiteit: {{ verkeersintensiteit }}</li>
+        <li>Stoplicht 1 kleur: {{ stoplichtKleur[1] || 'Uit' }}</li>
+        <li>Stoplicht 2 kleur: {{ stoplichtKleur[2] || 'Uit' }}</li>
+        <li>Slagboom 1: {{ slagboomStatus[1] ? 'Open' : 'Gesloten' }}</li>
+        <li>Slagboom 2: {{ slagboomStatus[2] ? 'Open' : 'Gesloten' }}</li>
       </ul>
+    </div>
+
+    <!-- Wegen met verkeerslichten en slagbomen -->
+    <div class="autoweg-container">
+      <!-- Eerste weg met stoplichten en slagbomen -->
+      <div class="weg-representatie">
+        <div class="stoplichten-en-slagbomen">
+          <div class="stoplicht" :class="{ 'on': stoplichtKleur[1] === 'rood', 'red': true }"></div>
+          <div class="stoplicht" :class="{ 'on': stoplichtKleur[1] === 'oranje', 'orange': true }"></div>
+          <div class="stoplicht" :class="{ 'on': stoplichtKleur[1] === 'groen', 'green': true }"></div>
+          <div class="slagboom" :class="{ 'on': slagboomStatus[1] }"></div>
+          <div class="stoplicht" :class="{ 'on': stoplichtKleur[2] === 'rood', 'red': true }"></div>
+          <div class="stoplicht" :class="{ 'on': stoplichtKleur[2] === 'oranje', 'orange': true }"></div>
+          <div class="stoplicht" :class="{ 'on': stoplichtKleur[2] === 'groen', 'green': true }"></div>
+          <div class="slagboom" :class="{ 'on': slagboomStatus[2] }"></div>
+        </div>
+      </div>
+      <!-- Tweede weg zonder stoplichten en slagbomen -->
+      <div class="weg-representatie"></div>
     </div>
   </div>
 </template>
 
 <script>
-import client from "@/assets/mqtt.js"; // Zorg dat dit pad klopt voor jouw projectstructuur
+import client from "@/assets/mqtt.js";
 
 export default {
   name: 'Dashboard',
@@ -50,11 +75,23 @@ export default {
   },
   methods: {
     toggleStoplicht(kleur, nummer) {
-      this.stoplichtKleur[nummer] = this.stoplichtKleur[nummer] === kleur ? null : kleur;
-      const topic = `vkl${nummer}/${kleur}`;
-      const message = this.stoplichtKleur[nummer] ? '1' : '0';
-      this.publishMessage(topic, message);
-    },
+  // Zet de oude kleur van het relevante stoplicht naar 0
+  if (this.stoplichtKleur[nummer] === 'rood' && kleur !== 'rood') {
+    this.publishMessage(`vkl${nummer}/rood`, '0');
+  } else if (this.stoplichtKleur[nummer] === 'oranje' && kleur !== 'oranje') {
+    this.publishMessage(`vkl${nummer}/oranje`, '0');
+  } else if (this.stoplichtKleur[nummer] === 'groen' && kleur !== 'groen') {
+    this.publishMessage(`vkl${nummer}/groen`, '0');
+  }
+
+  // Stel de kleur van het stoplicht in op de geselecteerde kleur
+  this.stoplichtKleur[nummer] = kleur;
+  const topic = `vkl${nummer}/${kleur}`;
+  const message = kleur ? '1' : '0';
+  this.publishMessage(topic, message);
+}
+
+,
     toggleSlagboom(nummer) {
       this.slagboomStatus[nummer] = !this.slagboomStatus[nummer];
       const topic = `asb/${nummer}`;
@@ -62,12 +99,15 @@ export default {
       this.publishMessage(topic, message);
     },
     resetAlles() {
-      this.stoplichtKleur = {};
-      this.slagboomStatus = {};
-      this.verkeersintensiteit = 'laag';
       for (let i = 1; i <= 2; i++) {
-        const topics = [`vkl${i}/rood`, `vkl${i}/oranje`, `vkl${i}/groen`, `asb/${i}`];
-        topics.forEach(topic => this.publishMessage(topic, '0'));
+        this.stoplichtKleur[i] = null; // Reset de kleur van de stoplichten naar null
+        this.slagboomStatus[i] = false; // Sluit de slagbomen
+        // Stuur resetbericht naar slagbomen van weg 'i'
+        this.publishMessage(`asb/${i}`, '0');
+        // Stuur berichten om de kleur van de stoplichten op nul te zetten
+        this.publishMessage(`vkl${i}/rood`, '0');
+        this.publishMessage(`vkl${i}/oranje`, '0');
+        this.publishMessage(`vkl${i}/groen`, '0');
       }
     },
     publishMessage(topic, message) {
@@ -177,10 +217,211 @@ export default {
   align-items: flex-end;
 }
 
-.auto {
-  width: 60px;
-  height: 30px;
-  background-color: #34495e; /* bijvoorbeeld */
-  margin-bottom: 10px;
+.weg-representatie {
+  background-color: #333; /* Donkergrijs voor het asfalt */
+  height: 100px; /* De hoogte van de weg */
+  width: 100%; /* Volledige breedte */
+  margin-bottom: 15px; /* Ruimte tussen de wegen */
+  position: relative;
+}
+
+.weg-representatie::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: repeating-linear-gradient(
+    to right,
+    #fff,
+    #fff 10px,
+    #333 10px,
+    #333 20px /* Breedte van de stippellijnen */
+  );
+  transform: translateY(-50%);
+}
+
+.stoplichten-en-slagbomen {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  height: 100%;
+}
+
+.stoplicht {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  margin: 2px;
+  background-color: #222; /* Uit-stand */
+}
+
+.red.on {
+  background-color: red;
+}
+
+.orange.on {
+  background-color: orange;
+}
+
+.green.on {
+  background-color: green;
+}
+
+.slagboom {
+  width: 40px;
+  height: 5px;
+  background-color: #222; /* Uit-stand */
+}
+
+.slagboom.on {
+  background-color: #2ecc71; /* Groen voor open */
+}
+/* Stijlen voor de autoweg-container en de weg-representatie */
+.autoweg-container {
+  margin-top: 20px;
+  position: relative;
+}
+
+.weg-representatie {
+  background-color: #333; /* Donkergrijs voor het asfalt */
+  height: 60px; /* De hoogte van de weg */
+  width: 100%; /* Volledige breedte */
+  margin-bottom: 20px; /* Ruimte tussen de wegen */
+}
+
+/* Stijlen voor de verkeerslichten en slagbomen op de weg */
+.stoplichten-en-slagbomen {
+  position: absolute;
+  width: 100%;
+  top: 50%;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  transform: translateY(-50%);
+}
+
+.stoplicht {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  margin: 0 5px;
+  background-color: #555; /* Kleur wanneer het licht uit staat */
+  border: 2px solid #333; /* Rand om de verkeerslichten te benadrukken */
+}
+
+.red.on {
+  background-color: red; /* Rood licht aan */
+}
+
+.orange.on {
+  background-color: orange; /* Oranje licht aan */
+}
+
+.green.on {
+  background-color: green; /* Groen licht aan */
+}
+
+.slagboom {
+  width: 50px;
+  height: 10px;
+  background-color: #555; /* Kleur wanneer de slagboom gesloten is */
+  border: 2px solid #333; /* Rand om de slagbomen te benadrukken */
+}
+
+.slagboom.on {
+  background-color: #2ecc71; /* Groene kleur wanneer de slagboom open is */
+}
+
+/* Wegmarkeringen toevoegen */
+.weg-representatie::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: repeating-linear-gradient(
+    to right,
+    #fff,
+    #fff 10px,
+    #333 10px,
+    #333 20px /* Breedte van de stippellijnen */
+  );
+  transform: translateY(-50%);
+}
+/* Stijlen voor de autoweg-container en de weg-representatie */
+.autoweg-container {
+  margin-top: 20px;
+  position: relative;
+}
+
+.weg-representatie {
+  background-color: #333; /* Donkergrijs voor het asfalt */
+  height: 100px; /* De hoogte van de weg */
+  width: 100%; /* Volledige breedte */
+  margin-bottom: 20px; /* Ruimte tussen de wegen */
+}
+
+/* Stijlen voor de verkeerslichten en slagbomen op de weg */
+.stoplichten-en-slagbomen {
+  position: absolute;
+  width: 100%;
+  top: 50%;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  transform: translateY(-50%);
+}
+
+.stoplicht {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  margin: 0 5px;
+  background-color: #555; /* Kleur wanneer het licht uit staat */
+  border: 2px solid #333; /* Rand om de verkeerslichten te benadrukken */
+}
+
+.red.on {
+  background-color: red; /* Rood licht aan */
+}
+
+.orange.on {
+  background-color: orange; /* Oranje licht aan */
+}
+
+.green.on {
+  background-color: green; /* Groen licht aan */
+}
+
+.slagboom {
+  width: 50px;
+  height: 10px;
+  background-color: #555; /* Kleur wanneer de slagboom gesloten is */
+  border: 2px solid #333; /* Rand om de slagbomen te benadrukken */
+}
+
+.slagboom.on {
+  background-color: #2ecc71; /* Groene kleur wanneer de slagboom open is */
+}
+
+/* Wegmarkeringen toevoegen */
+.weg-representatie::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: repeating-linear-gradient(
+    to right,
+    #fff,
+    #fff 10px,
+    #333 10px,
+    #333 20px /* Breedte van de stippellijnen */
+  );
+  transform: translateY(-50%);
 }
 </style>
