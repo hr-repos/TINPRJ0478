@@ -1,12 +1,15 @@
 #include <Arduino.h>
+#include <Arduino.h>
 #include <WiFi.h>
 #include <PubSubClient.h>
 #include <time.h>
 #include "./secret.h"
 #include "ServoBarrier.h"
 #include "Ultrasonic.h"
-#define PUBLISHTOPIC "data/asb1"
-#define SUBSCRIBETOPIC "asb/1"
+#define MESSAGE_TOPIC "asb/1/messages"
+#define ASB_FORCED_TOPIC "asb/1/forced"
+#define ASB_STANDARD_TOPIC "asb/1/standard"
+#define LANE_WIDTH_CM 10
 
 const char* BOT_ID = "1";
 
@@ -28,6 +31,7 @@ uint8_t asbServoPin = 26;
 uint8_t asbLedPin = LED_BUILTIN;
 // ServoBarrier servo(asbServoPin, asbLedPin);
 auto servo = new ServoBarrier(asbServoPin, asbLedPin);
+auto ultrasoon = new Ultrasonic(13, 12);
 
 void setup_wifi() {
     delay(10);
@@ -73,19 +77,33 @@ void callback(char* topic, byte* payload, unsigned int length) {
     // for debugging
     // Serial.printf("Message arrived [%s] %s\n", topic, message);
 
-    // expects X:Y:Z where X, Y, Z is a number
-    if (strcmp(topic, SUBSCRIBETOPIC) == 0) {
+    if (strcmp(topic, ASB_STANDARD_TOPIC) == 0) {
+        if (ultrasonic->readUltrasonic_cm() < LANE_WIDTH_CM) {
+            String returnMessage = "Object detected in lane, barrier cannot be moved.";
+            client.publish(MESSAGE_TOPIC, returnMessage.c_str());
+            Serial.println(returnMessage);
+            return;
+        }
+        
         moveBarrier(atoi(&message[0]));
 
         String returnMessage = "Barrier is " + String((message[0]- '0' == 1) ? "up" : "down");
-        client.publish(PUBLISHTOPIC, returnMessage.c_str());
+        client.publish(MESSAGE_TOPIC, returnMessage.c_str());
+        Serial.println(returnMessage);
+    }
+
+    if (strcmp(topic, ASB_FORCED_TOPIC) == 0) {
+        moveBarrier(atoi(&message[0]));
+
+        String returnMessage = "Barrier is " + String((message[0]- '0' == 1) ? "up" : "down");
+        client.publish(MESSAGE_TOPIC, returnMessage.c_str());
         Serial.println(returnMessage);
     }
 
     // Print out the message for debugging
     if (strcmp(message, "test") == 0) {
         Serial.println("Test message received");
-        client.publish(PUBLISHTOPIC, "Test message received");
+        client.publish(MESSAGE_TOPIC, "Test message received");
     }
 }
 
@@ -99,10 +117,11 @@ void reconnect() {
             Serial.println("connected");
 
             // Once connected, publish an announcement...
-            client.publish(PUBLISHTOPIC, "Bot connected!");
+            client.publish(MESSEAGE_TOPIC, "Bot connected!");
 
             // ... and resubscribe
-            client.subscribe(SUBSCRIBETOPIC);
+            client.subscribe(ASB_FORCED_TOPIC);
+            client.subscribe(ASB_STANDARD_TOPIC);
         } else {
             Serial.print("failed, rc=");
             Serial.print(client.state());
