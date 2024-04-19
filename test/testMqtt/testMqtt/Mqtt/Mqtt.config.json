@@ -2,7 +2,7 @@
   "host": "mq.nl.eu.org", 
   "port": 8883,
   "username": "connectedsystems",
-  "passord": "tincos",
+  "password": "tincos",
 
   "subscribe_topics": [
     "topic/topic"

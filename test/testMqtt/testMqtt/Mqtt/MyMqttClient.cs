@@ -22,23 +22,23 @@ namespace testMqtt.Mqtt
             StreamReader sr = new(configPath);
             string jsonStr = sr.ReadToEnd();
 
-            //MqttConfig? json = JsonSerializer.Deserialize<MqttConfig>(jsonStr);
-            MqttConfig? json = new()
-            {
-                Host = "mq.nl.eu.org",
-                Port = 8883,
-                Username = "connectedsystems",
-                Password = "tincos",
-                Subscribe_topics = new List<string>()
-                {
-                    "topic/topic"
-                },
-                Publish_topics = new List<PublishInfo>()
-                {
-                    new("topic/topic", "this is a test")
-                }
+            MqttConfig? json = JsonSerializer.Deserialize<MqttConfig>(jsonStr);
+            //MqttConfig? json = new()
+            //{
+            //    Host = "mq.nl.eu.org",
+            //    Port = 8883,
+            //    Username = "connectedsystems",
+            //    Password = "tincos",
+            //    Subscribe_topics = new List<string>()
+            //    {
+            //        "topic/topic"
+            //    },
+            //    Publish_topics = new List<PublishInfo>()
+            //    {
+            //        new("topic/topic", "this is a test")
+            //    }
 
-            };
+            //};
 
 
             if (json == null) 
@@ -78,7 +78,7 @@ namespace testMqtt.Mqtt
 
         public async Task<bool> Connect()
         {
-            return await Connect("Mqtt.config.json");
+            return await Connect(@"Mqtt\Mqtt.config.json");
         }
 
         public async Task Publish(string topic, string message)
