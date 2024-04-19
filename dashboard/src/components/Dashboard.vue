@@ -96,10 +96,9 @@ export default {
     const message = kleur ? '1' : '0';
     this.publishMessage(topic, message);
   }
-}
+},
 
 
-,
     toggleSlagboom(nummer) {
       this.slagboomStatus[nummer] = !this.slagboomStatus[nummer];
       const topic = `asb/${nummer}`;
