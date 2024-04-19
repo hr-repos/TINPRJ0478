@@ -134,14 +134,18 @@ export default {
 <style scoped>
 .dashboard {
   background-color: #fff;
-  border-radius: 12px;
+  border-radius: 40px;
   box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.1);
-  width: 500px;
+  width: 600px;
   padding: 25px;
   box-sizing: border-box;
   color: #2c3e50;
 }
 .controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
   margin-bottom: 30px;
 }
 .controls button {
