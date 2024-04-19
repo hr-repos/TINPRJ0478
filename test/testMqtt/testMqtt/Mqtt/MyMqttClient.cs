@@ -22,9 +22,26 @@ namespace testMqtt.Mqtt
             StreamReader sr = new(configPath);
             string jsonStr = sr.ReadToEnd();
 
-            MqttConfig? json = JsonSerializer.Deserialize<MqttConfig>(jsonStr);
+            //MqttConfig? json = JsonSerializer.Deserialize<MqttConfig>(jsonStr);
+            MqttConfig? json = new()
+            {
+                Host = "mq.nl.eu.org",
+                Port = 8883,
+                Username = "connectedsystems",
+                Password = "tincos",
+                Subscribe_topics = new List<string>()
+                {
+                    "topic/topic"
+                },
+                Publish_topics = new List<PublishInfo>()
+                {
+                    new("topic/topic", "this is a test")
+                }
 
-            if (json == null)
+            };
+
+
+            if (json == null) 
             {
                 //!! log
                 return false;

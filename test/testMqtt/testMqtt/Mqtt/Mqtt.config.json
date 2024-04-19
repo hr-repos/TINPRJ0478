@@ -1,5 +1,5 @@
 {
-  "host": "test.mosquitto.org", //"mq.nl.eu.org",
+  "host": "mq.nl.eu.org", 
   "port": 8883,
   "username": "connectedsystems",
   "passord": "tincos",

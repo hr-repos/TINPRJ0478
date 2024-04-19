@@ -14,4 +14,10 @@
     <PackageReference Include="Serilog" Version="3.1.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Mqtt\Mqtt.config.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
