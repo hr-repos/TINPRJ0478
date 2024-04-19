@@ -134,9 +134,9 @@ export default {
 <style scoped>
 .dashboard {
   background-color: #fff;
-  border-radius: 40px;
+  border-radius: 50px;
   box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.1);
-  width: 600px;
+  width: 700px;
   padding: 25px;
   box-sizing: border-box;
   color: #2c3e50;
@@ -221,129 +221,13 @@ export default {
   font-size: 14px;
 }
 
-/* Autoweg toevoeging */
-.autoweg {
-  margin-top: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-}
-
+/* Algemene container voor de weg */
 .weg-representatie {
   background-color: #333; /* Donkergrijs voor het asfalt */
-  height: 100px; /* De hoogte van de weg */
-  width: 100%; /* Volledige breedte */
-  margin-bottom: 15px; /* Ruimte tussen de wegen */
-  position: relative;
-}
-
-.weg-representatie::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: repeating-linear-gradient(
-    to right,
-    #fff,
-    #fff 10px,
-    #333 10px,
-    #333 20px /* Breedte van de stippellijnen */
-  );
-  transform: translateY(-50%);
-}
-
-.stoplichten-en-slagbomen {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  height: 100%;
-}
-
-.stoplicht {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  margin: 2px;
-  background-color: #222; /* Uit-stand */
-}
-
-.red.on {
-  background-color: red;
-}
-
-.orange.on {
-  background-color: orange;
-}
-
-.green.on {
-  background-color: green;
-}
-
-.slagboom {
-  width: 40px;
-  height: 5px;
-  background-color: #222; /* Uit-stand */
-}
-
-.slagboom.on {
-  background-color: #2ecc71; /* Groen voor open */
-}
-/* Stijlen voor de autoweg-container en de weg-representatie */
-.autoweg-container {
-  margin-top: 20px;
-  position: relative;
-}
-
-.weg-representatie {
-  background-color: #333; /* Donkergrijs voor het asfalt */
-  height: 60px; /* De hoogte van de weg */
+  height: 150px; /* De hoogte van de weg */
   width: 100%; /* Volledige breedte */
   margin-bottom: 20px; /* Ruimte tussen de wegen */
-}
-
-/* Stijlen voor de verkeerslichten en slagbomen op de weg */
-.stoplichten-en-slagbomen {
-  position: absolute;
-  width: 100%;
-  top: 50%;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  transform: translateY(-50%);
-}
-
-.stoplicht {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  margin: 0 5px;
-  background-color: #555; /* Kleur wanneer het licht uit staat */
-  border: 2px solid #333; /* Rand om de verkeerslichten te benadrukken */
-}
-
-.red.on {
-  background-color: red; /* Rood licht aan */
-}
-
-.orange.on {
-  background-color: orange; /* Oranje licht aan */
-}
-
-.green.on {
-  background-color: green; /* Groen licht aan */
-}
-
-.slagboom {
-  width: 50px;
-  height: 10px;
-  background-color: #555; /* Kleur wanneer de slagboom gesloten is */
-  border: 2px solid #333; /* Rand om de slagbomen te benadrukken */
-}
-
-.slagboom.on {
-  background-color: #2ecc71; /* Groene kleur wanneer de slagboom open is */
+  position: relative;
 }
 
 /* Wegmarkeringen toevoegen */
@@ -363,30 +247,28 @@ export default {
   );
   transform: translateY(-50%);
 }
-/* Stijlen voor de autoweg-container en de weg-representatie */
-.autoweg-container {
-  margin-top: 20px;
-  position: relative;
-}
 
-.weg-representatie {
-  background-color: #333; /* Donkergrijs voor het asfalt */
-  height: 100px; /* De hoogte van de weg */
-  width: 100%; /* Volledige breedte */
-  margin-bottom: 20px; /* Ruimte tussen de wegen */
-}
-
-/* Stijlen voor de verkeerslichten en slagbomen op de weg */
-.stoplichten-en-slagbomen {
+/* Verkeerslichten en slagbomen boven de weg */
+.stoplichten-boven {
   position: absolute;
   width: 100%;
-  top: 50%;
+  top: 40%; /* Iets lager voor visuele balans */
   display: flex;
   justify-content: space-around;
   align-items: center;
-  transform: translateY(-50%);
 }
 
+/* Verkeerslichten en slagbomen onder de weg */
+.stoplichten-onder {
+  position: absolute;
+  width: 100%;
+  bottom: 40%; /* Iets hoger voor visuele balans */
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+/* Stijlen voor de verkeerslichten */
 .stoplicht {
   width: 24px;
   height: 24px;
@@ -396,44 +278,24 @@ export default {
   border: 2px solid #333; /* Rand om de verkeerslichten te benadrukken */
 }
 
-.red.on {
-  background-color: red; /* Rood licht aan */
-}
+.red.on { background-color: red; }
+.orange.on { background-color: orange; }
+.green.on { background-color: green; }
 
-.orange.on {
-  background-color: orange; /* Oranje licht aan */
-}
-
-.green.on {
-  background-color: green; /* Groen licht aan */
-}
-
+/* Stijlen voor de slagbomen */
 .slagboom {
   width: 50px;
   height: 10px;
   background-color: #555; /* Kleur wanneer de slagboom gesloten is */
   border: 2px solid #333; /* Rand om de slagbomen te benadrukken */
+  position: absolute; 
+  right: 50%; 
+  transform: translateX(-50%); 
 }
 
 .slagboom.on {
-  background-color: #2ecc71; /* Groene kleur wanneer de slagboom open is */
+  background-color: #2ecc71; 
 }
 
-/* Wegmarkeringen toevoegen */
-.weg-representatie::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: repeating-linear-gradient(
-    to right,
-    #fff,
-    #fff 10px,
-    #333 10px,
-    #333 20px /* Breedte van de stippellijnen */
-  );
-  transform: translateY(-50%);
-}
+
 </style>
