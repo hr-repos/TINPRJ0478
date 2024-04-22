@@ -22,7 +22,12 @@ namespace testMqtt.Mqtt
             StreamReader sr = new(configPath);
             string jsonStr = sr.ReadToEnd();
 
-            MqttConfig? json = JsonSerializer.Deserialize<MqttConfig>(jsonStr);
+            JsonSerializerOptions option = new()
+            {
+                PropertyNameCaseInsensitive = true
+            };
+           
+            MqttConfig? json = JsonSerializer.Deserialize<MqttConfig>(jsonStr, option);
             //MqttConfig? json = new()
             //{
             //    Host = "mq.nl.eu.org",
