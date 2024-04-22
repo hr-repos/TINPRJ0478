@@ -4,24 +4,24 @@
     <div class="controls">
       <!-- Verkeerslicht en slagboom controls voor de eerste weg -->
       <div class="verkeerslicht-controls">
-        <h2>Verkeerslichten en slagbomen voor weg 1</h2>
+        <h2>Verkeerslichten en slagbomen</h2>
         <!-- Stoplicht 1 controls -->
         <div class="stoplicht-control">
-          <h3>Stoplicht 1</h3>
+          <h3>Verkeerslicht 1</h3>
           <button @click="toggleStoplicht('rood', 1)" :class="{ 'on': stoplichtKleur[1] === 'rood', 'red': true }">Rood</button>
           <button @click="toggleStoplicht('oranje', 1)" :class="{ 'on': stoplichtKleur[1] === 'oranje', 'orange': true }">Oranje</button>
           <button @click="toggleStoplicht('groen', 1)" :class="{ 'on': stoplichtKleur[1] === 'groen', 'green': true }">Groen</button>
         </div>
         <!-- Stoplicht 2 controls -->
         <div class="stoplicht-control">
-          <h3>Stoplicht 2</h3>
+          <h3>Verkeerslicht 1</h3>
           <button @click="toggleStoplicht('rood', 2)" :class="{ 'on': stoplichtKleur[2] === 'rood', 'red': true }">Rood</button>
           <button @click="toggleStoplicht('oranje', 2)" :class="{ 'on': stoplichtKleur[2] === 'oranje', 'orange': true }">Oranje</button>
           <button @click="toggleStoplicht('groen', 2)" :class="{ 'on': stoplichtKleur[2] === 'groen', 'green': true }">Groen</button>
         </div>
         <!-- Slagbomen controls -->
         <div class="slagboom-controls">
-          <h3>Slagbomen voor weg 1</h3>
+          <h3>Slagbomen</h3>
           <button @click="toggleSlagboom(1)" :class="{ 'on': slagboomStatus[1] }">Slagboom 1: {{ slagboomStatus[1] ? 'Open' : 'Gesloten' }}</button>
           <button @click="toggleSlagboom(2)" :class="{ 'on': slagboomStatus[2] }">Slagboom 2: {{ slagboomStatus[2] ? 'Open' : 'Gesloten' }}</button>
         </div>
