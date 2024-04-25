@@ -1,19 +1,24 @@
 #include "ServoBarrier.h"
 #include "Timer/Timer.h"
 
-ServoBarrier::ServoBarrier(uint8_t servoPin, uint8_t ledPin1, uint8_t ledPin2, Ultrasonic *sonic)
-    : servoPin(servoPin), ledPin1(ledPin1), ledPin2(ledPin2), sonic(sonic)
+ServoBarrier::ServoBarrier(barrierData config)
+    : config(config)
 {
-    pinMode(servoPin, OUTPUT);
-    pinMode(ledPin1, OUTPUT);
-    pinMode(ledPin2, OUTPUT);
+    pinMode(config.servoPin, OUTPUT);
+    pinMode(config.ledPin1, OUTPUT);
+    pinMode(config.ledPin2, OUTPUT);
 
     ESP32PWM::allocateTimer(0);
     ESP32PWM::allocateTimer(1);
     ESP32PWM::allocateTimer(2);
     ESP32PWM::allocateTimer(3);
     servo.setPeriodHertz(3);
-    servo.attach(servoPin);
+    servo.attach(config.servoPin);
+}
+
+bool ServoBarrier::objectDetected()
+{
+    return config.sonic->readUltrasonic_cm() < config.laneWidth;
 }
 
 void ServoBarrier::setServoPos(uint64_t pos)
@@ -33,8 +38,8 @@ void ServoBarrier::setLocationUp()
     servoPos = openingPosition;
     servo.write(servoPos);
 
-    digitalWrite(ledPin1, LOW);
-    digitalWrite(ledPin2, LOW);
+    digitalWrite(config.ledPin1, LOW);
+    digitalWrite(config.ledPin2, LOW);
 }
 
 u_int8_t ServoBarrier::getLocation()
@@ -49,8 +54,8 @@ bool ServoBarrier::isDown()
 
 void ServoBarrier::switchLeds()
 {
-    digitalWrite(ledPin1, ledSwitch);
-    digitalWrite(ledPin2, !ledSwitch);
+    digitalWrite(config.ledPin1, ledSwitch);
+    digitalWrite(config.ledPin2, !ledSwitch);
     ledSwitch = !ledSwitch;
 }
 

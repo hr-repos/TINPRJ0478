@@ -1,5 +1,4 @@
 #include <Arduino.h>
-#include <Arduino.h>
 #include <WiFi.h>
 #include <PubSubClient.h>
 #include <time.h>
@@ -28,10 +27,13 @@ unsigned long lastMsg = 0;
 char msg[MSG_BUFFER_SIZE];
 
 uint8_t asbServoPin = 26;
-uint8_t asbLedPin = LED_BUILTIN;
+uint8_t asbLedPin1 = LED_BUILTIN;
+uint8_t asbLedPin2 = LED_BUILTIN;
 // ServoBarrier servo(asbServoPin, asbLedPin);
-auto servo = new ServoBarrier(asbServoPin, asbLedPin);
+
 auto ultrasoon = new Ultrasonic(13, 12);
+barrierData asbConfig = {asbServoPin, asbLedPin1, asbLedPin2, LANE_WIDTH_CM, ultrasoon};
+auto servo = new ServoBarrier(asbServoPin, asbLedPin1, asbLedPin2, ultrasoon, LANE_WIDTH_CM);
 
 void setup_wifi() {
     delay(10);
@@ -78,7 +80,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
     // Serial.printf("Message arrived [%s] %s\n", topic, message);
 
     if (strcmp(topic, ASB_STANDARD_TOPIC) == 0) {
-        if (ultrasonic->readUltrasonic_cm() < LANE_WIDTH_CM) {
+        if (servo->objectDetected()) {
             String returnMessage = "Object detected in lane, barrier cannot be moved.";
             client.publish(MESSAGE_TOPIC, returnMessage.c_str());
             Serial.println(returnMessage);
@@ -117,7 +119,7 @@ void reconnect() {
             Serial.println("connected");
 
             // Once connected, publish an announcement...
-            client.publish(MESSEAGE_TOPIC, "Bot connected!");
+            client.publish(MESSAGE_TOPIC, "Bot connected!");
 
             // ... and resubscribe
             client.subscribe(ASB_FORCED_TOPIC);
