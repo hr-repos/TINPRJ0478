@@ -7,6 +7,7 @@ namespace opcuaTestClient
 {
     public class UA_Node
     {
+        static public EasyUAClient Client { get; } = new();
         public UAEndpointDescriptor Endpoint { get; set; }
         public string NodeDescriptor { get; private set; }
         public string NamespaceID { get; set; }
@@ -57,13 +58,36 @@ namespace opcuaTestClient
             }
         }
 
-        public object? TryGetNodeValue(string ValueName, EasyUAClient client)
+        public void SubDataChange() 
+        {
+            object? changedValue;
+
+            Client.SubscribeDataChange(Endpoint, NodeDescriptor, 200, 
+                (sender, args) =>
+                {
+                    if(args.Succeeded) 
+                    {
+                        string? variableName = args.Arguments.NodeDescriptor.AliasName ?? args.Arguments.NodeDescriptor.ToString();
+
+                        Console.WriteLine("server heeft de variable \"{0}\" veranderd naar: {1}", args.Arguments.NodeDescriptor, args.AttributeData.Value);
+                        Console.WriteLine(args.Arguments.NodeDescriptor.AliasName);
+                        changedValue = args.AttributeData.Value;
+                    }
+                    else
+                    {
+                        Console.WriteLine("error: {0}", args.ErrorMessage);
+                    }
+                }
+            );
+        }
+
+        public object? TryGetNodeValue(string ValueName)
         {
             object? value = null;
 
             try
             {
-                value = client.ReadValue(Endpoint, Values[ValueName]);
+                value = Client.ReadValue(Endpoint, Values[ValueName]);
             }
             catch (UAException ex)
             {
@@ -73,11 +97,11 @@ namespace opcuaTestClient
             return value;
         }
 
-        public bool TrySetNodeValue(string ValueName, object value, EasyUAClient client)
+        public bool TrySetNodeValue(string ValueName, object value)
         {
             try
             {
-                client.WriteValue(Endpoint, Values[ValueName], value);
+                Client.WriteValue(Endpoint, Values[ValueName], value);
             }
             catch (UAException ex)
             {
@@ -98,7 +122,7 @@ namespace opcuaTestClient
             return Values.Keys.ToArray();
         }
 
-        private string MakeUA_ID(string namespaceID, string objID)
+        private static string MakeUA_ID(string namespaceID, string objID)
         {
             return string.Format("ns={0};s=\"{1}\"", namespaceID, objID);
         }

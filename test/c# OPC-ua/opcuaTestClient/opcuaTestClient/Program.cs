@@ -2,7 +2,6 @@
 using opcuaTestClient;
 
 UAEndpointDescriptor endpoint = "opc.tcp://127.0.0.1:8080";
-UA_Client client = new();
 
 
 //-------------------makeNode---------------------------------------------
@@ -18,12 +17,14 @@ UA_Node tempNode = new
 tempNode["valueName"] = "ValueID";
 tempNode["temperature"] = "TS1_Temp";
 
+tempNode.SubDataChange();
+
 
 //-------------------getValue(can be null)-----------------------------------
 
 
-string? value = client.TryGetNodeValue(tempNode, "valueName")?.ToString();
-string? temp = client.TryGetNodeValue(tempNode, "temperature")?.ToString();
+string? value = tempNode.TryGetNodeValue("valueName")?.ToString();
+string? temp  = tempNode.TryGetNodeValue("temperature")?.ToString();
 
 Console.WriteLine(string.Format("value: {0}, temp: {1}", value ?? "null", temp ?? "null"));
 
@@ -31,4 +32,4 @@ Console.WriteLine(string.Format("value: {0}, temp: {1}", value ?? "null", temp ?
 //-------------------setValue(false if set failed)---------------------------
 
 
-client.TrySetNodeValue(tempNode, "temperature", 32);
+tempNode.TrySetNodeValue("temperature", 32);
