@@ -34,4 +34,4 @@
 
 # globaal
 
-reset
+- `reset`
