@@ -14,7 +14,7 @@
         </div>
         <!-- Stoplicht 2 controls -->
         <div class="stoplicht-control">
-          <h3>Verkeerslicht 1</h3>
+          <h3>Verkeerslicht </h3>
           <button @click="toggleStoplicht('rood', 2)" :class="{ 'on': stoplichtKleur[2] === 'rood', 'red': true }">Rood</button>
           <button @click="toggleStoplicht('oranje', 2)" :class="{ 'on': stoplichtKleur[2] === 'oranje', 'orange': true }">Oranje</button>
           <button @click="toggleStoplicht('groen', 2)" :class="{ 'on': stoplichtKleur[2] === 'groen', 'green': true }">Groen</button>
@@ -267,6 +267,7 @@ export default {
   align-items: center;
 }
 
+
 /* Stijlen voor de verkeerslichten */
 .stoplicht {
   width: 24px;
@@ -283,7 +284,7 @@ export default {
 
 /* Stijlen voor de slagbomen */
 .slagboom {
-  width: 50px;
+  width: 60px;
   height: 10px;
   background-color: #555; /* Kleur wanneer de slagboom gesloten is */
   border: 2px solid #333; /* Rand om de slagbomen te benadrukken */
@@ -292,9 +293,19 @@ export default {
   transform: translateX(-50%); 
 }
 
-.slagboom.on {
-  background-color: #2ecc71; 
+.slagboom {
+  transition: transform 10.0s ease; 
+  transform-origin: left; 
 }
 
+.slagboom {
+  background: linear-gradient(to right, white 25%, red 25%, red 50%, white 50%, white 75%, red 75%);
+  width: 70px;  
+  height: 10px;  
+  transition: transform 10s ease; 
+}
 
+.slagboom.on {
+  transform: rotate(-90deg);
+}
 </style>
