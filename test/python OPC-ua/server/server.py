@@ -18,6 +18,7 @@ vender = tempSensor.add_variable('ns=2;s="ValueID"', "TS1 VendorName", "value")
 temp = tempSensor.add_variable('ns=2;s="TS1_Temp"', "TS1_Temp", 20)
 vender.set_writable()
 temp.set_writable()
+temp.
 
 bulb = nodes.add_object('ns=2;s="LB1"', "light bulb")
 state = bulb.add_variable('ns=2;s="LB1_State"', "state of lightbulb", False)
