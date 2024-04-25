@@ -20,11 +20,11 @@ const char* mqtt_server = MQTT_HOST;
 // const long  gmtOffset_sec = 3600;
 // const int   daylightOffset_sec = 0;
 
+char msg[MSG_BUFFER_SIZE];
 WiFiClient espClient;
 PubSubClient client(espClient);
 unsigned long lastMsg = 0;
 #define MSG_BUFFER_SIZE	(50)
-char msg[MSG_BUFFER_SIZE];
 
 uint8_t asbServoPin = 26;
 uint8_t asbLedPin1 = LED_BUILTIN;
@@ -33,7 +33,7 @@ uint8_t asbLedPin2 = LED_BUILTIN;
 
 auto ultrasoon = new Ultrasonic(13, 12);
 barrierData asbConfig = {asbServoPin, asbLedPin1, asbLedPin2, LANE_WIDTH_CM, ultrasoon};
-auto servo = new ServoBarrier(asbServoPin, asbLedPin1, asbLedPin2, ultrasoon, LANE_WIDTH_CM);
+auto servo = new ServoBarrier(asbConfig);
 
 void setup_wifi() {
     delay(10);

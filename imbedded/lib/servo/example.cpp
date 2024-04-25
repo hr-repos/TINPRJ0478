@@ -2,8 +2,12 @@
 #include "ServoBarrier.h"
 
 uint8_t servoPin = 26;
-uint8_t dummyLed = 69;
-auto servo = new ServoBarrier(servoPin, 2, dummyLed, new Ultrasonic(1, 2));
+uint8_t dummyLed1 = 69;
+uint8_t dummyLed2 = 69;
+uint8_t laneWidth= 69;
+auto sonic = new Ultrasonic(1, 2);
+barrierData asbConfig = {servoPin, dummyLed1, dummyLed2, laneWidth, sonic};
+auto servo = new ServoBarrier(asbConfig);
 static Timer *timer = new Timer(SET_TIMER_IN_MS);
 
 void setup()
@@ -30,3 +34,4 @@ void loop()
 
     servo->callback();
 }
+
