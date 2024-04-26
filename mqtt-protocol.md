@@ -4,10 +4,12 @@
 - `vkl/2/{commando}`
 
 ### `{commando}`
+
 - `verander` (vanuit dashboard)
 - `terugkoppeling` (vanuit ESP32)
 
 ### :bericht
+
 - `0` (uit)
 - `1` (alleen rood aan)
 - `2` (alleen oranje aan)
@@ -20,17 +22,20 @@
 - `asb/2/{commando}`
 
 ### `{commando}`
-- `verander` (vanuit dashboard)
-- `terugkoppeling` (vanuit ESP32)
 
-### :bericht
-- `0` (geopend)
-- `1` (gesloten)
-- `2` (geforceerd gesloten)
-- `3` (wordt geopend)
-- `4` (wordt gesloten)
-- `5` (wordt geforceerd gesloten)
-- `6` (stilgezet tijdens sluiten)
+- `verander` (vanuit dashboard)
+  - :bericht
+    - 0 openen
+    - 1 normaal sluiten
+    - 2 geforceerd sluiten
+- `terugkoppeling` (vanuit ESP32)
+  - :bericht
+    - 0 wordt geopend
+    - 1 wordt gesloten
+    - 2 is geopend
+    - 3 is normaal gesloten
+    - 4 is geforceerd gesloten
+    - 5 normaal sluiten mislukt (object detected)
 
 # globaal
 
