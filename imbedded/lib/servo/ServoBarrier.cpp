@@ -59,14 +59,34 @@ void ServoBarrier::switchLeds()
     ledSwitch = !ledSwitch;
 }
 
+bool ServoBarrier::moveBarrier() {
+    if (requestedPosition < currentPosition) {
+        currentPosition -= servoStepSize;
+    }
+    else {
+        currentPosition =+ servoStepSize;
+    }
+    servo.write(currentPosition);
+}
+
 void ServoBarrier::callback()
 {
-    static Timer *timer = new Timer(SET_TIMER_IN_MS);
+    static Timer *ledTimer = new Timer(SET_TIMER_IN_MS);
+    static Timer *servoTimer = new Timer(SET_TIMER_IN_MS);
     if (!isDown())
         return;
 
-    if (timer->waitTime(500))
+    if (ledTimer->waitTime(500))
     {
         switchLeds();
+    }
+
+
+    if (requestedPosition != currentPosition) {
+        
+        if (ledTimer->waitTime(25))
+        {
+            moveBarrier();
+        }
     }
 }

@@ -81,9 +81,8 @@ void callback(char* topic, byte* payload, unsigned int length) {
 
     if (strcmp(topic, ASB_STANDARD_TOPIC) == 0) {
         if (servo->objectDetected()) {
-            String returnMessage = "Object detected in lane, barrier cannot be moved.";
-            client.publish(MESSAGE_TOPIC, returnMessage.c_str());
-            Serial.println(returnMessage);
+            client.publish(MESSAGE_TOPIC, "5");
+            Serial.println("Object detected in lane, barrier cannot be moved.");
             return;
         }
         
@@ -152,4 +151,6 @@ void loop() {
     }
     client.loop();
     servo->callback();
+
+
 }
