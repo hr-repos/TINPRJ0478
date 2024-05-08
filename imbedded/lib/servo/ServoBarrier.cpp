@@ -59,12 +59,12 @@ void ServoBarrier::switchLeds()
     ledSwitch = !ledSwitch;
 }
 
-bool ServoBarrier::moveBarrier() {
+void ServoBarrier::moveBarrier() {
     if (requestedPosition < currentPosition) {
         currentPosition -= servoStepSize;
     }
     else {
-        currentPosition =+ servoStepSize;
+        currentPosition += servoStepSize;
     }
     servo.write(currentPosition);
 }

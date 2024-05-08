@@ -32,7 +32,7 @@ private:
     uint8_t requestedPosition = 25;
 
     void switchLeds();      // switch the leds of the barrier
-    bool moveBarrier();     // moves the barrier if it's not at the requested location
+    void moveBarrier();     // moves the barrier if it's not at the requested location
 
 public:
     // create object and set the pin for the stepper motor
