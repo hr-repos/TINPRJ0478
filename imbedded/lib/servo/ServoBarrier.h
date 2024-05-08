@@ -52,10 +52,13 @@ public:
     void setServoPos(uint64_t);
 
     // set the position of the servo to 25
-    void setLocationUp();
+    void setRequestedPositionUp();
 
     // set the position of the servo to 100
-    void setLocationDown();
+    void setRequestedPositionDown();
+
+    // move the barrier immediately without checking for objects
+    void moveBarrierForced();
 
     // get boolean if the servo is down
     bool isDown();

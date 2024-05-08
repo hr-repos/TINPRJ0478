@@ -66,7 +66,7 @@ void printLocalTime() {
 }
 
 void moveBarrier(bool pos) {
-    pos ? servo->setLocationUp() : servo->setLocationDown();
+    pos ? servo->setLocationUp() : servo->setRequestedPositionDown();
 }
 
 

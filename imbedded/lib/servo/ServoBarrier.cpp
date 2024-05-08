@@ -23,23 +23,17 @@ bool ServoBarrier::objectDetected()
 
 void ServoBarrier::setServoPos(uint64_t pos)
 {
-    servoPos = pos;
-    servo.write(servoPos);
+    requestedPosition = pos;
 }
 
-void ServoBarrier::setLocationDown()
+void ServoBarrier::setRequestedPositionDown()
 {
-    servoPos = closingPosition;
-    servo.write(servoPos);
+    requestedPosition = closingPosition;
 }
 
-void ServoBarrier::setLocationUp()
+void ServoBarrier::setRequestedPositionUp()
 {
-    servoPos = openingPosition;
-    servo.write(servoPos);
-
-    digitalWrite(config.ledPin1, LOW);
-    digitalWrite(config.ledPin2, LOW);
+    requestedPosition = openingPosition;
 }
 
 u_int8_t ServoBarrier::getLocation()
@@ -66,6 +60,11 @@ void ServoBarrier::moveBarrier() {
     else {
         currentPosition += servoStepSize;
     }
+    servo.write(currentPosition);
+}
+
+void ServoBarrier::moveBarrierForced() {
+    currentPosition = requestedPosition;
     servo.write(currentPosition);
 }
 

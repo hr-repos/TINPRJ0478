@@ -13,7 +13,7 @@ static Timer *timer = new Timer(SET_TIMER_IN_MS);
 void setup()
 {
     Serial.begin(115200);
-    servo->setLocationDown();
+    servo->setRequestedPositionDown();
     Serial.println("set servo down");
 }
 
@@ -28,7 +28,7 @@ void loop()
         }
         else
         {
-            servo->setLocationDown();
+            servo->setRequestedPositionDown();
         }
     }
 
