@@ -38,12 +38,12 @@ void ServoBarrier::setRequestedPositionUp()
 
 u_int8_t ServoBarrier::getLocation()
 {
-    return servoPos;
+    return currentPosition;
 }
 
 bool ServoBarrier::isDown()
 {
-    return servoPos == closingPosition;
+    return currentPosition == closingPosition;
 }
 
 void ServoBarrier::switchLeds()
@@ -54,6 +54,12 @@ void ServoBarrier::switchLeds()
 }
 
 void ServoBarrier::moveBarrier() {
+    if (objectDetected()){
+        eStopActive = true;
+        config.client->publish()
+        return;
+    }
+
     if (requestedPosition < currentPosition) {
         currentPosition -= servoStepSize;
     }
@@ -72,6 +78,15 @@ void ServoBarrier::callback()
 {
     static Timer *ledTimer = new Timer(SET_TIMER_IN_MS);
     static Timer *servoTimer = new Timer(SET_TIMER_IN_MS);
+
+    if (requestedPosition != currentPosition && !eStopActive) {
+
+        if (servoTimer->waitTime(25))
+        {
+            moveBarrier();
+        }
+    }
+
     if (!isDown())
         return;
 
@@ -81,11 +96,4 @@ void ServoBarrier::callback()
     }
 
 
-    if (requestedPosition != currentPosition) {
-        
-        if (ledTimer->waitTime(25))
-        {
-            moveBarrier();
-        }
-    }
 }

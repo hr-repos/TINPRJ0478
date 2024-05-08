@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <PubSubClient.h>
+#include <cstdint>
 #include <time.h>
 #include "./secret.h"
 #include "ServoBarrier.h"
@@ -20,19 +21,20 @@ const char* mqtt_server = MQTT_HOST;
 // const long  gmtOffset_sec = 3600;
 // const int   daylightOffset_sec = 0;
 
+#define MSG_BUFFER_SIZE	(50)
 char msg[MSG_BUFFER_SIZE];
 WiFiClient espClient;
 PubSubClient client(espClient);
 unsigned long lastMsg = 0;
-#define MSG_BUFFER_SIZE	(50)
 
+bool eStopActive = false;
 uint8_t asbServoPin = 26;
 uint8_t asbLedPin1 = LED_BUILTIN;
 uint8_t asbLedPin2 = LED_BUILTIN;
 // ServoBarrier servo(asbServoPin, asbLedPin);
 
 auto ultrasoon = new Ultrasonic(13, 12);
-barrierData asbConfig = {asbServoPin, asbLedPin1, asbLedPin2, LANE_WIDTH_CM, ultrasoon};
+barrierData asbConfig = {asbServoPin, asbLedPin1, asbLedPin2, LANE_WIDTH_CM, ultrasoon, &client};
 auto servo = new ServoBarrier(asbConfig);
 
 void setup_wifi() {
@@ -66,7 +68,29 @@ void printLocalTime() {
 }
 
 void moveBarrier(bool pos) {
-    pos ? servo->setLocationUp() : servo->setRequestedPositionDown();
+    pos ? servo->setRequestedPositionUp() : servo->setRequestedPositionDown();
+}
+
+
+void processIncomingMessage(uint8_t message) {
+    switch (message) {
+        case 0:
+            servo->setRequestedPositionUp(); 
+            client.publish(MESSAGE_TOPIC, "0");
+            Serial.println("Slagboom wordt geopend.");
+        case 1:
+            servo->setRequestedPositionDown();
+            client.publish(MESSAGE_TOPIC, "1");
+            Serial.println("Slagboom wordt gesloten.");
+        case 2:
+            servo->setRequestedPositionDown();
+            servo->moveBarrierForced();
+            client.publish(MESSAGE_TOPIC, "1");
+            Serial.println("Slagboom wordt geforceerd gesloten.");
+        default:
+            client.publish(MESSAGE_TOPIC, "6");
+            Serial.println("Bericht is geen commando.");
+    }
 }
 
 
@@ -141,7 +165,8 @@ void setup() {
 
     client.setServer(mqtt_server, MQTT_PORT);
     client.setCallback(callback);
-    servo->setLocationUp();
+    servo->setRequestedPositionUp();
+    servo->moveBarrierForced();
 }
 
 void loop() {

@@ -4,8 +4,9 @@
 
 #include <Arduino.h>
 #include <ESP32Servo.h>
-#include "Ultrasonic.h"
+#include <PubSubClient.h>
 #include <StopLight.h>
+#include "Ultrasonic.h"
 
 struct barrierData {
     uint8_t servoPin;
@@ -13,6 +14,7 @@ struct barrierData {
     uint8_t ledPin2;
     uint8_t laneWidth;
     Ultrasonic *sonic;
+    PubSubClient *client;
 };
 
 class ServoBarrier
@@ -21,6 +23,7 @@ private:
     uint8_t servoPos;  // current position of the servo
     Servo servo;
     bool ledSwitch = false;
+    bool eStopActive = false;
 
     barrierData config;
 
@@ -36,7 +39,6 @@ private:
 
 public:
     // create object and set the pin for the stepper motor
-    ServoBarrier(uint8_t servoPin, uint8_t ledPin1, uint8_t ledPin2, Ultrasonic *sonic, uint8_t laneWidth);
     explicit ServoBarrier(barrierData);
 
     const uint8_t closingPosition = 105;
