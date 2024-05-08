@@ -4,7 +4,7 @@ using OpcLabs.EasyOpc.UA.Extensions;
 using opcuaTestClient;
 
 UAEndpointDescriptor endpoint = "opc.tcp://145.24.223.210:8100";
-EasyUAClient _client = new();
+EasyUAClient client = new();
 
 //-------------------makeNode---------------------------------------------
 UA_Node tempNode = new
@@ -17,13 +17,9 @@ UA_Node tempNode = new
 tempNode["valueName"] = "TS1_test";
 tempNode["temperature"] = "TS1_Temp";
 
-tempNode.SubDataChange(_client);
+tempNode.SubDataChange(client);
 
 while (true) ;
-
-//UA_client client = new(200);
-//client.AddNode(tempNode);
-//client.Run();
 
 //-------------------getValue(can be null)-----------------------------------
 
