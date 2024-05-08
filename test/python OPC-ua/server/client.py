@@ -3,7 +3,7 @@ from opcua import Client
 print("\n OPC_UA TEST CLIENT \n")
 
 
-client = Client("opc.tcp://127.0.0.1:8080")
+client = Client("opc.tcp://127.0.0.1:8883")
 client.connect()
 
 namespaces = client.get_namespace_array()
