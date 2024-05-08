@@ -19,3 +19,9 @@ sudo apt install aspnetcore-runtime-8.0
 
 # install .net core V8
 sudo apt install dotnet-runtime-8.0
+
+# install pip and opcua
+sudo apt update
+sudo apt install python3-pip
+pip3 install opcua
+
