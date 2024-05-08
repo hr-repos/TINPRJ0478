@@ -61,7 +61,7 @@ namespace opcuaTestClient
 
                 oldValues = PrevValues[index];
 
-                var newValues = node.Values.Values.ToList();
+                var newValues = node.UpdateAllVariables(Client);
 
                 var changesValues = newValues.Where((variable, index) => variable.Value != newValues).ToList();
                 changesValues.ForEach(value => { Console.WriteLine("Name: {0}, \tValue: {1}", value.Name, value.Value); });

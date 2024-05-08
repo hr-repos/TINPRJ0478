@@ -1,7 +1,9 @@
-﻿using OpcLabs.EasyOpc.UA;
+﻿using Opc.Ua;
+using OpcLabs.EasyOpc.UA;
 using OpcLabs.EasyOpc.UA.AddressSpace;
 using OpcLabs.EasyOpc.UA.AddressSpace.Standard;
 using OpcLabs.EasyOpc.UA.OperationModel;
+using System.Drawing;
 using System.Text;
 
 namespace opcuaTestClient
@@ -50,16 +52,22 @@ namespace opcuaTestClient
 
         public void DoEvent(object sender, EasyUADataChangeNotificationEventArgs args)
         {
-            object? changedValue;
             Console.WriteLine(args.AttributeData.Value);
 
             if (args.Succeeded)
             {
-                string? variableName = args.Arguments.NodeDescriptor.AliasName ?? args.Arguments.NodeDescriptor.ToString();
+                string varID = args.Arguments.NodeDescriptor.NodeId.ToString();
+                string? variableName = TryGetVariableFromVarID(varID)?.Name;
 
-                Console.WriteLine("server heeft de variable \"{0}\" veranderd naar: {1}", args.Arguments.NodeDescriptor, args.AttributeData.Value);
-                Console.WriteLine(args.Arguments.NodeDescriptor.AliasName);
-                changedValue = args.AttributeData.Value;
+                if(variableName == null)
+                {
+                    Console.WriteLine("NodeDescriptor: "+ varID + " not recognized by this my client");
+                    return;
+                }
+
+                Console.WriteLine("server heeft de variable: \"{0}\" veranderd naar: {1}", variableName, args.AttributeData.Value);
+
+                Values[variableName].Value = args.AttributeData.Value;
             }
             else
             {
@@ -67,16 +75,28 @@ namespace opcuaTestClient
             }
         }
 
-        public Object?[] TryGetAllNodeValues(EasyUAClient client)
+        public void SubDataChange(EasyUAClient client)
         {
-            Object?[] values = new Object?[Values.Count];
-
-            int i = 0;
-            foreach((string valueName, _) in Values) 
+            foreach((_, UA_Variable variable) in Values) 
             {
-                values[i] = TryGetNodeValue(valueName, client);
-                i++;
+                client.SubscribeDataChange(Endpoint, variable.VarID, 200, DoEvent);
             }
+
+        }
+
+
+        public List<UA_Variable> UpdateAllVariables(EasyUAClient client)
+        {
+            List<UA_Variable> variables = new();
+
+            foreach((string valueName, UA_Variable variable) in Values) 
+            {
+                object? Value = TryGetNodeValue(valueName, client);
+                variable.Value = Value;
+                variables.Add(variable);
+            }
+
+            return variables;
         }
 
         public object? TryGetNodeValue(string ValueName, EasyUAClient client)
@@ -112,6 +132,11 @@ namespace opcuaTestClient
             }
 
             return true;
+        }
+
+        private UA_Variable? TryGetVariableFromVarID(string varID)
+        {
+            return Values.Where(pair => pair.Value.VarID == varID).Select(pair => pair.Value).FirstOrDefault();
         }
 
         public string? TryGetValueNameFromID(string ID)

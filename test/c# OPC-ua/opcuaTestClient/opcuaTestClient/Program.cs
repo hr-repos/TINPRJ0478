@@ -3,12 +3,10 @@ using OpcLabs.EasyOpc.UA.AddressSpace.Extensions;
 using OpcLabs.EasyOpc.UA.Extensions;
 using opcuaTestClient;
 
-UAEndpointDescriptor endpoint = "opc.tcp://127.0.0.1:8080";
-
-
-//-------------------makeNode---------------------------------------------
+UAEndpointDescriptor endpoint = "opc.tcp://145.24.223.210:8100";
 EasyUAClient _client = new();
 
+//-------------------makeNode---------------------------------------------
 UA_Node tempNode = new
 (
     endpoint:    endpoint,
@@ -19,28 +17,13 @@ UA_Node tempNode = new
 tempNode["valueName"] = "TS1_test";
 tempNode["temperature"] = "TS1_Temp";
 
-//var notify = _client.BrowseDataNodes(endpoint);
-//foreach (var item in notify)
-//{
-//    Console.WriteLine(item.DisplayName);
-//}
+tempNode.SubDataChange(_client);
 
-//_client.SubscribeDataChange(endpoint, tempNode.NodeDescriptor, 200,
-//    (sender, args) =>
-//    {
-//        if (args.Succeeded)
-//        {
+while (true) ;
 
-//        }
-//        else
-//        {
-//            Console.WriteLine(args.ErrorMessage);
-//        }
-//    });
-
-UA_client client = new(200);
-client.AddNode(tempNode);
-client.Run();
+//UA_client client = new(200);
+//client.AddNode(tempNode);
+//client.Run();
 
 //-------------------getValue(can be null)-----------------------------------
 
