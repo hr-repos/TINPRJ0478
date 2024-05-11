@@ -1,6 +1,18 @@
 version: '3.4'
 
 services:
+  mosquitto:
+    image: eclipse-mosquitto
+    hostname: mosquitto
+    container_name: mosquitto
+    restart: unless-stopped
+    ports:
+      - "8883:1883" 
+    volumes:
+      - ./mosquitto/config:/mosquitto/config:rw
+      - ./mosquitto/data:/mosquitto/data:rw
+      - ./mosquitto/log:/mosquitto/log:rw
+    
   backend:
     image: ${DOCKER_REGISTRY-}backend
     build:

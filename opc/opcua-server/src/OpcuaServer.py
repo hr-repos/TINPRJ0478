@@ -118,5 +118,6 @@ def start_from_json(path):
           
   
 if __name__ == "__main__":  
+    print("Starting...")
     start_from_json("server.config.json")
         

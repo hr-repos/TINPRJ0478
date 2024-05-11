@@ -44,10 +44,14 @@ pip3 install opcua
 
     # install DOCKER
     sudo apt install docker-ce
+
+    # to use "docker run" do
+    sudo usermod -aG docker $USER
+    newgrp docker
 #end
 
 # build docker image
 sudo docker build -t opcua_server .
 
 # run docker image
-sudo docker run --rm -it -p 8100:8100 opcua_server
+docker run --rm -it -p 8100:8100 opcua_server

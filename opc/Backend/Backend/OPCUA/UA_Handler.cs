@@ -26,9 +26,28 @@ namespace Backend.OPCUA
             if (config == null)
                 return;
 
-            Client.DataChangeNotification += DataChangeHandler;
-
             SetupClient(config);
+        }
+
+        public async Task<bool> Start()
+        {
+            try
+            {
+                Console.WriteLine("\nstarting opcua connection...\n");
+
+                Client.DataChangeNotification += DataChangeHandler;
+
+                foreach (var node in Nodes)
+                    node.SubscribeDataChange(Client);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                await Console.Out.WriteLineAsync(ex.Message);
+            }
+
+            return false;
         }
 
         private static OpcUA_Config? GetJsonConfig(string path) 
@@ -67,8 +86,6 @@ namespace Backend.OPCUA
                     string varDescriptor = $"ns={node.Namespace};s=\"{id}\"";
                     Variables[varDescriptor] = name;
                 }
-
-                newNode.SubscribeDataChange(Client);
                 
                 Nodes.Add(newNode);
             }
@@ -84,15 +101,15 @@ namespace Backend.OPCUA
 
                 string? variableName = Variables[varID];
 
-                (UA_Variable? variable, _) = TryGetNodeAndVariable_FromName(variableName);
+                (UA_Variable? variable, UA_Node? node) = TryGetNodeAndVariable_FromName(variableName);
 
-                if (variableName == null || variable == null)
+                if (variableName == null || variable == null || node == null)
                 {
-                    Console.WriteLine($"NodeDescriptor: {varID} not recognized by this my client");
+                    Console.WriteLine($"NodeDescriptor: {variableName} not recognized by this my client");
                     return;
                 }
 
-                Console.WriteLine($"server heeft de variable: \"{variableName}\" veranderd naar: {value}");
+                Console.WriteLine($"server has the node: \"{node.NodeID.Split('\"')[1]}\", variable: \"{variableName}\" changes to: {value}");
 
                 await Handler(variable, value);
             }

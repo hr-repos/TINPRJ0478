@@ -10,37 +10,47 @@ namespace Backend
 
         public Controller()
         {
-           Mqtt = new(MqttHandler);
-           Opcua = new(OPCUA_Handler);
+            Mqtt = new(MqttHandler);
+            Opcua = new(OPCUA_Handler);
         }
         
-        public void Run() 
+        public async Task Run() 
         {
-            Console.WriteLine("starting backend...");
-            while (true) ;
+            Console.WriteLine("starting controller...");
+
+            if (await Mqtt.Connect())
+                await Console.Out.WriteLineAsync("mqtt connection SUCCESS");
+
+            if (await Opcua.Start())
+                await Console.Out.WriteLineAsync("opcua connection SUCCESS");
+
+            while (true)
+                await Task.Delay(100000);
         }
 
         private async Task OPCUA_Handler(UA_Variable variable, OpcuaValue value)
         {
+
             switch (variable.Name)
             {
                 case "mode":
                     await Console.Out.WriteLineAsync($"<OPCUA>mode: {value}");
-                    await Mqtt.Publish("topic/topic", "mode: " + value.ToString());
+                    await Mqtt.Publish("topic/topic", "mode: " + value);
                     break;
             }
 
-            await Console.Out.WriteLineAsync("================================");
+            await Console.Out.WriteLineAsync("\n================================\n");
             return;
         }
         private async Task MqttHandler(MqttPayload payload)
         {
+
             string topic = payload.Topic;
             string message = payload.Message;
 
-            Console.WriteLine(string.Format("topic: {0}, message: {1}", topic, message ?? "NULL"));
+            await Console.Out.WriteLineAsync($"topic: {topic}, message: {message}");
 
-            try 
+            try
             {
                 switch (topic)
                 {
@@ -48,8 +58,9 @@ namespace Backend
                         await Console.Out.WriteLineAsync($"<MQTT>mode: {message}");
 
                         (UA_Variable variable, UA_Node node) = GetVariableAndNode(topic);
-                        if(!node.TrySetNodeValue(topic, message, Opcua.Client))
-                            await Console.Out.WriteLineAsync("not bosp;erogufiaodiuf");
+
+                        if (!node.TrySetNodeValue(topic, message, Opcua.Client))
+                            Console.Out.WriteLine("!!<error> no value set!!");
                         break;
                 }
             }
@@ -58,8 +69,7 @@ namespace Backend
                 await Console.Out.WriteLineAsync(ex.Message);
             }
 
-            await Console.Out.WriteLineAsync("================================");
-            return;
+            await Console.Out.WriteLineAsync("\n================================\n");
         }
 
         private (UA_Variable, UA_Node) GetVariableAndNode(string topic)

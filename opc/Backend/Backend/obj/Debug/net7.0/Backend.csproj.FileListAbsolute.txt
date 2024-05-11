@@ -53,3 +53,4 @@ C:\Users\tim_k\OneDrive\Documenten\GitHub\TINPRJ0478\opc\Backend\Backend\obj\Deb
 C:\Users\tim_k\OneDrive\Documenten\GitHub\TINPRJ0478\opc\Backend\Backend\obj\Debug\net7.0\Backend.pdb
 C:\Users\tim_k\OneDrive\Documenten\GitHub\TINPRJ0478\opc\Backend\Backend\obj\Debug\net7.0\Backend.genruntimeconfig.cache
 C:\Users\tim_k\OneDrive\Documenten\GitHub\TINPRJ0478\opc\Backend\Backend\obj\Debug\net7.0\ref\Backend.dll
+C:\Users\tim_k\OneDrive\Documenten\GitHub\TINPRJ0478\opc\Backend\Backend\bin\Debug\net7.0\Mqtt\Mqtt.config.json

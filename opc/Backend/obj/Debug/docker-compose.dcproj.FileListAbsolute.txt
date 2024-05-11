@@ -30,3 +30,4 @@ C:\Users\tim_k\OneDrive\Documenten\GitHub\TINPRJ0478\opc\Backend\bin\Debug\Backe
 C:\Users\tim_k\OneDrive\Documenten\GitHub\TINPRJ0478\opc\Backend\obj\Debug\docker-compose.dcproj.AssemblyReference.cache
 C:\Users\tim_k\OneDrive\Documenten\GitHub\TINPRJ0478\opc\Backend\obj\Debug\docker-compose.dcproj.CoreCompileInputs.cache
 C:\Users\tim_k\OneDrive\Documenten\GitHub\TINPRJ0478\opc\Backend\obj\Debug\docker-compose.dcproj.CopyComplete
+C:\Users\tim_k\OneDrive\Documenten\GitHub\TINPRJ0478\opc\Backend\bin\Debug\Mqtt\Mqtt.config.json

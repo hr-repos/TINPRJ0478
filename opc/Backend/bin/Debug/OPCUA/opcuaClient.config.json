@@ -1,5 +1,5 @@
 {
-  "address": "127.0.0.1",
+  "address": "145.24.223.210",
   "port": 8100,
 
   "nodes": [
@@ -9,12 +9,12 @@
       "namespace": "2",
       "variables": [
         {
-          "name":  "id",
+          "name": "id",
           "id": "vkl1_ID",
-          "readOnly":  true
+          "readOnly": true
         },
         {
-          "name":  "mode",
+          "name": "mode",
           "id": "vkl1_mode"
         }
       ]
@@ -30,7 +30,7 @@
           "readOnly": true
         },
         {
-          "name":  "mode",
+          "name": "mode",
           "id": "abs1_mode"
         }
       ]

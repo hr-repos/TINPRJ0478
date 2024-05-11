@@ -1,4 +1,5 @@
 ﻿using Backend;
+using testMqtt.Mqtt;
 
 Controller controller = new();
-controller.Run();
+await controller.Run();

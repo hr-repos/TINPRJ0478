@@ -3,13 +3,14 @@ using MQTTnet.Protocol;
 using MQTTnet;
 using System.Text.Json;
 using MQTTnet.Server;
+using System.Text;
 
 namespace testMqtt.Mqtt
 {
     public class EasyMqtt
     {
-        readonly IMqttClient mqttClient;
-        readonly Func<MqttPayload, Task> messageHandler;
+        private readonly IMqttClient mqttClient;
+        private readonly Func<MqttPayload, Task> messageHandler;
 
         public EasyMqtt(Func<MqttPayload, Task> messageHandler)
         {
@@ -20,13 +21,13 @@ namespace testMqtt.Mqtt
         public async Task<bool> Connect(string configPath)
         {
             StreamReader sr = new(configPath);
-            string jsonStr = sr.ReadToEnd();
+            string rawJson = sr.ReadToEnd();
 
-            MqttConfig? json = JsonSerializer.Deserialize<MqttConfig>(jsonStr);
+            MqttConfig? json = JsonSerializer.Deserialize<MqttConfig>(rawJson, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
 
             if (json == null)
             {
-                //!! log
+                await Console.Out.WriteLineAsync("!!<error> mqtt.config.json can not be Deserialized!!");
                 return false;
             }
 
@@ -36,24 +37,34 @@ namespace testMqtt.Mqtt
                 .WithCleanSession()
                 .Build();
 
-            MqttClientConnectResult connectResult = await mqttClient.ConnectAsync(options);
+            await Console.Out.WriteLineAsync("\nstarting mqtt connection...\n");
 
-            if(!IsConnectionSuccess(connectResult))
+            MqttClientConnectResult? connectResult = default;
+            try
             {
-                await Console.Out.WriteLineAsync(string.Format("!!error!! connection not successful: {0}", connectResult.ReasonString));
+                connectResult = await mqttClient.ConnectAsync(options);
+            }
+            catch (Exception ex)
+            {
+                await Console.Out.WriteLineAsync(ex.ToString());
+            }
+
+            if (connectResult == null || !IsConnectionSuccess(connectResult))
+            {
+                string reason = connectResult?.ReasonString ?? "connectResult.ReasonString not found";
+                await Console.Out.WriteLineAsync($"!!error!! connection not successful: {reason}");
                 return false;
             }
 
             await SubscribeTopics(json.Subscribe_topics);
             await PublishTopics(json.Publish_topics);
 
-            //!! log success
             return true;
         }
 
         public async Task<bool> Connect()
         {
-            return await Connect("Mqtt.config.json");
+            return await Connect("Mqtt/Mqtt.config.json");
         }
 
         public async Task Publish(string topic, string message)
@@ -69,7 +80,7 @@ namespace testMqtt.Mqtt
             }
             catch (Exception ex)
             {
-                await Console.Out.WriteLineAsync(string.Format("!!error!! while subscribing[topic:{0}]: {1}",topic ,ex.Message));
+                await Console.Out.WriteLineAsync(string.Format("!!error!! while subscribing[topic:{0}]: {1}", topic, ex.Message));
                 return false;
             }
 
@@ -78,7 +89,7 @@ namespace testMqtt.Mqtt
 
         private async Task<bool> SubscribeTopics(List<string> topics)
         {
-            foreach(string topic in topics)
+            foreach (string topic in topics)
             {
                 bool isSuccess = await Subscribe(topic);
 
@@ -94,13 +105,18 @@ namespace testMqtt.Mqtt
         private async Task MessageReceivedEventHandler(MqttApplicationMessageReceivedEventArgs args)
         {
             string topic = args.ApplicationMessage.Topic;
-            string? message = args.ApplicationMessage.PayloadSegment.ToString();
 
-            if (message == null)
+            byte[]? payLoad = args.ApplicationMessage.PayloadSegment.Array;
+            if (payLoad == null)
             {
                 await Console.Out.WriteLineAsync("!!error!! message is empty");
                 return;
             }
+            
+            string? message = PayloadToString(payLoad);
+
+            if(message.Contains(':'))
+                message = message.Split(':')[1];
 
             try
             {
@@ -108,8 +124,13 @@ namespace testMqtt.Mqtt
             }
             catch (Exception ex)
             {
-                await Console.Out.WriteLineAsync(string.Format("!!error!! messageHandler throws exception[topic: {0}, message: {1}]: {2}",topic, message, ex.Message));
+                await Console.Out.WriteLineAsync($"!!error!! messageHandler throws exception[topic: {topic}, message: {message}]: {ex.Message}");
             }
+        }
+
+        private string PayloadToString(byte[] payload)
+        {
+            return Encoding.UTF8.GetString(payload);
         }
 
         private async Task<bool> PublishTopics(List<MqttPayload> publishes) 
@@ -124,7 +145,7 @@ namespace testMqtt.Mqtt
 
             return true;
         }
-
+        
         private async Task<bool> Publish(MqttPayload publish)
         {
             MqttApplicationMessage message = new MqttApplicationMessageBuilder()
@@ -140,7 +161,7 @@ namespace testMqtt.Mqtt
             }
             catch (Exception ex)
             {
-                await Console.Out.WriteLineAsync(string.Format("error while publishing[topic:{0}, message{1}]: {2}",publish.Topic, publish.Message ,ex.Message));
+                await Console.Out.WriteLineAsync($"!!<error> while publishing[topic:\"{publish.Topic}\", message: \"{publish.Message}\"] error-message: {ex.Message}!!");
                 return false;
             }
 
@@ -150,7 +171,7 @@ namespace testMqtt.Mqtt
 
         private static bool IsConnectionSuccess(MqttClientConnectResult connectResult) 
         {
-            return connectResult.ResultCode != MqttClientConnectResultCode.Success;
+            return connectResult.ResultCode == MqttClientConnectResultCode.Success;
         }
     }
 }
