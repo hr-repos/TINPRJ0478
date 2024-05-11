@@ -3,23 +3,28 @@ using OpcLabs.EasyOpc.UA.AddressSpace.Extensions;
 using OpcLabs.EasyOpc.UA.Extensions;
 using opcuaTestClient;
 
-UAEndpointDescriptor endpoint = "opc.tcp://145.24.223.210:8100";
+UAEndpointDescriptor endpoint = "opc.tcp://127.0.0.1:8100";
 EasyUAClient client = new();
 
 //-------------------makeNode---------------------------------------------
-UA_Node tempNode = new
+
+UA_Node vkl1 = new
 (
-    endpoint:    endpoint,
-    namespaceID: "2",
-    nodeID:      "TS1"
+    endpoint: endpoint,
+    namespaceID: "verander",
+    nodeID: "vlk1"
 );
 
-tempNode["valueName"] = "TS1_test";
-tempNode["temperature"] = "TS1_Temp";
 
-tempNode.SubDataChange(client);
 
-while (true) ;
+tempNode["id"] = "vlk1_ID"; //nodeID
+tempNode["mode"] = "vlk1_mode";
+
+string? value = vkl1.TryGetNodeValue("id", client)?.ToString();
+
+//tempNode.SubDataChange(client);
+
+//while (true) ;
 
 //-------------------getValue(can be null)-----------------------------------
 

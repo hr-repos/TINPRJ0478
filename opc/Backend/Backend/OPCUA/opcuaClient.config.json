@@ -1,0 +1,40 @@
+{
+  "address": "127.0.0.1",
+  "port": 8100,
+
+  "nodes": [
+    {
+      "name": "verkeerslight_1",
+      "nodeID": "vkl1",
+      "namespace": "2",
+      "variables": [
+        {
+          "name":  "id",
+          "id": "vkl1_ID",
+          "readOnly":  true
+        },
+        {
+          "name":  "mode",
+          "id": "vkl1_mode"
+        }
+      ]
+    },
+    {
+      "name": "afsluitboom_1",
+      "nodeID": "asb1",
+      "namespace": "2",
+      "variables": [
+        {
+          "name": "id",
+          "id": "abs1_ID",
+          "readOnly": true
+        },
+        {
+          "name":  "mode",
+          "id": "abs1_mode"
+        }
+      ]
+    }
+  ]
+
+}
