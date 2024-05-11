@@ -1,6 +1,6 @@
 import json
 from time import sleep
-from opcua import ua, Server
+from opcua import ua, Server, Client
 
 def getDescriptor(namespace: str, ID: str):
     return 'ns={};s=\"{}\"'.format(namespace, ID)
@@ -20,21 +20,21 @@ class UA_Variable():
 
 class UA_Node():
     def __init__(self, namespace: str, ID: str, name: str):
-        self.nodeDescriptor: str = getDescriptor(namespace, ID)
-        self.namespace: str = namespace
+        self.namespace: str = namespace 
         self.name: str = name
+        self.ID: str = ID
         
         self.vars: dict[str, UA_Variable]= {}
     
     def __init__(self, json: dict):
-        self.nodeDescriptor: str = getDescriptor(json["namespace"], json["nodeID"])
         self.namespace: str = json["namespace"]
         self.name: str = json["name"]
+        self.ID: str = json["nodeID"]
         
         self.vars: dict[str, UA_Variable]= {}
         
         for var in json.get("variables", []):
-            self.addVariable(var["id"], var["value"], var.get("writeable", True))
+            self.addVariable(var["id"], var["value"], var.get("writeable", True))  
     
     def addVariable(self, idAndName : str, value, setWritable = True):
         varDescriptor = getDescriptor(self.namespace, idAndName)
@@ -42,7 +42,9 @@ class UA_Node():
     
     def addToServer(self, server: Server) -> ua.NodeClass:
         nodeHandler = server.get_objects_node()
-        node_reference = nodeHandler.add_object(self.nodeDescriptor, self.name)
+         
+        nodeDescriptor = getDescriptor(self.namespace, self.ID)
+        node_reference = nodeHandler.add_object(nodeDescriptor, self.name)
         
         for variable in self.vars.values():
             variable.addVariable(node_reference)
@@ -51,7 +53,7 @@ class UA_Node():
 
     def getName(self) -> str:
         return self.name
-    
+
 class UA_Server(): 
     def __init__(self, address: str, port: int, name: str):
         endpoint: str = "opc.tcp://{addr}:{port}".format(addr=address, port=port)
@@ -60,10 +62,12 @@ class UA_Server():
         self.server.set_endpoint(endpoint)
         self.server.set_server_name(name)
         
+        self.namespaces: dict[str, int] = {}
         self.ref_nodes = []
     
     def addNamespace(self, namespaceID: str):
-        self.server.register_namespace(namespaceID)
+        namespaceIndex = self.server.register_namespace(namespaceID)
+        self.namespaces[namespaceID] = namespaceIndex
     
     def addNamespaces(self, namespaces: list[str]):
         for namespace in namespaces:
@@ -79,11 +83,13 @@ class UA_Server():
     
     def run(self):
         self.server.start()
+        print(self.server.get_namespace_array())
+        print(self.server.get_objects_node().get_children())
+
         
 def quick_start(): 
     server = UA_Server("127.0.0.1", 8080, "myOPCUA_server")
     server.addNamespace("2")
-    server.enableNodeDataChange(publishInterval=200)
     
     tempNode = UA_Node("2", "TS1", "temperatureNode_1")
     tempNode.addVariable("TS1_test", "value")
@@ -94,6 +100,7 @@ def quick_start():
     
     server.addNodes([tempNode, lightBulb])
     server.run()
+    
   
 def start_from_json(path):
     lines = open(path, "r").readlines()
@@ -107,7 +114,8 @@ def start_from_json(path):
         node = UA_Node(nodeConfig)
         server.addNode(node)
         
-    server.run()        
+    server.run()  
+          
   
 if __name__ == "__main__":  
     start_from_json("server.config.json")

@@ -25,3 +25,9 @@ sudo apt update
 sudo apt install python3-pip
 pip3 install opcua
 
+# to build docker image
+sudo docker build -t opcua_server .
+
+# to run docker image
+sudo docker run --rm -it -p 8100:8100 opcua_server
+

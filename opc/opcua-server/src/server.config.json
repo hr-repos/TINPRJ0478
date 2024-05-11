@@ -1,0 +1,36 @@
+{
+    "address": "127.0.0.1",
+    "port": 8100,
+    "name": "tunnel_OPCUA_server",
+
+    "namespaces":
+    [
+        "2",
+        "3"
+    ],
+
+    "nodes":
+    [
+        {
+            "name": "verkeerslight_1",
+            "nodeID": "vkl1",
+            "namespace": "2",
+            "variables":
+            [
+                {"id": "vkl1_ID", "value": 1, "writeable": false},
+                {"id": "vkl1_mode", "value": 0}
+            ]
+        },
+        {
+            "name": "afsluitboom_1",
+            "nodeID": "asb1",
+            "namespace": "2",
+            "variables":
+            [
+                {"id": "abs1_ID", "value": 1, "writeable": false},
+                {"id": "abs1_mode", "value": 0}
+            ]
+        }
+    ]
+
+}
