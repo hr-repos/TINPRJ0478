@@ -52,13 +52,13 @@ namespace Backend.OPCUA
         }
 
 
-        public List<UA_Variable> UpdateAllVariables(EasyUAClient client)
+        public async Task<List<UA_Variable>> UpdateAllVariables(EasyUAClient client)
         {
             List<UA_Variable> variables = new();
 
             foreach ((string valueName, UA_Variable variable) in Values)
             {
-                OpcuaValue? Value = TryGetNodeValue(valueName, client);
+                OpcuaValue? Value = await TryGetNodeValue(valueName, client);
                 variable.Value = Value;
                 variables.Add(variable);
             }
@@ -66,13 +66,13 @@ namespace Backend.OPCUA
             return variables;
         }
 
-        public OpcuaValue? TryGetNodeValue(string ValueName, EasyUAClient client)
+        public async Task<OpcuaValue?> TryGetNodeValue(string ValueName, EasyUAClient client)
         {
             OpcuaValue? value;
             UA_Variable? variable = TryGetVariable(ValueName);
             if (variable == null)
             {
-                Console.WriteLine($"variableName: {ValueName} not recognized by this my client");
+                await Console.Out.WriteLineAsync($"variableName: {ValueName} not recognized by this my client");
                 return false;
             }
 
@@ -83,25 +83,25 @@ namespace Backend.OPCUA
             }
             catch (UAException ex)
             {
-                Console.WriteLine(ex.Message);
+                await Console.Out.WriteLineAsync(ex.Message);
                 return null;
             }
 
             return value;
         }
 
-        public bool TrySetNodeValue(string ValueName, OpcuaValue value, EasyUAClient client)
+        public async Task<bool> TrySetNodeValue(string ValueName, OpcuaValue value, EasyUAClient client)
         {
             UA_Variable? variable = TryGetVariable(ValueName);
             if(variable == null)
             {
-                Console.WriteLine($"variableName: {ValueName} not recognized by this my client");
+                await Console.Out.WriteLineAsync($"variableName: {ValueName} not recognized by this my client");
                 return false;
             }
 
             if(variable.ReadOnly == true)
             {
-                Console.WriteLine($"cant set: {ValueName} server has set this variable to readonly");
+                await Console.Out.WriteLineAsync($"cant set: {ValueName} server has set this variable to readonly");
                 return false;
             }
 
@@ -114,7 +114,7 @@ namespace Backend.OPCUA
             }
             catch (UAException ex)
             {
-                Console.WriteLine(ex.Message);
+                await Console.Out.WriteLineAsync(ex.Message);
                 return false;
             }
 

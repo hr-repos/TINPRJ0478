@@ -16,7 +16,7 @@ namespace Backend
         
         public async Task Run() 
         {
-            Console.WriteLine("starting controller...");
+            await Console.Out.WriteLineAsync("starting controller...");
 
             if (await Mqtt.Connect())
                 await Console.Out.WriteLineAsync("mqtt connection SUCCESS");
@@ -59,7 +59,7 @@ namespace Backend
 
                         (UA_Variable variable, UA_Node node) = GetVariableAndNode(topic);
 
-                        if (!node.TrySetNodeValue(topic, message, Opcua.Client))
+                        if (!await node.TrySetNodeValue(topic, message, Opcua.Client))
                             Console.Out.WriteLine("!!<error> no value set!!");
                         break;
                 }

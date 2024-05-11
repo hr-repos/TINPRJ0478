@@ -33,7 +33,7 @@ namespace Backend.OPCUA
         {
             try
             {
-                Console.WriteLine("\nstarting opcua connection...\n");
+                await Console.Out.WriteLineAsync("\nstarting opcua connection...\n");
 
                 Client.DataChangeNotification += DataChangeHandler;
 
@@ -105,17 +105,17 @@ namespace Backend.OPCUA
 
                 if (variableName == null || variable == null || node == null)
                 {
-                    Console.WriteLine($"NodeDescriptor: {variableName} not recognized by this my client");
+                    await Console.Out.WriteLineAsync($"NodeDescriptor: {variableName} not recognized by this my client");
                     return;
                 }
 
-                Console.WriteLine($"server has the node: \"{node.NodeID.Split('\"')[1]}\", variable: \"{variableName}\" changes to: {value}");
+                await Console.Out.WriteLineAsync($"server has the node: \"{node.NodeID.Split('\"')[1]}\", variable: \"{variableName}\" changes to: {value}");
 
                 await Handler(variable, value);
             }
             else
             {
-                Console.WriteLine($"error: {args.ErrorMessage}");
+                await Console.Out.WriteLineAsync($"error: {args.ErrorMessage}");
             }
         }
 
