@@ -1,6 +1,6 @@
 {
   "host": "mosquitto",
-  "port": 8800,
+  "port": 8802,
   "username": "connectedsystems",
   "password": "tincos",
 

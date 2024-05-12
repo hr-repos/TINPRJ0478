@@ -5,16 +5,16 @@ WORKDIR /app
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
-COPY ["Backend/Backend.csproj", "Backend/"]
-RUN dotnet restore "Backend/Backend.csproj"
+COPY ["ControlCentrum/ControlCentrum.csproj", "ControlCentrum/"]
+RUN dotnet restore "ControlCentrum/ControlCentrum.csproj"
 COPY . .
-WORKDIR "/src/Backend"
-RUN dotnet build "Backend.csproj" -c Release -o /app/build
+WORKDIR "/src/ControlCentrum"
+RUN dotnet build "ControlCentrum.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "Backend.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "ControlCentrum.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "Backend.dll"]
+ENTRYPOINT ["dotnet", "ControlCentrum.dll"]

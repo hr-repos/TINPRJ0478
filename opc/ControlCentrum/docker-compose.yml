@@ -4,18 +4,16 @@ services:
   mosquitto:
     image: eclipse-mosquitto
     hostname: mosquitto
-    container_name: backend-mosquitto
+    container_name: ControlCentrum-mosquitto
     restart: unless-stopped
     ports:
-      - "8800:8800" 
+      - "8802:8802" 
     volumes:
       - ./mosquitto/config:/mosquitto/config:rw
       - ./mosquitto/data:/mosquitto/data:rw
       - ./mosquitto/log:/mosquitto/log:rw
-    
-  backend:
-    image: ${DOCKER_REGISTRY-}backend
+  controlcentrum:
+    image: ${DOCKER_REGISTRY-}controlcentrum
     build:
       context: .
-      dockerfile: Backend/Dockerfile
-
+      dockerfile: ControlCentrum/Dockerfile

@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "ControlCentrum": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}
