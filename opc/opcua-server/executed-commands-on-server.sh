@@ -50,7 +50,9 @@ pip3 install opcua
     newgrp docker
 #end
 
+
 # build docker image
+cd opcua-server
 sudo docker build -t opcua_server .
 
 # run docker image

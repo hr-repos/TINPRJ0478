@@ -52,7 +52,7 @@ namespace testMqtt.Mqtt
             if (connectResult == null || !IsConnectionSuccess(connectResult))
             {
                 string reason = connectResult?.ReasonString ?? "connectResult.ReasonString not found";
-                await Console.Out.WriteLineAsync($"!!error!! connection not successful: {reason}");
+                await Console.Out.WriteLineAsync($"!!<error> connection not successful: {reason}!!");
                 return false;
             }
 
@@ -80,7 +80,7 @@ namespace testMqtt.Mqtt
             }
             catch (Exception ex)
             {
-                await Console.Out.WriteLineAsync(string.Format("!!error!! while subscribing[topic:{0}]: {1}", topic, ex.Message));
+                await Console.Out.WriteLineAsync($"!!<error> while subscribing[topic:{topic}]: {ex.Message}!!");
                 return false;
             }
 
@@ -124,7 +124,7 @@ namespace testMqtt.Mqtt
             }
             catch (Exception ex)
             {
-                await Console.Out.WriteLineAsync($"!!error!! messageHandler throws exception[topic: {topic}, message: {message}]: {ex.Message}");
+                await Console.Out.WriteLineAsync($"!!<error> messageHandler throws exception[topic: {topic}, message: {message}]: {ex.Message}!!");
             }
         }
 

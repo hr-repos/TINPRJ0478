@@ -6,7 +6,7 @@
     {
       "name": "verkeerslight_1",
       "nodeID": "vkl1",
-      "namespace": "2",
+      "namespace": "verander",
       "variables": [
         {
           "name": "id",
@@ -22,7 +22,7 @@
     {
       "name": "afsluitboom_1",
       "nodeID": "asb1",
-      "namespace": "2",
+      "namespace": "verander",
       "variables": [
         {
           "name": "id",

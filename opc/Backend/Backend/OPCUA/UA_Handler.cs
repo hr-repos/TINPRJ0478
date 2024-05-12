@@ -7,9 +7,16 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using testMqtt.Mqtt;
+using OpcLabs.EasyOpc.UA.AddressSpace.Standard;
 
 namespace Backend.OPCUA
 {
+    public static class IEnumerableExtensions
+    {
+        public static IEnumerable<(T item, int index)> WithIndex<T>(this IEnumerable<T> self)
+            => self.Select((item, index) => (item, index));
+    }
+
     public class UA_Handler
     {
         public EasyUAClient Client { get; set; } = new();
@@ -17,6 +24,8 @@ namespace Backend.OPCUA
 
         public List<UA_Node> Nodes { get; set; } = new();
         public Dictionary<string/*nodeID*/, string/*name*/> Variables { get; set; } = new();
+
+        public string[] NamespaceArray { get; set; }
 
         public UA_Handler(Func<UA_Variable, OpcuaValue, Task> handler, string configPath = "OPCUA/opcuaClient.config.json")
         {
@@ -65,13 +74,21 @@ namespace Backend.OPCUA
         private void SetupClient(OpcUA_Config config)
         {
             string endpoint = $"opc.tcp://{config.Address}:{config.Port}";
+            NamespaceArray = (string[])Client.ReadValue(endpoint, UAVariableIds.Server_NamespaceArray);
 
             foreach (var node in config.Nodes)
             {
+                string? namespaceIndex = FindNamespaceIndex(node.Namespace);
+                if(namespaceIndex == null)
+                {
+                    Console.WriteLine($"!!<error> failed to get namespaceIndex of node: {node.Name}!!");
+                    continue;
+                }
+
                 UA_Node newNode = new
                 (
                     endpoint,
-                    node.Namespace,
+                    namespaceIndex,
                     node.NodeID
                 );
 
@@ -83,7 +100,7 @@ namespace Backend.OPCUA
 
                     newNode.AddVariable(name, id);
 
-                    string varDescriptor = $"ns={node.Namespace};s=\"{id}\"";
+                    string varDescriptor = $"ns={namespaceIndex};s=\"{id}\"";
                     Variables[varDescriptor] = name;
                 }
                 
@@ -117,6 +134,17 @@ namespace Backend.OPCUA
             {
                 await Console.Out.WriteLineAsync($"error: {args.ErrorMessage}");
             }
+        }
+
+        private string? FindNamespaceIndex(string namespaceName)
+        {
+            foreach((string name, int index) in NamespaceArray.WithIndex())
+            {
+                if(name == namespaceName) 
+                    return index.ToString();
+            }
+
+            return null;
         }
 
         public (UA_Variable? variable, UA_Node? node) TryGetNodeAndVariable_FromName(string VariableName)

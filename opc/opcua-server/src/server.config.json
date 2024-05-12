@@ -5,8 +5,8 @@
 
     "namespaces":
     [
-        "2",
-        "3"
+        "verander",
+        "terugkoppeling"
     ],
 
     "nodes":
@@ -14,7 +14,7 @@
         {
             "name": "verkeerslight_1",
             "nodeID": "vkl1",
-            "namespace": "2",
+            "namespace": "verander",
             "variables":
             [
                 {"id": "vkl1_ID", "value": 1, "writeable": false},
@@ -24,7 +24,7 @@
         {
             "name": "afsluitboom_1",
             "nodeID": "asb1",
-            "namespace": "2",
+            "namespace": "verander",
             "variables":
             [
                 {"id": "abs1_ID", "value": 1, "writeable": false},

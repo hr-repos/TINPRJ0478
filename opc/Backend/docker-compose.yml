@@ -7,7 +7,7 @@ services:
     container_name: mosquitto
     restart: unless-stopped
     ports:
-      - "8883:1883" 
+      - "8883:8883" 
     volumes:
       - ./mosquitto/config:/mosquitto/config:rw
       - ./mosquitto/data:/mosquitto/data:rw
@@ -18,3 +18,4 @@ services:
     build:
       context: .
       dockerfile: Backend/Dockerfile
+

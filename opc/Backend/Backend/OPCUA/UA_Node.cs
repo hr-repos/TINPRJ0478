@@ -72,7 +72,7 @@ namespace Backend.OPCUA
             UA_Variable? variable = TryGetVariable(ValueName);
             if (variable == null)
             {
-                await Console.Out.WriteLineAsync($"variableName: {ValueName} not recognized by this my client");
+                await Console.Out.WriteLineAsync($"!!<error> variableName: {ValueName} not recognized by this my client!!");
                 return false;
             }
 
@@ -95,13 +95,13 @@ namespace Backend.OPCUA
             UA_Variable? variable = TryGetVariable(ValueName);
             if(variable == null)
             {
-                await Console.Out.WriteLineAsync($"variableName: {ValueName} not recognized by this my client");
+                await Console.Out.WriteLineAsync($"!!<error> variableName: {ValueName} not recognized by this my client!!");
                 return false;
             }
 
             if(variable.ReadOnly == true)
             {
-                await Console.Out.WriteLineAsync($"cant set: {ValueName} server has set this variable to readonly");
+                await Console.Out.WriteLineAsync($"!!<ERROR> cant set: {ValueName} server has set this variable to readonly!!");
                 return false;
             }
 

@@ -1,5 +1,5 @@
 {
-  "host": "localhost", 
+  "host": "mosquitto",
   "port": 8883,
   "username": "connectedsystems",
   "password": "tincos",
