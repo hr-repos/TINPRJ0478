@@ -2,34 +2,30 @@
   <div class="dashboard">
     <h1>Dashboard</h1>
     <div class="controls">
-      <!-- Verkeerslicht en slagboom controls voor de eerste weg -->
       <div class="verkeerslicht-controls">
-        <h2>Verkeerslichten en slagbomen</h2>
-        <!-- Stoplicht 1 controls -->
         <div class="stoplicht-control">
-          <h3>Verkeerslicht 1</h3>
+          <h3>Stoplicht 1</h3>
           <button @click="toggleStoplicht('rood', 1)" :class="{ 'on': stoplichtKleur[1] === 'rood', 'red': true }">Rood</button>
-          <button @click="toggleStoplicht('oranje', 1)" :class="{ 'on': stoplichtKleur[1] === 'oranje', 'orange': true }">Oranje</button>
+          <button @click="toggleStoplicht('geel', 1)" :class="{ 'on': stoplichtKleur[1] === 'geek', 'orange': true }">Geel</button>
+          <button @click="knipperGeel(1)" :class="{ 'knipper-actief': isKnipperActief(1) }">Knipper Geel</button>
           <button @click="toggleStoplicht('groen', 1)" :class="{ 'on': stoplichtKleur[1] === 'groen', 'green': true }">Groen</button>
         </div>
-        <!-- Stoplicht 2 controls -->
         <div class="stoplicht-control">
-          <h3>Verkeerslicht </h3>
+          <h3>Stoplicht 2</h3>
           <button @click="toggleStoplicht('rood', 2)" :class="{ 'on': stoplichtKleur[2] === 'rood', 'red': true }">Rood</button>
-          <button @click="toggleStoplicht('oranje', 2)" :class="{ 'on': stoplichtKleur[2] === 'oranje', 'orange': true }">Oranje</button>
+          <button @click="toggleStoplicht('geel', 2)" :class="{ 'on': stoplichtKleur[2] === 'geel', 'orange': true }">Geel</button>
+          <button @click="knipperGeel(2)" :class="{ 'knipper-actief': isKnipperActief(2) }">Knipper Geel</button>
           <button @click="toggleStoplicht('groen', 2)" :class="{ 'on': stoplichtKleur[2] === 'groen', 'green': true }">Groen</button>
         </div>
-        <!-- Slagbomen controls -->
         <div class="slagboom-controls">
-          <h3>Slagbomen</h3>
-          <button @click="toggleSlagboom(1)" :class="{ 'on': slagboomStatus[1] }">Slagboom 1: {{ slagboomStatus[1] ? 'Open' : 'Gesloten' }}</button>
-          <button @click="toggleSlagboom(2)" :class="{ 'on': slagboomStatus[2] }">Slagboom 2: {{ slagboomStatus[2] ? 'Open' : 'Gesloten' }}</button>
+          <h3>Afslagboom</h3>
+          <button @click="toggleSlagboom(1)" :class="{ 'on': slagboomStatus[1] }">Afslagboom 1: {{ slagboomStatus[1] ? 'Open' : 'Gesloten' }}</button>
+          <button @click="toggleSlagboom(2)" :class="{ 'on': slagboomStatus[2] }">Afslagboom 2: {{ slagboomStatus[2] ? 'Open' : 'Gesloten' }}</button>
         </div>
       </div>
-      <!-- Resetknop -->
       <button @click="resetAlles">Reset</button>
+      <button @click="startSimulatie">Demo</button>
     </div>
-    
     <div class="situatie-overzicht">
       <h2>Situatieoverzicht</h2>
       <ul>
@@ -39,20 +35,30 @@
         <li>Slagboom 2: {{ slagboomStatus[2] ? 'Open' : 'Gesloten' }}</li>
       </ul>
     </div>
-
-    <!-- Wegen met verkeerslichten en slagbomen -->
     <div class="autoweg-container">
-      <!-- Eerste weg met stoplichten en slagbomen -->
       <div class="weg-representatie">
         <div class="stoplichten-en-slagbomen">
-          <div class="stoplicht" :class="{ 'on': stoplichtKleur[1] === 'rood', 'red': true }"></div>
-          <div class="stoplicht" :class="{ 'on': stoplichtKleur[1] === 'oranje', 'orange': true }"></div>
-          <div class="stoplicht" :class="{ 'on': stoplichtKleur[1] === 'groen', 'green': true }"></div>
-          <div class="slagboom" :class="{ 'on': slagboomStatus[1] }"></div>
-          <div class="stoplicht" :class="{ 'on': stoplichtKleur[2] === 'rood', 'red': true }"></div>
-          <div class="stoplicht" :class="{ 'on': stoplichtKleur[2] === 'oranje', 'orange': true }"></div>
-          <div class="stoplicht" :class="{ 'on': stoplichtKleur[2] === 'groen', 'green': true }"></div>
-          <div class="slagboom" :class="{ 'on': slagboomStatus[2] }"></div>
+          <!-- Set 1 met nummering in witte kleur en slagboom bovenaan -->
+          <div style="display: flex; align-items: center;">
+            <div style="padding-right: 10px; font-size: 20px; color: white;">1</div>
+            <div>
+              <div class="slagboom slagboom-boven" :class="{ 'on': slagboomStatus[1] }"></div>
+              <div class="stoplicht" :class="{ 'on': stoplichtKleur[1] === 'rood', 'red': true }"></div>
+              <div class="stoplicht" :class="{ 'on': stoplichtKleur[1] === 'geel', 'orange': true }"></div>
+              <div class="stoplicht" :class="{ 'on': stoplichtKleur[1] === 'groen', 'green': true }"></div>
+            </div>
+          </div>
+        
+          <!-- Set 2 met nummering in witte kleur en slagboom onderaan gedraaid -90 graden -->
+          <div style="display: flex; align-items: center;">
+            <div style="padding-right: 10px; font-size: 20px; color: white;">2</div>
+            <div>
+              <div class="stoplicht" :class="{ 'on': stoplichtKleur[2] === 'rood', 'red': true }"></div>
+              <div class="stoplicht" :class="{ 'on': stoplichtKleur[2] === 'geek', 'orange': true }"></div>
+              <div class="stoplicht" :class="{ 'on': stoplichtKleur[2] === 'groen', 'green': true }"></div>
+              <div class="slagboom slagboom-onder" :class="{ 'on': slagboomStatus[2] }"></div>
+            </div>
+          </div>
         </div>
       </div>
       <!-- Tweede weg zonder stoplichten en slagbomen -->
@@ -71,34 +77,31 @@ export default {
       stoplichtKleur: {},
       slagboomStatus: {},
       verkeersintensiteit: 'laag',
+      simulatieInterval: null,
+      knipperInterval: null,
+      knipperStatus: { 1: false, 2: false },
     };
   },
   methods: {
     toggleStoplicht(kleur, nummer) {
-  // Als de huidige kleur van het stoplicht gelijk is aan de geselecteerde kleur,
-  // zet deze dan op 0 (uit).
-  if (this.stoplichtKleur[nummer] === kleur) {
-    this.stoplichtKleur[nummer] = null;
-    this.publishMessage(`vkl${nummer}/${kleur}`, '0');
-  } else {
-    // Zet de oude kleur van het relevante stoplicht naar 0
-    if (this.stoplichtKleur[nummer] === 'rood') {
-      this.publishMessage(`vkl${nummer}/rood`, '0');
-    } else if (this.stoplichtKleur[nummer] === 'oranje') {
-      this.publishMessage(`vkl${nummer}/oranje`, '0');
-    } else if (this.stoplichtKleur[nummer] === 'groen') {
-      this.publishMessage(`vkl${nummer}/groen`, '0');
-    }
-
-    // Stel de kleur van het stoplicht in op de geselecteerde kleur
-    this.stoplichtKleur[nummer] = kleur;
-    const topic = `vkl${nummer}/${kleur}`;
-    const message = kleur ? '1' : '0';
-    this.publishMessage(topic, message);
-  }
-},
-
-
+      if (this.stoplichtKleur[nummer] === kleur) {
+        this.stoplichtKleur[nummer] = null;
+        this.publishMessage(`vkl${nummer}/${kleur}`, '0');
+      } else {
+        if (this.stoplichtKleur[nummer] === 'rood') {
+          this.publishMessage(`vkl${nummer}/rood`, '0');
+        } else if (this.stoplichtKleur[nummer] === 'geel') {
+          this.publishMessage(`vkl${nummer}/geel`, '0');
+        } else if (this.stoplichtKleur[nummer] === 'groen') {
+          this.publishMessage(`vkl${nummer}/groen`, '0');
+        }
+        
+        this.stoplichtKleur[nummer] = kleur;
+        const topic = `vkl${nummer}/${kleur}`;
+        const message = kleur ? '1' : '0';
+        this.publishMessage(topic, message);
+      }
+    },
     toggleSlagboom(nummer) {
       this.slagboomStatus[nummer] = !this.slagboomStatus[nummer];
       const topic = `asb/${nummer}`;
@@ -107,14 +110,78 @@ export default {
     },
     resetAlles() {
       for (let i = 1; i <= 2; i++) {
-        this.stoplichtKleur[i] = null; // Reset de kleur van de stoplichten naar null
-        this.slagboomStatus[i] = false; // Sluit de slagbomen
-        // Stuur resetbericht naar slagbomen van weg 'i'
+        this.stoplichtKleur[i] = null;
+        this.slagboomStatus[i] = false;
         this.publishMessage(`asb/${i}`, '0');
-        // Stuur berichten om de kleur van de stoplichten op nul te zetten
         this.publishMessage(`vkl${i}/rood`, '0');
-        this.publishMessage(`vkl${i}/oranje`, '0');
+        this.publishMessage(`vkl${i}/geel`, '0');
         this.publishMessage(`vkl${i}/groen`, '0');
+      }
+      if (this.knipperInterval) {
+        clearInterval(this.knipperInterval);
+        this.knipperInterval = null;
+        this.knipperStatus = { 1: false, 2: false };
+      }
+    },
+    knipperGeel(nummer) {
+      if (this.knipperStatus[nummer]) {
+        clearInterval(this.knipperInterval);
+        this.knipperInterval = null;
+        this.knipperStatus[nummer] = false;
+        this.toggleStoplicht(null, nummer); // Zet het licht uit als het knipperen stopt
+      } else {
+        this.knipperStatus[nummer] = true;
+        this.knipperInterval = setInterval(() => {
+          if (this.stoplichtKleur[nummer] === 'geel') {
+            this.toggleStoplicht(null, nummer); // Zet geel uit
+          } else {
+            this.toggleStoplicht('geel', nummer); // Zet geel aan
+          }
+        }, 500); // Verander elke seconde de staat
+      }
+    },
+    isKnipperActief(nummer) {
+      return this.knipperStatus[nummer];
+    },
+    startSimulatie() {
+      this.resetAlles(); // Reset alle lichten en slagbomen voor de simulatie begint
+      let steps = [
+        { action: () => this.toggleStoplicht('rood', 1), delay: 2000 },
+        { action: () => this.toggleSlagboom(1), delay: 10000 },
+        { action: () => this.toggleStoplicht('groen', 1), delay: 2000 },
+        { action: () => this.toggleStoplicht('geel', 1), delay: 500 },
+        { action: () => this.toggleStoplicht('geel', 1), delay: 500 },
+        { action: () => this.toggleStoplicht('geel', 1), delay: 500 },
+        { action: () => this.toggleStoplicht('geel', 1), delay: 500 },
+        { action: () => this.toggleStoplicht('geel', 1), delay: 3000 },
+        { action: () => this.toggleStoplicht('rood', 1), delay: 2000 },
+        { action: () => this.toggleSlagboom(1), delay: 10000 },
+
+
+
+      ];
+
+      let index = 0;
+      const executeStep = () => {
+        let step = steps[index];
+        step.action();
+        index++;
+        if (index < steps.length) {
+          setTimeout(executeStep, step.delay);
+        } else {
+          index = 0; // Reset voor de volgende cyclus
+          setTimeout(executeStep, 30000); // Herstart na de volledige cyclus
+        }
+      };
+
+      executeStep(); // Start de eerste stap
+    },
+    stopSimulatie() {
+      clearInterval(this.simulatieInterval);
+      if (this.knipperInterval) {
+        clearInterval(this.knipperInterval);
+        this.knipperInterval = null;
+        this.knipperStatus = { 1: false, 2: false };
       }
     },
     publishMessage(topic, message) {
@@ -129,6 +196,7 @@ export default {
   }
 };
 </script>
+
 
 <style scoped>
 .dashboard {
@@ -235,7 +303,7 @@ export default {
   position: absolute;
   top: 50%;
   left: 0;
-  right: 0;
+  width: calc(100% - 200px); 
   height: 4px;
   background: repeating-linear-gradient(
     to right,
@@ -284,28 +352,32 @@ export default {
 
 /* Stijlen voor de slagbomen */
 .slagboom {
-  width: 60px;
+  width: 70px;
   height: 10px;
-  background-color: #555; /* Kleur wanneer de slagboom gesloten is */
-  border: 2px solid #333; /* Rand om de slagbomen te benadrukken */
-  position: absolute; 
-  right: 50%; 
-  transform: translateX(-50%); 
-}
-
-.slagboom {
-  transition: transform 10.0s ease; 
-  transform-origin: left; 
-}
-
-.slagboom {
   background: linear-gradient(to right, white 25%, red 25%, red 50%, white 50%, white 75%, red 75%);
-  width: 70px;  
-  height: 10px;  
-  transition: transform 10s ease; 
+  border: 2px solid #333; /* Rand om de slagbomen te benadrukken */
+  position: absolute;
+  right: 50%;
+  transform: translateX(-50%); /* Startpositie, gecentreerd */
+  transition: transform 10s ease;
+  transform-origin: left;
+}
+
+.slagboom-boven {
+  transform: translateX(-50%) rotate(90deg); 
+}
+
+.slagboom-onder {
+  transform: translateX(-50%) rotate(-90deg); 
 }
 
 .slagboom.on {
-  transform: rotate(-90deg);
+  transform: translateX(-50%) rotate(0deg); 
 }
+
+.knipper-actief {
+  background-color: yellow;
+  color: black;
+}
+
 </style>
