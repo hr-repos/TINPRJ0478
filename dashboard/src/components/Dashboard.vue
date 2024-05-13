@@ -2,32 +2,35 @@
   <div class="dashboard">
     <h1>Dashboard</h1>
     <div class="controls">
-      <div class="verkeerslicht-controls">
-        <div class="stoplicht-control">
-          <h3>Stoplicht 1</h3>
-          <button @click="toggleStoplicht('rood', 1)" :class="{ 'on': stoplichtKleur[1] === 'rood', 'red': true }">Rood</button>
-          <button @click="toggleStoplicht('geel', 1)" :class="{ 'on': stoplichtKleur[1] === 'geek', 'orange': true }">Geel</button>
-          <button @click="knipperGeel(1)" :class="{ 'knipper-actief': isKnipperActief(1) }">Knipper Geel</button>
-          <button @click="toggleStoplicht('groen', 1)" :class="{ 'on': stoplichtKleur[1] === 'groen', 'green': true }">Groen</button>
-        </div>
-        <div class="stoplicht-control">
-          <h3>Stoplicht 2</h3>
-          <button @click="toggleStoplicht('rood', 2)" :class="{ 'on': stoplichtKleur[2] === 'rood', 'red': true }">Rood</button>
-          <button @click="toggleStoplicht('geel', 2)" :class="{ 'on': stoplichtKleur[2] === 'geel', 'orange': true }">Geel</button>
-          <button @click="knipperGeel(2)" :class="{ 'knipper-actief': isKnipperActief(2) }">Knipper Geel</button>
-          <button @click="toggleStoplicht('groen', 2)" :class="{ 'on': stoplichtKleur[2] === 'groen', 'green': true }">Groen</button>
-        </div>
-        <div class="slagboom-controls">
-          <h3>Afslagboom</h3>
-          <button @click="toggleSlagboom(1)" :class="{ 'on': slagboomStatus[1] }">Afslagboom 1: {{ slagboomStatus[1] ? 'Open' : 'Gesloten' }}</button>
-          <button @click="toggleSlagboom(2)" :class="{ 'on': slagboomStatus[2] }">Afslagboom 2: {{ slagboomStatus[2] ? 'Open' : 'Gesloten' }}</button>
-        </div>
-      </div>
+      <details>
+        <summary><h2>Stoplicht 1</h2></summary>
+        <button @click="toggleStoplicht('rood', 1)" :class="{ 'on': stoplichtKleur[1] === 'rood', 'red': true }">Rood</button>
+        <button @click="toggleStoplicht('geel', 1)" :class="{ 'on': stoplichtKleur[1] === 'geel', 'orange': true }">Geel</button>
+        <button @click="knipperGeel(1)" :class="{ 'knipper-actief': isKnipperActief(1) }">Knipper Geel</button>
+        <button @click="toggleStoplicht('groen', 1)" :class="{ 'on': stoplichtKleur[1] === 'groen', 'green': true }">Groen</button>
+      </details>
+      
+      <details>
+        <summary><h2>Stoplicht 2</h2></summary>
+        <button @click="toggleStoplicht('rood', 2)" :class="{ 'on': stoplichtKleur[2] === 'rood', 'red': true }">Rood</button>
+        <button @click="toggleStoplicht('geel', 2)" :class="{ 'on': stoplichtKleur[2] === 'geel', 'orange': true }">Geel</button>
+        <button @click="knipperGeel(2)" :class="{ 'knipper-actief': isKnipperActief(2) }">Knipper Geel</button>
+        <button @click="toggleStoplicht('groen', 2)" :class="{ 'on': stoplichtKleur[2] === 'groen', 'green': true }">Groen</button>
+      </details>
+
+      <details>
+        <summary><h2>Afslagbomen</h2></summary>
+        <button @click="toggleSlagboom(1)" :class="{ 'on': slagboomStatus[1] }">Afslagboom 1: {{ slagboomStatus[1] ? 'Open' : 'Gesloten' }}</button>
+        <button @click="toggleSlagboom(2)" :class="{ 'on': slagboomStatus[2] }">Afslagboom 2: {{ slagboomStatus[2] ? 'Open' : 'Gesloten' }}</button>
+      </details>
+
       <button @click="resetAlles">Reset</button>
       <button @click="startSimulatie">Demo</button>
     </div>
+
+    
     <div class="situatie-overzicht">
-      <h2>Situatieoverzicht</h2>
+      <summary><h2>Situatieoverzicht</h2></summary>
       <ul>
         <li>Stoplicht 1 kleur: {{ stoplichtKleur[1] || 'Uit' }}</li>
         <li>Stoplicht 2 kleur: {{ stoplichtKleur[2] || 'Uit' }}</li>
@@ -54,7 +57,7 @@
             <div style="padding-right: 10px; font-size: 20px; color: white;">2</div>
             <div>
               <div class="stoplicht" :class="{ 'on': stoplichtKleur[2] === 'rood', 'red': true }"></div>
-              <div class="stoplicht" :class="{ 'on': stoplichtKleur[2] === 'geek', 'orange': true }"></div>
+              <div class="stoplicht" :class="{ 'on': stoplichtKleur[2] === 'geel', 'orange': true }"></div>
               <div class="stoplicht" :class="{ 'on': stoplichtKleur[2] === 'groen', 'green': true }"></div>
               <div class="slagboom slagboom-onder" :class="{ 'on': slagboomStatus[2] }"></div>
             </div>
@@ -156,9 +159,6 @@ export default {
         { action: () => this.toggleStoplicht('geel', 1), delay: 3000 },
         { action: () => this.toggleStoplicht('rood', 1), delay: 2000 },
         { action: () => this.toggleSlagboom(1), delay: 10000 },
-
-
-
       ];
 
       let index = 0;
