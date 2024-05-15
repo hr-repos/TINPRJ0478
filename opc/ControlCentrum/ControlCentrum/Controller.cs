@@ -8,7 +8,7 @@ namespace ControlCentrum
     {
         public EasyMqtt Mqtt { get; set; }
         public UA_Handler Opcua { get; set; }
-        static readonly string COMMANDO = "terugkoppeling";
+        static readonly string COMMANDO = "verander";
 
         public Controller()
         {
@@ -75,15 +75,6 @@ namespace ControlCentrum
 
             UA_Variable variable;
             UA_Node node;
-
-            if(message == "reset")
-            {
-                foreach(UA_Node currentNode in Opcua.Nodes)
-                {
-                    await currentNode.TrySetNodeValue("mode", 0, Opcua.Client);
-                }
-                return;
-            }
 
             try 
             { 

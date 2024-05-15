@@ -10,11 +10,11 @@ namespace Backend.Mqtt
     public class EasyMqtt
     {
         private readonly IMqttClient mqttClient;
-        private readonly Func<MqttPayload, Task> messageHandler;
+        public Func<MqttPayload, Task> MessageHandler { private get; set; }
 
         public EasyMqtt(Func<MqttPayload, Task> messageHandler)
         {
-            this.messageHandler = messageHandler;
+            MessageHandler = messageHandler;
             mqttClient = new MqttFactory().CreateMqttClient();
         }
 
@@ -112,15 +112,15 @@ namespace Backend.Mqtt
                 await Console.Out.WriteLineAsync("!!error!! message is empty");
                 return;
             }
-            
+
             string? message = PayloadToString(payLoad);
 
-            if(message.Contains(':'))
+            if (message.Contains(':'))
                 message = message.Split(':')[1];
 
             try
             {
-                await messageHandler(new MqttPayload(topic, message));
+                await MessageHandler(new MqttPayload(topic, message));
             }
             catch (Exception ex)
             {
@@ -128,12 +128,12 @@ namespace Backend.Mqtt
             }
         }
 
-        private string PayloadToString(byte[] payload)
+        private static string PayloadToString(byte[] payload)
         {
             return Encoding.UTF8.GetString(payload);
         }
 
-        private async Task<bool> PublishTopics(List<MqttPayload> publishes) 
+        private async Task<bool> PublishTopics(List<MqttPayload> publishes)
         {
             foreach (MqttPayload publish in publishes)
             {
@@ -145,7 +145,7 @@ namespace Backend.Mqtt
 
             return true;
         }
-        
+
         private async Task<bool> Publish(MqttPayload publish)
         {
             MqttApplicationMessage message = new MqttApplicationMessageBuilder()
@@ -169,7 +169,7 @@ namespace Backend.Mqtt
 
         }
 
-        private static bool IsConnectionSuccess(MqttClientConnectResult connectResult) 
+        private static bool IsConnectionSuccess(MqttClientConnectResult connectResult)
         {
             return connectResult.ResultCode == MqttClientConnectResultCode.Success;
         }

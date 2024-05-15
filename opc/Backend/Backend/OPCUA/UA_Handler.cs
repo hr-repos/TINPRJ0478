@@ -14,12 +14,13 @@ namespace Backend.OPCUA
     public class UA_Handler
     {
         public EasyUAClient Client { get; set; } = new();
-        public Func<UA_Variable, OpcuaValue, Task> Handler { get; set; }
+        public Func<UA_Variable, OpcuaValue, Task> Handler { private get; set; }
 
         public List<UA_Node> Nodes { get; set; } = new();
         public Dictionary<string/*nodeID*/, string/*name*/> Variables { get; set; } = new();
 
         public string[]? NamespaceArray { get; set; }
+
 
         public UA_Handler(Func<UA_Variable, OpcuaValue, Task> handler, string configPath = "OPCUA/opcuaClient.config.json")
         {
@@ -41,7 +42,10 @@ namespace Backend.OPCUA
                 Client.DataChangeNotification += DataChangeHandler;
 
                 foreach (var node in Nodes)
+                {
+                    await node.UpdateAllVariables(Client);
                     node.SubscribeDataChange(Client);
+                }
 
                 return true;
             }
@@ -53,7 +57,7 @@ namespace Backend.OPCUA
             return false;
         }
 
-        private static OpcUA_Config? GetJsonConfig(string path) 
+        private static OpcUA_Config? GetJsonConfig(string path)
         {
             StreamReader reader = new(path);
             string rawJson = reader.ReadToEnd();
@@ -73,7 +77,7 @@ namespace Backend.OPCUA
             foreach (var node in config.Nodes)
             {
                 string? namespaceIndex = FindNamespaceIndex(node.Namespace);
-                if(namespaceIndex == null)
+                if (namespaceIndex == null)
                 {
                     Console.WriteLine($"!!<error> failed to get namespaceIndex of node: {node.Name}!!");
                     continue;
@@ -97,65 +101,94 @@ namespace Backend.OPCUA
                     string varDescriptor = $"ns={namespaceIndex};s=\"{id}\"";
                     Variables[varDescriptor] = name;
                 }
-                
+
                 Nodes.Add(newNode);
             }
         }
 
         private async void DataChangeHandler(object sender, EasyUADataChangeNotificationEventArgs args)
         {
-            if (args.Succeeded)
-            {
-                object value = args.AttributeData.Value;
 
-                string varID = args.Arguments.NodeDescriptor.NodeId.ToString();
-
-                string? variableName = Variables[varID];
-
-                (UA_Variable? variable, UA_Node? node) = TryGetNodeAndVariable_FromName(variableName);
-
-                if (variableName == null || variable == null || node == null)
-                {
-                    await Console.Out.WriteLineAsync($"NodeDescriptor: {variableName} not recognized by this my client");
-                    return;
-                }
-
-                await Console.Out.WriteLineAsync($"server has the node: \"{node.NodeID.Split('\"')[1]}\", variable: \"{variableName}\" changes to: {value}");
-
-                await Handler(variable, value);
-            }
-            else
+            if (!args.Succeeded)
             {
                 await Console.Out.WriteLineAsync($"error: {args.ErrorMessage}");
+                return;
+            }
+
+            object value = args.AttributeData.Value;
+
+            string varID = args.Arguments.NodeDescriptor.NodeId.ToString();
+
+            string? variableName = Variables[varID];
+
+            (UA_Variable? variable, UA_Node? node) = TryGetNodeAndVariable(variableName, varID);
+
+            if (variableName == null || variable == null || node == null)
+            {
+                await Console.Out.WriteLineAsync($"NodeDescriptor: {variableName} not recognized by this my client");
+                return;
+            }
+
+            await Console.Out.WriteLineAsync($"server has the node: \"{node.NodeID.Split('\"')[1]}\", variable: \"{variableName}\" changes to: {value}");
+            try
+            {
+                await Handler(variable, value);
+            }
+            catch (Exception ex)
+            {
+                await Console.Out.WriteLineAsync($"!!<error> messageHandler throws exception: {ex.Message}!!");
             }
         }
 
         private string? FindNamespaceIndex(string namespaceName)
         {
-            if(NamespaceArray == null)
+            if (NamespaceArray == null)
                 return null;
 
-            foreach((string name, int index) in NamespaceArray.WithIndex())
+            foreach ((string name, int index) in NamespaceArray.WithIndex())
             {
-                if(name == namespaceName) 
+                if (name == namespaceName)
                     return index.ToString();
             }
 
             return null;
         }
 
-        public (UA_Variable? variable, UA_Node? node) TryGetNodeAndVariable_FromName(string VariableName)
+        public (UA_Variable? variable, UA_Node? node) TryGetNodeAndVariable_fromMqtt(string VariableName, string varID)
         {
             UA_Variable? variable;
-            foreach(UA_Node node in Nodes)
+            foreach (UA_Node node in Nodes)
             {
                 variable = node.TryGetVariable(VariableName);
 
-                if(variable != null)
+                if (variable == null)
+                    continue;
+                string? namespaceIndex = FindNamespaceIndex(node.Namespace) ?? "2";
+                string varDescriptor = $"ns={namespaceIndex};s=\"{varID}\"";
+
+                if (variable.VarID == varDescriptor)
                     return (variable, node);
             }
 
-            return (null, null); 
+            return (null, null);
+
+        }
+
+        public (UA_Variable? variable, UA_Node? node) TryGetNodeAndVariable(string VariableName, string varID)
+        {
+            UA_Variable? variable;
+            foreach (UA_Node node in Nodes)
+            {
+                variable = node.TryGetVariable(VariableName);
+
+                if (variable == null)
+                    continue;
+
+                if (variable.VarID == varID)
+                    return (variable, node);
+            }
+
+            return (null, null);
         }
 
 
