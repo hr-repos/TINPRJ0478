@@ -24,7 +24,7 @@ void loop()
     {
         if (servo->isDown())
         {
-            servo->setLocationUp();
+            // servo->setLocationUp();
         }
         else
         {

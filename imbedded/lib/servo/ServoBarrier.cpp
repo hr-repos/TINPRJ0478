@@ -56,7 +56,6 @@ void ServoBarrier::switchLeds()
 void ServoBarrier::moveBarrier() {
     if (objectDetected()){
         eStopActive = true;
-        config.client->publish()
         return;
     }
 

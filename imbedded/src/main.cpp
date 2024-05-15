@@ -6,22 +6,39 @@
 #include "./secret.h"
 #include "ServoBarrier.h"
 #include "Ultrasonic.h"
-#define MESSAGE_TOPIC "asb/1/messages"
+#define MESSAGE_TOPIC "asb/1/terugkoppeling"
+#define INCOMING_TOPIC "asb/1/bericht"
 #define ASB_FORCED_TOPIC "asb/1/forced"
 #define ASB_STANDARD_TOPIC "asb/1/standard"
 #define LANE_WIDTH_CM 10
 
-const char* BOT_ID = "1";
+const char* BOT_ID = "asb1";
 
 const char* ssid = SECRET_SSID;
 const char* password = SECRET_PASS;
 const char* mqtt_server = MQTT_HOST;
 
+enum veranderProtocol {
+    OPENEN = 0,
+    NORMAALSLUITEN = 1,
+    GEFORCEERDSLUITEN = 2
+};
+
+enum terugkoppeling {
+    GEOPEND = 0,
+    GESLOTEN = 1,
+    GEFORCEERDGESLOTEN = 2,
+    WORDTGEOPEND = 3,
+    WORDTGESLOTEN = 4,
+    WORDTGEFORCEERDGESLOTEN = 5,
+    STILGEZETTIJDENSBEWEGEN = 6
+};
+
 // const char* ntpServer = "pool.ntp.org";
 // const long  gmtOffset_sec = 3600;
 // const int   daylightOffset_sec = 0;
 
-#define MSG_BUFFER_SIZE	(50)
+#define MSG_BUFFER_SIZE (50)
 char msg[MSG_BUFFER_SIZE];
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -74,15 +91,15 @@ void moveBarrier(bool pos) {
 
 void processIncomingMessage(uint8_t message) {
     switch (message) {
-        case 0:
-            servo->setRequestedPositionUp(); 
+        case veranderProtocol::OPENEN:
+            servo->setRequestedPositionUp();
             client.publish(MESSAGE_TOPIC, "0");
             Serial.println("Slagboom wordt geopend.");
-        case 1:
+        case veranderProtocol::NORMAALSLUITEN:
             servo->setRequestedPositionDown();
             client.publish(MESSAGE_TOPIC, "1");
             Serial.println("Slagboom wordt gesloten.");
-        case 2:
+        case veranderProtocol::GEFORCEERDSLUITEN:
             servo->setRequestedPositionDown();
             servo->moveBarrierForced();
             client.publish(MESSAGE_TOPIC, "1");
@@ -103,27 +120,11 @@ void callback(char* topic, byte* payload, unsigned int length) {
     // for debugging
     // Serial.printf("Message arrived [%s] %s\n", topic, message);
 
-    if (strcmp(topic, ASB_STANDARD_TOPIC) == 0) {
-        if (servo->objectDetected()) {
-            client.publish(MESSAGE_TOPIC, "5");
-            Serial.println("Object detected in lane, barrier cannot be moved.");
-            return;
-        }
-        
-        moveBarrier(atoi(&message[0]));
-
-        String returnMessage = "Barrier is " + String((message[0]- '0' == 1) ? "up" : "down");
-        client.publish(MESSAGE_TOPIC, returnMessage.c_str());
-        Serial.println(returnMessage);
+    if (strcmp(topic, INCOMING_TOPIC) == 0) {
+        processIncomingMessage(message[0] - '0');
     }
 
-    if (strcmp(topic, ASB_FORCED_TOPIC) == 0) {
-        moveBarrier(atoi(&message[0]));
 
-        String returnMessage = "Barrier is " + String((message[0]- '0' == 1) ? "up" : "down");
-        client.publish(MESSAGE_TOPIC, returnMessage.c_str());
-        Serial.println(returnMessage);
-    }
 
     // Print out the message for debugging
     if (strcmp(message, "test") == 0) {
