@@ -12,7 +12,7 @@
 
 - `0` (uit)
 - `1` (alleen rood aan)
-- `2` (alleen oranje aan)
+- `2` (alleen geel aan)
 - `3` (alleen groen aan)
 - `4` (alleen oranje knipperen)
 
