@@ -156,10 +156,10 @@ export default {
       for (let i = 1; i <= 2; i++) {
         this.stoplichtKleur[i] = null;
         this.slagboomStatus[i] = false;
-        this.publishMessage(`asb/${i}`, '0');
-        this.publishMessage(`vkl${i}/rood`, '0');
-        this.publishMessage(`vkl${i}/geel`, '0');
-        this.publishMessage(`vkl${i}/groen`, '0');
+        this.publishMessage(`asb/${i}/verander`, '2');
+        this.publishMessage(`vkl/${i}/verander`, '0');
+        this.publishMessage(`vkl/${i}/verander`, '0');
+        this.publishMessage(`vkl/${i}/verander`, '0');
       }
       if (this.knipperInterval) {
         clearInterval(this.knipperInterval);
@@ -191,7 +191,7 @@ export default {
           }
           isStoplichtAan = !isStoplichtAan;
           const message = isStoplichtAan ? '4' : '0';
-          this.publishMessage(`vkl/${nummer}/verander`, message);
+          this.publishMessage(`vkl${nummer}/verander`, message);
         }, 1000); // Herhaal het knipperen elke 1000 ms (1 keer per seconde)
       }
     },
