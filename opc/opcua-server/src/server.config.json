@@ -18,6 +18,7 @@
             "variables":
             [
                 {"id": "vkl1_ID", "value": 1, "writeable": false},
+                {"id": "vkl1_ID", "value": "vkl", "writeable": false},
                 {"id": "vkl1_mode", "value": 0}
             ]
         },
@@ -27,8 +28,9 @@
             "namespace": "verander",
             "variables":
             [
-                {"id": "abs1_ID", "value": 1, "writeable": false},
-                {"id": "abs1_mode", "value": 0}
+                {"id": "asb1_ID", "value": 1, "writeable": false},
+                {"id": "asb1_ID", "value": "asb", "writeable": false},
+                {"id": "asb1_mode", "value": 0}
             ]
         }
     ]

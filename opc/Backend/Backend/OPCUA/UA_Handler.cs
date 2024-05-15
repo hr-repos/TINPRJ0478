@@ -1,12 +1,6 @@
 ﻿using OpcLabs.EasyOpc.UA;
-using OpcLabs.EasyOpc.UA.Generic;
-using System;
 using OpcLabs.EasyOpc.UA.OperationModel;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
-using testMqtt.Mqtt;
 using OpcLabs.EasyOpc.UA.AddressSpace.Standard;
 
 namespace Backend.OPCUA
@@ -25,7 +19,7 @@ namespace Backend.OPCUA
         public List<UA_Node> Nodes { get; set; } = new();
         public Dictionary<string/*nodeID*/, string/*name*/> Variables { get; set; } = new();
 
-        public string[] NamespaceArray { get; set; }
+        public string[]? NamespaceArray { get; set; }
 
         public UA_Handler(Func<UA_Variable, OpcuaValue, Task> handler, string configPath = "OPCUA/opcuaClient.config.json")
         {
@@ -138,6 +132,9 @@ namespace Backend.OPCUA
 
         private string? FindNamespaceIndex(string namespaceName)
         {
+            if(NamespaceArray == null)
+                return null;
+
             foreach((string name, int index) in NamespaceArray.WithIndex())
             {
                 if(name == namespaceName) 

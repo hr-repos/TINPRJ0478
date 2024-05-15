@@ -5,7 +5,7 @@ using System.Text.Json;
 using MQTTnet.Server;
 using System.Text;
 
-namespace testMqtt.Mqtt
+namespace Backend.Mqtt
 {
     public class EasyMqtt
     {

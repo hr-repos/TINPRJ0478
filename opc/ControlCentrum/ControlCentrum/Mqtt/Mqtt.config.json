@@ -5,7 +5,8 @@
   "password": "tincos",
 
   "subscribe_topics": [
-    "topic/topic"
+    "+/+/terugkoppeling",
+    "+/+/verander"
   ],
 
   "publish_topics": [

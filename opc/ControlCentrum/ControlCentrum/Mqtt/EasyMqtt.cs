@@ -4,17 +4,18 @@ using MQTTnet;
 using System.Text.Json;
 using MQTTnet.Server;
 using System.Text;
+using System.CodeDom;
 
 namespace ControlCentrum.Mqtt
 {
     public class EasyMqtt
     {
         private readonly IMqttClient mqttClient;
-        private readonly Func<MqttPayload, Task> messageHandler;
+        public Func<MqttPayload, Task> MessageHandler { private get; set; }
 
         public EasyMqtt(Func<MqttPayload, Task> messageHandler)
         {
-            this.messageHandler = messageHandler;
+            MessageHandler = messageHandler;
             mqttClient = new MqttFactory().CreateMqttClient();
         }
 
@@ -120,7 +121,7 @@ namespace ControlCentrum.Mqtt
 
             try
             {
-                await messageHandler(new MqttPayload(topic, message));
+                await MessageHandler(new MqttPayload(topic, message));
             }
             catch (Exception ex)
             {
@@ -128,7 +129,7 @@ namespace ControlCentrum.Mqtt
             }
         }
 
-        private string PayloadToString(byte[] payload)
+        private static string PayloadToString(byte[] payload)
         {
             return Encoding.UTF8.GetString(payload);
         }

@@ -10,7 +10,12 @@
       "variables": [
         {
           "name": "id",
-          "id": "vkl1_ID",
+          "id": "vkl1_id",
+          "readOnly": true
+        },
+        {
+          "name": "type",
+          "id": "vkl1_type",
           "readOnly": true
         },
         {
@@ -26,12 +31,17 @@
       "variables": [
         {
           "name": "id",
-          "id": "abs1_ID",
+          "id": "asb1_id",
+          "readOnly": true
+        },
+        {
+          "name": "type",
+          "id": "asb1_type",
           "readOnly": true
         },
         {
           "name": "mode",
-          "id": "abs1_mode"
+          "id": "asb1_mode"
         }
       ]
     }

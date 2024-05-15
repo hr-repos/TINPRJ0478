@@ -96,7 +96,10 @@ class UA_Server():
     
     def run(self):
         self.server.start()
+        print("namespaces: ", end='')
         print(self.server.get_namespace_array())
+        
+        print("nodes: ", end='')
         print(self.server.get_objects_node().get_children())
 
         

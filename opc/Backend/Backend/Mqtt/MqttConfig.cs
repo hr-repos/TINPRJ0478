@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace testMqtt.Mqtt
+﻿namespace Backend.Mqtt
 {
     public class MqttPayload
     {

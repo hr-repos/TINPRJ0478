@@ -95,7 +95,7 @@ namespace ControlCentrum.OPCUA
             UA_Variable? variable = TryGetVariable(ValueName);
             if(variable == null)
             {
-                await Console.Out.WriteLineAsync($"!!<error> variableName: {ValueName} not recognized by this my client!!");
+                await Console.Out.WriteLineAsync($"!!<foo> variableName: {ValueName} not recognized by this my client!!");
                 return false;
             }
 
