@@ -191,7 +191,7 @@ export default {
           }
           isStoplichtAan = !isStoplichtAan;
           const message = isStoplichtAan ? '4' : '0';
-          this.publishMessage(`vkl${nummer}/verander`, message);
+          this.publishMessage(`vkl/${nummer}/verander`, message);
         }, 1000); // Herhaal het knipperen elke 1000 ms (1 keer per seconde)
       }
     },
