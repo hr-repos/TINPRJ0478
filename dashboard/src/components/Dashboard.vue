@@ -20,16 +20,17 @@
 
       <details>
         <summary><h2>Afslagbomen</h2></summary>
-        <button @click="toggleSlagboom(1)" :class="{ 'on': slagboomStatus[1] }">Afslagboom 1: {{ slagboomStatus[1] ? 'Open' : 'Gesloten' }}</button>
-        <button @click="toggleSlagboom(2)" :class="{ 'on': slagboomStatus[2] }">Afslagboom 2: {{ slagboomStatus[2] ? 'Open' : 'Gesloten' }}</button>
+        <button @click="toggleSlagboom(1)" :class="{ 'on': slagboomStatus[1] }">Afslagboom 1: {{ slagboomStatus[1] ? 'Gesloten' : 'Open' }}</button>
+        <button @click="toggleSlagboom(2)" :class="{ 'on': slagboomStatus[2] }">Afslagboom 2: {{ slagboomStatus[2] ? 'Gesloten' : 'Open' }}</button>
       </details>
 
       <button @click="resetAlles">Reset</button>
       <button @click="startSimulatie">Demo</button>
     </div>
 
-    
-    <div class="situatie-overzicht">
+
+
+    <!-- <div class="situatie-overzicht">
       <summary><h2>Situatieoverzicht</h2></summary>
       <ul>
         <li>Stoplicht 1 kleur: {{ stoplichtKleur[1] || 'Uit' }}</li>
@@ -37,7 +38,30 @@
         <li>Slagboom 1: {{ slagboomStatus[1] ? 'Open' : 'Gesloten' }}</li>
         <li>Slagboom 2: {{ slagboomStatus[2] ? 'Open' : 'Gesloten' }}</li>
       </ul>
+    </div> -->
+
+    
+    <div class="situatie-overzicht">
+      <!-- Stoplichten -->
+      <details>
+        <summary><h2>Stoplichten overzicht</h2></summary>
+        <ul>
+          <li>Stoplicht 1 kleur: {{ stoplichtKleur[1] || 'Uit' }}</li>
+          <li>Stoplicht 2 kleur: {{ stoplichtKleur[2] || 'Uit' }}</li>
+        </ul>
+      </details>
+    
+      <!-- Slagbomen -->
+      <details>
+        <summary><h2>Afslagbomen overzicht</h2></summary>
+        <ul>
+          <li>Slagboom 1: {{ slagboomStatus[1] ? 'Gesloten' : 'Open' }}</li>
+          <li>Slagboom 2: {{ slagboomStatus[2] ? 'Gesloten' : 'Open' }}</li>
+        </ul>
+      </details>
     </div>
+    
+    
     <div class="autoweg-container">
       <div class="weg-representatie">
         <div class="stoplichten-en-slagbomen">
@@ -45,7 +69,7 @@
           <div style="display: flex; align-items: center;">
             <div style="padding-right: 10px; font-size: 20px; color: white;">1</div>
             <div>
-              <div class="slagboom slagboom-boven" :class="{ 'on': slagboomStatus[1] }"></div>
+              <div class="slagboom slagboom-boven" :class="{ 'on2': slagboomStatus[1] }"></div>
               <div class="stoplicht" :class="{ 'on': stoplichtKleur[1] === 'rood', 'red': true }"></div>
               <div class="stoplicht" :class="{ 'on': stoplichtKleur[1] === 'geel', 'orange': true }"></div>
               <div class="stoplicht" :class="{ 'on': stoplichtKleur[1] === 'groen', 'green': true }"></div>
@@ -87,29 +111,46 @@ export default {
   },
   methods: {
     toggleStoplicht(kleur, nummer) {
+    let message = '0'; // Standaard waarde voor 'uit'
+
       if (this.stoplichtKleur[nummer] === kleur) {
         this.stoplichtKleur[nummer] = null;
-        this.publishMessage(`vkl${nummer}/${kleur}`, '0');
       } else {
-        if (this.stoplichtKleur[nummer] === 'rood') {
-          this.publishMessage(`vkl${nummer}/rood`, '0');
-        } else if (this.stoplichtKleur[nummer] === 'geel') {
-          this.publishMessage(`vkl${nummer}/geel`, '0');
-        } else if (this.stoplichtKleur[nummer] === 'groen') {
-          this.publishMessage(`vkl${nummer}/groen`, '0');
-        }
-        
-        this.stoplichtKleur[nummer] = kleur;
-        const topic = `vkl${nummer}/${kleur}`;
-        const message = kleur ? '1' : '0';
-        this.publishMessage(topic, message);
+      if (this.stoplichtKleur[nummer] === 'rood') {
+        this.publishMessage(`vkl${nummer}/verander`, '0');
+      } else if (this.stoplichtKleur[nummer] === 'geel') {
+        this.publishMessage(`vkl${nummer}/verander`, '0');
+      } else if (this.stoplichtKleur[nummer] === 'groen') {
+        this.publishMessage(`vkl${nummer}/verander`, '0');
       }
+
+      this.stoplichtKleur[nummer] = kleur;
+      if (kleur === 'rood') {
+        message = '1';
+      } else if (kleur === 'geel') {
+        message = kleur === 'knipper' ? '4' : '2';
+      } else if (kleur === 'groen') {
+        message = '3';
+      }
+    }
+    const topic = `vkl/${nummer}/verander`;
+      this.publishMessage(topic, message);
     },
     toggleSlagboom(nummer) {
+      // Controleer de huidige status om de juiste tijdelijke status te bepalen
+      const temporaryStatus = this.slagboomStatus[nummer] ? '4' : '3';
+      const topicStart = `asb/${nummer}/verander`;
+      this.publishMessage(topicStart, temporaryStatus);
+
+      // Status van de slagboom wijzigen
       this.slagboomStatus[nummer] = !this.slagboomStatus[nummer];
-      const topic = `asb/${nummer}`;
-      const message = this.slagboomStatus[nummer] ? '1' : '0';
-      this.publishMessage(topic, message);
+
+      // Wacht 10 seconden voordat de definitieve status wordt gepubliceerd
+      setTimeout(() => {
+        const topicFinal = `asb/${nummer}/verander`;
+        const messageFinal = this.slagboomStatus[nummer] ? '0' : '1';
+        this.publishMessage(topicFinal, messageFinal);
+      }, 10000); // 10 seconden
     },
     resetAlles() {
       for (let i = 1; i <= 2; i++) {
@@ -128,21 +169,33 @@ export default {
     },
     knipperGeel(nummer) {
       if (this.knipperStatus[nummer]) {
+        // Deactiveer de knipperfunctie als deze actief is
         clearInterval(this.knipperInterval);
         this.knipperInterval = null;
         this.knipperStatus[nummer] = false;
-        this.toggleStoplicht(null, nummer); // Zet het licht uit als het knipperen stopt
+        this.stoplichtKleur[nummer] = null; // Zet de kleur terug naar 'uit'
+        this.publishMessage(`vkl/${nummer}/verander`, '0'); // Bericht voor knipperen uit
       } else {
+        // Activeer de knipperfunctie als deze niet actief is
         this.knipperStatus[nummer] = true;
+        this.stoplichtKleur[nummer] = 'knipper'; 
+        this.publishMessage(`vkl/${nummer}/verander`, '4'); 
+
+        // Houd bij of het stoplicht aan of uit is tijdens het knipperen
+        let isStoplichtAan = false;
         this.knipperInterval = setInterval(() => {
-          if (this.stoplichtKleur[nummer] === 'geel') {
-            this.toggleStoplicht(null, nummer); // Zet geel uit
+          if (isStoplichtAan) {
+            this.stoplichtKleur[nummer] = null; 
           } else {
-            this.toggleStoplicht('geel', nummer); // Zet geel aan
+            this.stoplichtKleur[nummer] = 'geel';
           }
-        }, 500); // Verander elke seconde de staat
+          isStoplichtAan = !isStoplichtAan;
+          const message = isStoplichtAan ? '4' : '0';
+          this.publishMessage(`vkl/${nummer}/verander`, message);
+        }, 1000); // Herhaal het knipperen elke 1000 ms (1 keer per seconde)
       }
     },
+
     isKnipperActief(nummer) {
       return this.knipperStatus[nummer];
     },
@@ -150,6 +203,7 @@ export default {
       this.resetAlles(); // Reset alle lichten en slagbomen voor de simulatie begint
       let steps = [
         { action: () => this.toggleStoplicht('rood', 1), delay: 2000 },
+        { action: () => this.toggleSlagboom(1), delay: 10000 },
         { action: () => this.toggleSlagboom(1), delay: 10000 },
         { action: () => this.toggleStoplicht('groen', 1), delay: 2000 },
         { action: () => this.toggleStoplicht('geel', 1), delay: 500 },
@@ -364,20 +418,37 @@ export default {
 }
 
 .slagboom-boven {
-  transform: translateX(-50%) rotate(90deg); 
+  transform: translateX(-50%) rotate(0deg); 
 }
 
 .slagboom-onder {
-  transform: translateX(-50%) rotate(-90deg); 
+  transform: translateX(-50%) rotate(0deg); 
 }
 
 .slagboom.on {
-  transform: translateX(-50%) rotate(0deg); 
+  transform: translateX(-50%) rotate(-90deg); 
+}
+
+.slagboom.on2 {
+  transform: translateX(-50%) rotate(90deg); 
 }
 
 .knipper-actief {
   background-color: yellow;
   color: black;
+}
+
+summary {
+  cursor: pointer;
+  font-weight: bold;
+  padding: 10px;
+  background-color: #f0f0f0; 
+  border-radius: 5px; 
+  transition: background-color 0.3s ease;
+}
+
+summary:hover {
+  background-color: #e0e0e0; 
 }
 
 </style>
