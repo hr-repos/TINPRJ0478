@@ -28,6 +28,7 @@
     - 0 openen
     - 1 normaal sluiten
     - 2 geforceerd sluiten
+    - 3 reset noodstop
 - `terugkoppeling` (vanuit ESP32)
   - :bericht
     - 0 wordt geopend
