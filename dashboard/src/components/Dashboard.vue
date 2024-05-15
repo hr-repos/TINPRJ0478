@@ -169,31 +169,30 @@ export default {
     },
     knipperGeel(nummer) {
       if (this.knipperStatus[nummer]) {
-        // Deactiveer de knipperfunctie als deze actief is
-        clearInterval(this.knipperInterval);
-        this.knipperInterval = null;
-        this.knipperStatus[nummer] = false;
-        this.stoplichtKleur[nummer] = null; // Zet de kleur terug naar 'uit'
-        this.publishMessage(`vkl/${nummer}/verander`, '0'); // Bericht voor knipperen uit
+          // Deactiveer de knipperfunctie als deze actief is
+          clearInterval(this.knipperInterval);
+          this.knipperInterval = null;
+          this.knipperStatus[nummer] = false;
+          this.stoplichtKleur[nummer] = null; // Zet de kleur terug naar 'uit'
+          this.publishMessage(`vkl/${nummer}/verander`, '0'); // Bericht voor knipperen uit
       } else {
-        // Activeer de knipperfunctie als deze niet actief is
-        this.knipperStatus[nummer] = true;
-        this.stoplichtKleur[nummer] = 'knipper'; 
-        this.publishMessage(`vkl/${nummer}/verander`, '4'); 
+          // Activeer de knipperfunctie als deze niet actief is
+          this.knipperStatus[nummer] = true;
+          this.stoplichtKleur[nummer] = 'knipper'; 
+          this.publishMessage(`vkl/${nummer}/verander`, '4'); // Bericht voor knipperen aan
 
-        // Houd bij of het stoplicht aan of uit is tijdens het knipperen
-        let isStoplichtAan = false;
-        this.knipperInterval = setInterval(() => {
-          if (isStoplichtAan) {
-            this.stoplichtKleur[nummer] = null; 
-          } else {
-            this.stoplichtKleur[nummer] = 'geel';
-          }
-          isStoplichtAan = !isStoplichtAan;
-          const message = isStoplichtAan ? '4' : '0';
-          this.publishMessage(`vkl/${nummer}/verander`, message);
-        }, 1000); // Herhaal het knipperen elke 1000 ms (1 keer per seconde)
-      }
+          // Houd bij of het stoplicht aan of uit is tijdens het knipperen
+          let isStoplichtAan = false;
+          this.knipperInterval = setInterval(() => {
+              if (isStoplichtAan) {
+                  this.stoplichtKleur[nummer] = null; 
+              } else {
+                  this.stoplichtKleur[nummer] = 'geel';
+              }
+              isStoplichtAan = !isStoplichtAan;
+              // Geen berichten versturen in de interval functie
+          }, 1000); // Herhaal het knipperen elke 1000 ms (1 keer per seconde)
+        }
     },
 
     isKnipperActief(nummer) {
