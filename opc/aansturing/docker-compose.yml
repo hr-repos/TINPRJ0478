@@ -4,16 +4,17 @@ services:
   mosquitto:
     image: eclipse-mosquitto
     hostname: mosquitto
-    container_name: backend-mosquitto
+    container_name: aansturing-mosquitto
     restart: unless-stopped
     ports:
       - "8800:8800" 
+      - "8801:8801"
     volumes:
       - ./mosquitto/config:/mosquitto/config:rw
       - ./mosquitto/data:/mosquitto/data:rw
       - ./mosquitto/log:/mosquitto/log:rw
     
-  backend:
+  aansturing:
     image: ${DOCKER_REGISTRY-}backend
     build:
       context: .
