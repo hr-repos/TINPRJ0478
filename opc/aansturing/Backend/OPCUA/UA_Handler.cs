@@ -125,11 +125,11 @@ namespace Backend.OPCUA
 
             if (variableName == null || variable == null || node == null)
             {
-                await Console.Out.WriteLineAsync($"NodeDescriptor: {variableName} not recognized by this my client");
+                await Console.Out.WriteLineAsync($"!!<ERROR> NodeDescriptor: {variableName} not recognized by this my client!!");
                 return;
             }
 
-            await Console.Out.WriteLineAsync($"server has the node: \"{node.NodeID.Split('\"')[1]}\", variable: \"{variableName}\" changes to: {value}");
+            await Console.Out.WriteLineAsync($"<opcua> server has the node: \"{node.NodeID.Split('\"')[1]}\", variable: \"{variableName}\" changes to: {value}");
             try
             {
                 await Handler(variable, value);

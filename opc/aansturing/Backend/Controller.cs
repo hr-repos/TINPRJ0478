@@ -47,8 +47,7 @@ namespace Backend
                 {
                     case "mode":
                         await Mqtt.Publish(topic, value);
-                        await Console.Out.WriteLineAsync("topic: " + topic);
-                        await Console.Out.WriteLineAsync("message: " + value);
+                        await Console.Out.WriteLineAsync($"<mqtt> published[\"{topic} : {value}\"]");
                         break;
                 }
             }
@@ -70,7 +69,7 @@ namespace Backend
             string nodeID = string.Join("", topics);
 
 
-            await Console.Out.WriteLineAsync($"topic: {topic}, message: {message}, nodeIDD: {nodeID}");
+            await Console.Out.WriteLineAsync($"<mqtt>subscribed[\"{topic} : {message}\"], nodeID: {nodeID}");
 
             UA_Variable variable;
             UA_Node node;
