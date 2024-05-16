@@ -5,11 +5,14 @@
 #include <time.h>
 #include "./secret.h"
 #include "ServoBarrier.h"
+#include "StopLight.h"
 #include "Ultrasonic.h"
-#define MESSAGE_TOPIC "asb/1/terugkoppeling"
-#define INCOMING_TOPIC "asb/1/bericht"
-#define ASB_FORCED_TOPIC "asb/1/forced"
-#define ASB_STANDARD_TOPIC "asb/1/standard"
+#define ASB_MESSAGE_TOPIC "asb/1/terugkoppeling"
+#define ASB_INCOMING_TOPIC "asb/1/bericht"
+#define VKL_MESSAGE_TOPIC "vkl/1/terugkoppeling"
+#define VKL_INCOMING_TOPIC "vkl/1/bericht"
+// #define ASB_FORCED_TOPIC "asb/1/forced"
+// #define ASB_STANDARD_TOPIC "asb/1/standard"
 #define LANE_WIDTH_CM 10
 
 const char* BOT_ID = "asb1";
@@ -18,10 +21,11 @@ const char* ssid = SECRET_SSID;
 const char* password = SECRET_PASS;
 const char* mqtt_server = MQTT_HOST;
 
-enum veranderProtocol {
+enum veranderProtocolASB {
     OPENEN = 0,
     NORMAALSLUITEN = 1,
-    GEFORCEERDSLUITEN = 2
+    GEFORCEERDSLUITEN = 2,
+    RESETESTOP = 3
 };
 
 enum terugkoppeling {
@@ -34,6 +38,13 @@ enum terugkoppeling {
     STILGEZETTIJDENSBEWEGEN = 6
 };
 
+enum veranderProtocolVKL {
+    UIT = 0,
+    ALLEENROOD = 1,
+    ALLEENORANJE = 2,
+    ALLEENGROEN = 3,
+    ALLEENORANJEKNIPPEREN = 4,
+};
 // const char* ntpServer = "pool.ntp.org";
 // const long  gmtOffset_sec = 3600;
 // const int   daylightOffset_sec = 0;
@@ -53,6 +64,7 @@ uint8_t asbLedPin2 = LED_BUILTIN;
 auto ultrasoon = new Ultrasonic(13, 12);
 barrierData asbConfig = {asbServoPin, asbLedPin1, asbLedPin2, LANE_WIDTH_CM, ultrasoon, &client};
 auto servo = new ServoBarrier(asbConfig);
+auto stopLight = new StopLight(0, 0, 0);
 
 void setup_wifi() {
     delay(10);
@@ -77,7 +89,7 @@ void setup_wifi() {
 
 void printLocalTime() {
   struct tm timeinfo;
-  if(!getLocalTime(&timeinfo)){
+  if (!getLocalTime(&timeinfo)) {
     Serial.println("Failed to obtain time");
     return;
   }
@@ -89,27 +101,50 @@ void moveBarrier(bool pos) {
 }
 
 
-void processIncomingMessage(uint8_t message) {
+void processIncomingASBMessage(uint8_t message) {
     switch (message) {
-        case veranderProtocol::OPENEN:
+        case veranderProtocolASB::OPENEN:
             servo->setRequestedPositionUp();
-            client.publish(MESSAGE_TOPIC, "0");
+            client.publish(ASB_MESSAGE_TOPIC, "0");
             Serial.println("Slagboom wordt geopend.");
-        case veranderProtocol::NORMAALSLUITEN:
+        case veranderProtocolASB::NORMAALSLUITEN:
             servo->setRequestedPositionDown();
-            client.publish(MESSAGE_TOPIC, "1");
+            client.publish(ASB_MESSAGE_TOPIC, "1");
             Serial.println("Slagboom wordt gesloten.");
-        case veranderProtocol::GEFORCEERDSLUITEN:
+        case veranderProtocolASB::GEFORCEERDSLUITEN:
             servo->setRequestedPositionDown();
             servo->moveBarrierForced();
-            client.publish(MESSAGE_TOPIC, "1");
+            client.publish(ASB_MESSAGE_TOPIC, "1");
             Serial.println("Slagboom wordt geforceerd gesloten.");
         default:
-            client.publish(MESSAGE_TOPIC, "6");
+            client.publish(ASB_MESSAGE_TOPIC, "6");
             Serial.println("Bericht is geen commando.");
     }
 }
 
+
+void processIncomingVKLMessage(uint8_t message) {
+    switch (message) {
+        case veranderProtocolVKL::UIT:
+            stopLight->setAllLightsOff();
+            Serial.println("Turned off all lights.");
+        case veranderProtocolVKL::ALLEENROOD:
+            stopLight->setAllLightsOff();
+            stopLight->setLight(Colors::red, true);
+            Serial.println("Turned all lights off and set red light on.");
+        case veranderProtocolVKL::ALLEENORANJE:
+            stopLight->setAllLightsOff();
+            stopLight->setLight(Colors::orange, true);
+            Serial.println("STurned all lights off and set orange light on.");
+        case veranderProtocolVKL::ALLEENGROEN:
+            stopLight->setAllLightsOff();
+            stopLight->setLight(Colors::green, true);
+            Serial.println("Turned all lights off and set green light on.");
+        default:
+            client.publish(ASB_MESSAGE_TOPIC, "6");
+            Serial.println("Bericht is geen commando.");
+    }
+}
 
 void callback(char* topic, byte* payload, unsigned int length) {
     char message[length + 1]; // +1 for null terminator
@@ -120,16 +155,19 @@ void callback(char* topic, byte* payload, unsigned int length) {
     // for debugging
     // Serial.printf("Message arrived [%s] %s\n", topic, message);
 
-    if (strcmp(topic, INCOMING_TOPIC) == 0) {
-        processIncomingMessage(message[0] - '0');
+    if (strcmp(topic, ASB_INCOMING_TOPIC) == 0) {
+        processIncomingASBMessage(message[0] - '0');
     }
 
 
+    if (strcmp(topic, VKL_INCOMING_TOPIC) == 0) {
+        processIncomingVKLMessage(message[0] - '0');
+    }
 
     // Print out the message for debugging
     if (strcmp(message, "test") == 0) {
         Serial.println("Test message received");
-        client.publish(MESSAGE_TOPIC, "Test message received");
+        client.publish(ASB_MESSAGE_TOPIC, "Test message received");
     }
 }
 
@@ -143,11 +181,11 @@ void reconnect() {
             Serial.println("connected");
 
             // Once connected, publish an announcement...
-            client.publish(MESSAGE_TOPIC, "Bot connected!");
+            client.publish(ASB_MESSAGE_TOPIC, "Bot connected!");
 
             // ... and resubscribe
-            client.subscribe(ASB_FORCED_TOPIC);
-            client.subscribe(ASB_STANDARD_TOPIC);
+            client.subscribe(ASB_INCOMING_TOPIC);
+            client.subscribe(VKL_INCOMING_TOPIC);
         } else {
             Serial.print("failed, rc=");
             Serial.print(client.state());
@@ -177,6 +215,5 @@ void loop() {
     }
     client.loop();
     servo->callback();
-
-
+    stopLight->callback();
 }
