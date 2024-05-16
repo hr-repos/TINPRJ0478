@@ -9,7 +9,7 @@ StopLight::StopLight(uint8_t pinRedLed, uint8_t pinOrangeLed, uint8_t pinGreenLe
     orangeBlinking = false;
 }
 
-void StopLight::setLicht(Colors color, bool ledOn) {
+void StopLight::setLight(Colors color, bool ledOn) {
     uint8_t pin = 0;
 
     switch (color) {
@@ -38,6 +38,13 @@ void StopLight::setLicht(Colors color, bool ledOn) {
 
 void StopLight::setOrangeBlinking(bool blinking) {
     orangeBlinking = blinking;
+}
+
+void StopLight::setAllLightsOff() {
+    orangeBlinking = false;
+    digitalWrite(pinRedLed, LOW);
+    digitalWrite(pinOrangeLed, LOW);
+    digitalWrite(pinGreenLed, LOW);
 }
 
 void StopLight::callback() {

@@ -20,7 +20,8 @@ class StopLight {
  public:
     StopLight(uint8_t pinRedLed, uint8_t pinOrangeLed, uint8_t pinGreenLed);
 
-    void setLicht(Colors color, bool ledOn);
+    void setAllLightsOff();
+    void setLight(Colors color, bool ledOn);
     void setOrangeBlinking(bool blinking);
     void callback();
 };
