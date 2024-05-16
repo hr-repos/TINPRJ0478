@@ -4,24 +4,25 @@
 
 #include "Arduino.h"
 
-enum Colors
-{
+enum Colors {
     red,
     orange,
     green
 };
 
-class StopLight
-{
-private:
+class StopLight {
+ private:
     uint8_t pinRedLed;
     uint8_t pinOrangeLed;
     uint8_t pinGreenLed;
+    bool orangeBlinking;
 
-public:
+ public:
     StopLight(uint8_t pinRedLed, uint8_t pinOrangeLed, uint8_t pinGreenLed);
 
     void setLicht(Colors color, bool ledOn);
+    void setOrangeBlinking(bool blinking);
+    void callback();
 };
 
 #endif
