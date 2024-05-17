@@ -20,3 +20,9 @@ services:
       context: .
       dockerfile: Backend/Dockerfile
 
+  aansturing-webserver:
+    container_name: aansturing-webserver
+    build: ./aansturing-webserver
+    restart: unless-stopped
+    ports: [80:80]
+

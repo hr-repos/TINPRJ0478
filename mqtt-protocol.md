@@ -14,7 +14,7 @@
 - `1` (alleen rood aan)
 - `2` (alleen geel aan)
 - `3` (alleen groen aan)
-- `4` (alleen oranje knipperen)
+- `4` (alleen geel knipperen)
 
 # afsluitbomen
 
@@ -37,6 +37,7 @@
     - 3 is normaal gesloten
     - 4 is geforceerd gesloten
     - 5 normaal sluiten mislukt (object detected)
+    - 6 bericht niet herkend
 
 # globaal
 

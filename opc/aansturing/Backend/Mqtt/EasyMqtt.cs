@@ -124,7 +124,7 @@ namespace Backend.Mqtt
             }
             catch (Exception ex)
             {
-                await Console.Out.WriteLineAsync($"!!<error> messageHandler throws exception[topic: {topic}, message: {message}]: {ex.Message}!!");
+                await Console.Out.WriteLineAsync($"!!<error> messageHandler throws exception[topic: {topic}, message: {message}]: {ex}!!");
             }
         }
 

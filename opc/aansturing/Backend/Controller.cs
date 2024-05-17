@@ -65,17 +65,22 @@ namespace Backend
             string topic = payload.Topic;
             string message = payload.Message;
 
-            string[] topics = topic.Split('/')[0..2];
+            string[] topics = topic.Split('/');
+            if(topics.Length > 1) 
+                topics = topics[0..2];
+
             string nodeID = string.Join("", topics);
 
 
-            await Console.Out.WriteLineAsync($"<mqtt>subscribed[\"{topic} : {message}\"], nodeID: {nodeID}");
+            await Console.Out.WriteLineAsync($"<mqtt> received[\"{topic} : {message}\"]");
 
             UA_Variable variable;
             UA_Node node;
 
-            if (message == "reset")
+            if (topic == "reset")
             {
+                await Console.Out.WriteLineAsync($"resetting values...");
+
                 foreach (UA_Node currentNode in Opcua.Nodes)
                 {
                     UA_Variable? typeVar = currentNode.TryGetVariable("type");
@@ -92,7 +97,7 @@ namespace Backend
                             break;
 
                         case "asb":
-                            modeValue = 2;
+                            modeValue = 0;
                             break;
                     }
 
