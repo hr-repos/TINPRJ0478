@@ -8,9 +8,9 @@
 #include "StopLight.h"
 #include "Ultrasonic.h"
 #define ASB_MESSAGE_TOPIC "asb/1/terugkoppeling"
-#define ASB_INCOMING_TOPIC "asb/1/bericht"
+#define ASB_INCOMING_TOPIC "asb/1/verander"
 #define VKL_MESSAGE_TOPIC "vkl/1/terugkoppeling"
-#define VKL_INCOMING_TOPIC "vkl/1/bericht"
+#define VKL_INCOMING_TOPIC "vkl/1/verander"
 // #define ASB_FORCED_TOPIC "asb/1/forced"
 // #define ASB_STANDARD_TOPIC "asb/1/standard"
 #define LANE_WIDTH_CM 10
@@ -57,14 +57,14 @@ unsigned long lastMsg = 0;
 
 bool eStopActive = false;
 uint8_t asbServoPin = 26;
-uint8_t asbLedPin1 = LED_BUILTIN;
-uint8_t asbLedPin2 = LED_BUILTIN;
+uint8_t asbLedPin1 = 33;
+uint8_t asbLedPin2 = 32;
 // ServoBarrier servo(asbServoPin, asbLedPin);
 
 auto ultrasoon = new Ultrasonic(13, 12);
 barrierData asbConfig = {asbServoPin, asbLedPin1, asbLedPin2, LANE_WIDTH_CM, ultrasoon, &client};
 auto servo = new ServoBarrier(asbConfig);
-auto stopLight = new StopLight(0, 0, 0);
+auto stopLight = new StopLight(21, 19, 18);
 
 void setup_wifi() {
     delay(10);
@@ -107,18 +107,22 @@ void processIncomingASBMessage(uint8_t message) {
             servo->setRequestedPositionUp();
             client.publish(ASB_MESSAGE_TOPIC, "0");
             Serial.println("Slagboom wordt geopend.");
+            break;
         case veranderProtocolASB::NORMAALSLUITEN:
             servo->setRequestedPositionDown();
             client.publish(ASB_MESSAGE_TOPIC, "1");
             Serial.println("Slagboom wordt gesloten.");
+            break;
         case veranderProtocolASB::GEFORCEERDSLUITEN:
             servo->setRequestedPositionDown();
             servo->moveBarrierForced();
             client.publish(ASB_MESSAGE_TOPIC, "1");
             Serial.println("Slagboom wordt geforceerd gesloten.");
+            break;
         default:
             client.publish(ASB_MESSAGE_TOPIC, "6");
             Serial.println("Bericht is geen commando.");
+            break;
     }
 }
 
@@ -128,20 +132,24 @@ void processIncomingVKLMessage(uint8_t message) {
         case veranderProtocolVKL::UIT:
             stopLight->setAllLightsOff();
             Serial.println("Turned off all lights.");
+            break;
         case veranderProtocolVKL::ALLEENROOD:
             stopLight->setAllLightsOff();
             stopLight->setLight(Colors::red, true);
             Serial.println("Turned all lights off and set red light on.");
+            break;
         case veranderProtocolVKL::ALLEENORANJE:
             stopLight->setAllLightsOff();
             stopLight->setLight(Colors::orange, true);
             Serial.println("STurned all lights off and set orange light on.");
+            break;
         case veranderProtocolVKL::ALLEENGROEN:
             stopLight->setAllLightsOff();
             stopLight->setLight(Colors::green, true);
             Serial.println("Turned all lights off and set green light on.");
+            break;
         default:
-            client.publish(ASB_MESSAGE_TOPIC, "6");
+            client.publish(VKL_MESSAGE_TOPIC, "6");
             Serial.println("Bericht is geen commando.");
     }
 }
