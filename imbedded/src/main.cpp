@@ -151,6 +151,7 @@ void processIncomingVKLMessage(uint8_t message) {
         default:
             client.publish(VKL_MESSAGE_TOPIC, "6");
             Serial.println("Bericht is geen commando.");
+            break;
     }
 }
 
