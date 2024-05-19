@@ -113,29 +113,40 @@ export default {
     toggleStoplicht(kleur, nummer) {
     let message = '0'; // Standaard waarde voor 'uit'
 
+    // Schakel de knipperfunctie uit als deze actief is
+    if (this.knipperStatus[nummer]) {
+        this.knipperGeel(nummer); // Deactiveer het knipperen
+    }
+
+    // Schakel de huidige kleur uit
+    if (this.stoplichtKleur[nummer] !== null) {
+        if (this.stoplichtKleur[nummer] === 'knipper') {
+            this.publishMessage(`vkl/${nummer}/verander`, '0'); // Stuur bericht om knipperen uit te zetten
+        } else {
+            this.publishMessage(`vkl/${nummer}/verander`, '0'); // Stuur bericht om huidige kleur uit te zetten
+        }
+    }
+
+      // Stel de nieuwe kleur in of zet deze uit als het dezelfde kleur is
       if (this.stoplichtKleur[nummer] === kleur) {
         this.stoplichtKleur[nummer] = null;
       } else {
-      if (this.stoplichtKleur[nummer] === 'rood') {
-        this.publishMessage(`vkl${nummer}/verander`, '0');
-      } else if (this.stoplichtKleur[nummer] === 'geel') {
-        this.publishMessage(`vkl${nummer}/verander`, '0');
-      } else if (this.stoplichtKleur[nummer] === 'groen') {
-        this.publishMessage(`vkl${nummer}/verander`, '0');
+          this.stoplichtKleur[nummer] = kleur;
+
+          if (kleur === 'rood') {
+              message = '1';
+          } else if (kleur === 'geel') {
+              message = '2';
+          } else if (kleur === 'groen') {
+              message = '3';
+          }
       }
 
-      this.stoplichtKleur[nummer] = kleur;
-      if (kleur === 'rood') {
-        message = '1';
-      } else if (kleur === 'geel') {
-        message = kleur === 'knipper' ? '4' : '2';
-      } else if (kleur === 'groen') {
-        message = '3';
-      }
-    }
-    const topic = `vkl/${nummer}/verander`;
+      const topic = `vkl/${nummer}/verander`;
       this.publishMessage(topic, message);
     },
+
+
     toggleSlagboom(nummer) {
       // Controleer de huidige status om de juiste tijdelijke status te bepalen
       const temporaryStatus = this.slagboomStatus[nummer] ? '4' : '3';
@@ -168,32 +179,32 @@ export default {
       }
     },
     knipperGeel(nummer) {
-      if (this.knipperStatus[nummer]) {
-          // Deactiveer de knipperfunctie als deze actief is
-          clearInterval(this.knipperInterval);
-          this.knipperInterval = null;
-          this.knipperStatus[nummer] = false;
-          this.stoplichtKleur[nummer] = null; // Zet de kleur terug naar 'uit'
-          this.publishMessage(`vkl/${nummer}/verander`, '0'); // Bericht voor knipperen uit
-      } else {
-          // Activeer de knipperfunctie als deze niet actief is
-          this.knipperStatus[nummer] = true;
-          this.stoplichtKleur[nummer] = 'knipper'; 
-          this.publishMessage(`vkl/${nummer}/verander`, '4'); // Bericht voor knipperen aan
-
-          // Houd bij of het stoplicht aan of uit is tijdens het knipperen
-          let isStoplichtAan = false;
-          this.knipperInterval = setInterval(() => {
-              if (isStoplichtAan) {
-                  this.stoplichtKleur[nummer] = null; 
-              } else {
-                  this.stoplichtKleur[nummer] = 'geel';
-              }
-              isStoplichtAan = !isStoplichtAan;
-              // Geen berichten versturen in de interval functie
-          }, 1000); // Herhaal het knipperen elke 1000 ms (1 keer per seconde)
+    if (this.knipperStatus[nummer]) {
+        // Deactiveer de knipperfunctie als deze actief is
+        clearInterval(this.knipperInterval);
+        this.knipperInterval = null;
+        this.knipperStatus[nummer] = false;
+        this.stoplichtKleur[nummer] = null; // Zet de kleur terug naar 'uit'
+        this.publishMessage(`vkl/${nummer}/verander`, '0'); // Bericht voor knipperen uit
+    } else {
+        // Activeer de knipperfunctie als deze niet actief is
+        if (this.stoplichtKleur[nummer] !== null) {
+            this.publishMessage(`vkl/${nummer}/verander`, '0'); // Zet huidige kleur uit
         }
-    },
+        this.knipperStatus[nummer] = true;
+        this.stoplichtKleur[nummer] = 'knipper';
+        this.publishMessage(`vkl/${nummer}/verander`, '4'); // Bericht voor knipperen aan
+
+        // Houd bij of het stoplicht aan of uit is tijdens het knipperen
+        this.knipperInterval = setInterval(() => {
+            if (this.stoplichtKleur[nummer] === 'geel') {
+                this.stoplichtKleur[nummer] = null;
+            } else {
+                this.stoplichtKleur[nummer] = 'geel';
+            }
+        }, 1000); // Herhaal het knipperen elke 1000 ms (1 keer per seconde)
+    }
+  },
 
     isKnipperActief(nummer) {
       return this.knipperStatus[nummer];
