@@ -19,7 +19,7 @@
       </details>
 
       <details>
-        <summary><h2>Afsluitbomen</h2></summary>
+        <summary><h2>Afsluitbomen .</h2></summary>
         <button @click="toggleSlagboom(1)" :class="{ 'on': slagboomStatus[1] }">Afsluitboom 1: {{ slagboomStatus[1] ? 'Gesloten' : 'Open' }}</button>
         <button @click="toggleSlagboom(2)" :class="{ 'on': slagboomStatus[2] }">Afsluitboom 2: {{ slagboomStatus[2] ? 'Gesloten' : 'Open' }}</button>
         <button @click="resetSlagboom(1)">Reset Slagboom 1</button>
