@@ -132,18 +132,22 @@ export default {
     const [prefix, nummer, suffix] = topic.split('/'); // Split het topic in delen
     // Controleer of het bericht van de slagboom terugkoppeling komt
     if (prefix === 'asb' && (nummer === '1' || nummer === '2') && suffix === 'terugkoppeling') {
-      if (msg === '5') {
-
-        this.notifications.push(`Normaal sluiten van slagboom ${nummer} mislukt (object gedetecteerd)`);
-        this.foutStatus[nummer] = true; // Zet foutstatus voor de slagboom
-      } else if (msg === '0' || msg === '1') {
-
-        if (!this.foutStatus[nummer]) {
-          this.removeNotification(nummer);
+        if (msg === '5') {
+            // Controleer of de notificatie al bestaat
+            const notificationExists = this.notifications.includes(`Normaal sluiten van slagboom ${nummer} mislukt (object gedetecteerd)`);
+            if (!notificationExists) {
+                this.notifications.push(`Normaal sluiten van slagboom ${nummer} mislukt (object gedetecteerd)`);
+                this.foutStatus[nummer] = true; // Zet foutstatus voor de slagboom
+            }
+        } else if (msg === '0' || msg === '1') {
+            if (this.foutStatus[nummer]) {
+                this.removeNotification(nummer);
+                this.foutStatus[nummer] = false; // Reset de foutstatus
+            }
         }
-      }
     }
-  },
+},
+
     removeNotification(nummer) {
       const notification = `Normaal sluiten van slagboom ${nummer} mislukt (object gedetecteerd)`;
       const index = this.notifications.indexOf(notification);
