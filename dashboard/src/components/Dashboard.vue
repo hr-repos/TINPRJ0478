@@ -40,7 +40,6 @@
       </ul>
     </div> -->
 
-    
     <div class="situatie-overzicht">
       <!-- Stoplichten -->
       <details>
@@ -50,8 +49,8 @@
           <li>Verkeerslicht 2 status: {{ stoplichtKleur[2] || 'Gedoofd' }}</li>
         </ul>
       </details>
-    
-      <!-- Slagbomen -->
+
+    <!-- Slagbomen -->
       <details>
         <summary><h2>Afsluitbomen overzicht</h2></summary>
         <ul>
@@ -60,8 +59,7 @@
         </ul>
       </details>
     </div>
-    
-    
+  
     <div class="autoweg-container">
       <div class="weg-representatie">
         <div class="stoplichten-en-slagbomen">
@@ -93,8 +91,16 @@
       <!-- Tweede weg zonder stoplichten en slagbomen -->
       <div class="weg-representatie"></div>
     </div>
+
+    <!-- Meldingen -->
+    <div class="notifications">
+      <ul>
+        <li v-for="(notification, index) in notifications" :key="index">{{ notification }}</li>
+      </ul>
+    </div>
   </div>
 </template>
+
 
 <script>
 import client from "@/assets/mqtt.js";
@@ -109,12 +115,39 @@ export default {
       simulatieInterval: null,
       knipperInterval: null,
       knipperStatus: { 1: false, 2: false },
+      notifications: [] // Toegevoegd voor meldingen
     };
   },
+  created() {
+    client.on('message', this.processIncomingMessage);
+    // Abonneer op de relevante topics
+    client.subscribe('asb/+/terugkoppeling', { qos: 1 });
+  },
+  
   methods: {
+    processIncomingMessage(topic, message) {
+    // Converteer het bericht naar een string
+    const msg = message.toString();
+
+    // Controleer of het bericht van de slagboom terugkoppeling komt
+    if ((topic === 'asb/1/terugkoppeling' || topic === 'asb/2/terugkoppeling') && msg === '5') {
+      // Haal het slagboom nummer op uit het topic
+      const nummer = topic.split('/')[1];
+
+      this.notifications.push(`Normaal sluiten van slagboom ${nummer} mislukt (object gedetecteerd)`);
+    }
+  },
+
+
+    removeNotification(nummer) {
+      const notification = `Normaal sluiten van slagboom ${nummer} mislukt (object gedetecteerd)`;
+      const index = this.notifications.indexOf(notification);
+      if (index !== -1) {
+        this.notifications.splice(index, 1);
+      }
+    },
     toggleStoplicht(kleur, nummer) {
     let message = '0'; // Standaard waarde voor 'uit'
-
     // Schakel de knipperfunctie uit als deze actief is
     if (this.knipperStatus[nummer]) {
         this.knipperGeel(nummer); // Deactiveer het knipperen
@@ -161,7 +194,7 @@ export default {
       // Wacht 10 seconden voordat de definitieve status wordt gepubliceerd
       setTimeout(() => {
         const topicFinal = `asb/${nummer}/verander`;
-        const messageFinal = this.slagboomStatus[nummer] ? '0' : '1';
+        const messageFinal = this.slagboomStatus[nummer] ? '1' : '0';
         this.publishMessage(topicFinal, messageFinal);
       }, 10000); // 10 seconden
     },
@@ -181,17 +214,17 @@ export default {
       }
     },
     knipperGeel(nummer) {
-    if (this.knipperStatus[nummer]) {
+      if (this.knipperStatus[nummer]) {
         // Deactiveer de knipperfunctie als deze actief is
         clearInterval(this.knipperInterval);
         this.knipperInterval = null;
         this.knipperStatus[nummer] = false;
         this.stoplichtKleur[nummer] = null; // Zet de kleur terug naar 'uit'
         this.publishMessage(`vkl/${nummer}/verander`, '0'); // Bericht voor knipperen uit
-    } else {
+      } else {
         // Activeer de knipperfunctie als deze niet actief is
         if (this.stoplichtKleur[nummer] !== null) {
-            this.publishMessage(`vkl/${nummer}/verander`, '0'); // Zet huidige kleur uit
+          this.publishMessage(`vkl/${nummer}/verander`, '0'); // Zet huidige kleur uit
         }
         this.knipperStatus[nummer] = true;
         this.stoplichtKleur[nummer] = 'knipper';
@@ -199,14 +232,14 @@ export default {
 
         // Houd bij of het stoplicht aan of uit is tijdens het knipperen
         this.knipperInterval = setInterval(() => {
-            if (this.stoplichtKleur[nummer] === 'geel') {
-                this.stoplichtKleur[nummer] = null;
-            } else {
-                this.stoplichtKleur[nummer] = 'geel';
-            }
+          if (this.stoplichtKleur[nummer] === 'geel') {
+            this.stoplichtKleur[nummer] = null;
+          } else {
+            this.stoplichtKleur[nummer] = 'geel';
+          }
         }, 1000); // Herhaal het knipperen elke 1000 ms (1 keer per seconde)
-    }
-  },
+      }
+    },
 
     isKnipperActief(nummer) {
       return this.knipperStatus[nummer];
@@ -225,6 +258,8 @@ export default {
         { action: () => this.toggleStoplicht('geel', 1), delay: 3000 },
         { action: () => this.toggleStoplicht('rood', 1), delay: 2000 },
         { action: () => this.toggleSlagboom(1), delay: 10000 },
+        { action: () => this.simulateSlagboomError(1), delay: 5000 }, // Simuleer foutmelding voor slagboom 1
+        { action: () => this.simulateSlagboomOpen(1), delay: 5000 } // Simuleer het openen van slagboom 1 om de foutmelding te verwijderen
       ];
 
       let index = 0;
@@ -249,6 +284,13 @@ export default {
         this.knipperInterval = null;
         this.knipperStatus = { 1: false, 2: false };
       }
+    },
+    simulateSlagboomError(nummer) {
+      this.notifications.push(`Normaal sluiten van slagboom ${nummer} mislukt (object gedetecteerd)`);
+    },
+    simulateSlagboomOpen(nummer) {
+      this.slagboomStatus[nummer] = false;
+      this.removeNotification(nummer);
     },
     publishMessage(topic, message) {
       client.publish(topic, message, {qos: 1}, (error) => {
@@ -462,5 +504,15 @@ summary {
 summary:hover {
   background-color: #e0e0e0; 
 }
+
+.notifications {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+  padding: 10px;
+  border-radius: 5px;
+  margin-top: 20px;
+}
+
 
 </style>
