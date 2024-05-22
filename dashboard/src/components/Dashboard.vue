@@ -3,7 +3,7 @@
     <h1>Dashboard</h1>
     <div class="controls">
       <details>
-        <summary><h2>Stoplicht 1</h2></summary>
+        <summary><h2>Verkeerslicht 1</h2></summary>
         <button @click="toggleStoplicht('rood', 1)" :class="{ 'on': stoplichtKleur[1] === 'rood', 'red': true }">Rood</button>
         <button @click="toggleStoplicht('geel', 1)" :class="{ 'on': stoplichtKleur[1] === 'geel', 'orange': true }">Geel</button>
         <button @click="knipperGeel(1)" :class="{ 'knipper-actief': isKnipperActief(1) }">Knipper Geel</button>
@@ -11,7 +11,7 @@
       </details>
       
       <details>
-        <summary><h2>Stoplicht 2</h2></summary>
+        <summary><h2>Verkeerslicht 2</h2></summary>
         <button @click="toggleStoplicht('rood', 2)" :class="{ 'on': stoplichtKleur[2] === 'rood', 'red': true }">Rood</button>
         <button @click="toggleStoplicht('geel', 2)" :class="{ 'on': stoplichtKleur[2] === 'geel', 'orange': true }">Geel</button>
         <button @click="knipperGeel(2)" :class="{ 'knipper-actief': isKnipperActief(2) }">Knipper Geel</button>
@@ -19,9 +19,9 @@
       </details>
 
       <details>
-        <summary><h2>Afslagbomen</h2></summary>
-        <button @click="toggleSlagboom(1)" :class="{ 'on': slagboomStatus[1] }">Afslagboom 1: {{ slagboomStatus[1] ? 'Gesloten' : 'Open' }}</button>
-        <button @click="toggleSlagboom(2)" :class="{ 'on': slagboomStatus[2] }">Afslagboom 2: {{ slagboomStatus[2] ? 'Gesloten' : 'Open' }}</button>
+        <summary><h2>Afsluitbomen</h2></summary>
+        <button @click="toggleSlagboom(1)" :class="{ 'on': slagboomStatus[1] }">Afsluitboom 1: {{ slagboomStatus[1] ? 'Gesloten' : 'Open' }}</button>
+        <button @click="toggleSlagboom(2)" :class="{ 'on': slagboomStatus[2] }">Afsluitboom 2: {{ slagboomStatus[2] ? 'Gesloten' : 'Open' }}</button>
       </details>
 
       <button @click="resetAlles">Reset</button>
@@ -44,19 +44,19 @@
     <div class="situatie-overzicht">
       <!-- Stoplichten -->
       <details>
-        <summary><h2>Stoplichten overzicht</h2></summary>
+        <summary><h2>Verkeerslichten overzicht</h2></summary>
         <ul>
-          <li>Stoplicht 1 kleur: {{ stoplichtKleur[1] || 'Uit' }}</li>
-          <li>Stoplicht 2 kleur: {{ stoplichtKleur[2] || 'Uit' }}</li>
+          <li>Verkeerslicht 1 status: {{ stoplichtKleur[1] || 'Gedoofd' }}</li>
+          <li>Verkeerslicht 2 status: {{ stoplichtKleur[2] || 'Gedoofd' }}</li>
         </ul>
       </details>
     
       <!-- Slagbomen -->
       <details>
-        <summary><h2>Afslagbomen overzicht</h2></summary>
+        <summary><h2>Afsluitbomen overzicht</h2></summary>
         <ul>
-          <li>Slagboom 1: {{ slagboomStatus[1] ? 'Gesloten' : 'Open' }}</li>
-          <li>Slagboom 2: {{ slagboomStatus[2] ? 'Gesloten' : 'Open' }}</li>
+          <li>Afsluitboom 1 status: {{ slagboomStatus[1] ? 'Gesloten' : 'Open' }}</li>
+          <li>Afsluitboom 2 status: {{ slagboomStatus[2] ? 'Gesloten' : 'Open' }}</li>
         </ul>
       </details>
     </div>
@@ -67,24 +67,26 @@
         <div class="stoplichten-en-slagbomen">
           <!-- Set 1 met nummering in witte kleur en slagboom bovenaan -->
           <div style="display: flex; align-items: center;">
-            <div style="padding-right: 10px; font-size: 20px; color: white;">1</div>
+            <div style="padding-right: 10px; font-size: 10px; color: white;">VKL 1</div>
             <div>
               <div class="slagboom slagboom-boven" :class="{ 'on2': slagboomStatus[1] }"></div>
               <div class="stoplicht" :class="{ 'on': stoplichtKleur[1] === 'rood', 'red': true }"></div>
               <div class="stoplicht" :class="{ 'on': stoplichtKleur[1] === 'geel', 'orange': true }"></div>
               <div class="stoplicht" :class="{ 'on': stoplichtKleur[1] === 'groen', 'green': true }"></div>
             </div>
+            <div style="padding-left: 80px; font-size: 10px; color: white;">ASB 1</div>
           </div>
         
           <!-- Set 2 met nummering in witte kleur en slagboom onderaan gedraaid -90 graden -->
           <div style="display: flex; align-items: center;">
-            <div style="padding-right: 10px; font-size: 20px; color: white;">2</div>
+            <div style="padding-right: 10px; font-size: 10px; color: white;">VKL 2</div>
             <div>
               <div class="stoplicht" :class="{ 'on': stoplichtKleur[2] === 'rood', 'red': true }"></div>
               <div class="stoplicht" :class="{ 'on': stoplichtKleur[2] === 'geel', 'orange': true }"></div>
               <div class="stoplicht" :class="{ 'on': stoplichtKleur[2] === 'groen', 'green': true }"></div>
               <div class="slagboom slagboom-onder" :class="{ 'on': slagboomStatus[2] }"></div>
             </div>
+            <div style="padding-left: 80px; font-size: 10px; color: white;">ASB 2</div>
           </div>
         </div>
       </div>
