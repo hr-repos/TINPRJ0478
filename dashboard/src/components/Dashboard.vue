@@ -22,9 +22,11 @@
         <summary><h2>Afsluitbomen</h2></summary>
         <button @click="toggleSlagboom(1)" :class="{ 'on': slagboomStatus[1] }">Afsluitboom 1: {{ slagboomStatus[1] ? 'Gesloten' : 'Open' }}</button>
         <button @click="toggleSlagboom(2)" :class="{ 'on': slagboomStatus[2] }">Afsluitboom 2: {{ slagboomStatus[2] ? 'Gesloten' : 'Open' }}</button>
+        <button @click="resetSlagboom(1)">Reset Slagboom 1</button>
+        <button @click="resetSlagboom(2)">Reset Slagboom 2</button>
       </details>
 
-      <button @click="resetAlles">Reset</button>
+      <button @click="resetAlles">Reset alles</button>
       <button @click="startSimulatie">Demo</button>
     </div>
 
@@ -49,7 +51,6 @@
           <li>Verkeerslicht 2 status: {{ stoplichtKleur[2] || 'Gedoofd' }}</li>
         </ul>
       </details>
-
     <!-- Slagbomen -->
       <details>
         <summary><h2>Afsluitbomen overzicht</h2></summary>
@@ -59,7 +60,6 @@
         </ul>
       </details>
     </div>
-  
     <div class="autoweg-container">
       <div class="weg-representatie">
         <div class="stoplichten-en-slagbomen">
@@ -111,11 +111,12 @@ export default {
     return {
       stoplichtKleur: {},
       slagboomStatus: {},
+      foutStatus: { 1: false, 2: false }, // Status om bij te houden of er een foutmelding actief is
       verkeersintensiteit: 'laag',
       simulatieInterval: null,
       knipperInterval: null,
       knipperStatus: { 1: false, 2: false },
-      notifications: [] // Toegevoegd voor meldingen
+      notifications: [] //Toegevoegd voor meldingen
     };
   },
   created() {
@@ -123,7 +124,6 @@ export default {
     // Abonneer op de relevante topics
     client.subscribe('asb/+/terugkoppeling', { qos: 1 });
   },
-  
   methods: {
     processIncomingMessage(topic, message) {
     console.log(`Ontvangen bericht op topic: ${topic}: ${message.toString()}`);
@@ -133,12 +133,17 @@ export default {
     // Controleer of het bericht van de slagboom terugkoppeling komt
     if (prefix === 'asb' && (nummer === '1' || nummer === '2') && suffix === 'terugkoppeling') {
       if (msg === '5') {
+
         this.notifications.push(`Normaal sluiten van slagboom ${nummer} mislukt (object gedetecteerd)`);
+        this.foutStatus[nummer] = true; // Zet foutstatus voor de slagboom
       } else if (msg === '0' || msg === '1') {
-        this.removeNotification(nummer);
+
+        if (!this.foutStatus[nummer]) {
+          this.removeNotification(nummer);
+        }
       }
     }
-    },
+  },
     removeNotification(nummer) {
       const notification = `Normaal sluiten van slagboom ${nummer} mislukt (object gedetecteerd)`;
       const index = this.notifications.indexOf(notification);
@@ -147,20 +152,26 @@ export default {
       }
     },
     toggleStoplicht(kleur, nummer) {
-    let message = '0'; // Standaard waarde voor 'uit'
-    // Schakel de knipperfunctie uit als deze actief is
-    if (this.knipperStatus[nummer]) {
-        this.knipperGeel(nummer); // Deactiveer het knipperen
-    }
+      if (this.foutStatus[nummer]) {
+        console.log(`Slagboom ${nummer} kan niet bediend worden vanwege foutmelding`);
+        return; // Stop als er een foutmelding actief is
+      }
 
-    // Schakel de huidige kleur uit
-    if (this.stoplichtKleur[nummer] !== null) {
+      let message = '0'; // Standaard waarde voor 'uit'
+
+      // Schakel de knipperfunctie uit als deze actief is
+      if (this.knipperStatus[nummer]) {
+        this.knipperGeel(nummer); // Deactiveer het knipperen
+      }
+
+      // Schakel de huidige kleur uit
+      if (this.stoplichtKleur[nummer] !== null) {
         if (this.stoplichtKleur[nummer] === 'knipper') {
-            this.publishMessage(`vkl/${nummer}/verander`, '0'); // Stuur bericht om knipperen uit te zetten
+          this.publishMessage(`vkl/${nummer}/verander`, '0'); // Stuur bericht om knipperen uit te zetten
         } else {
-            this.publishMessage(`vkl/${nummer}/verander`, '0'); // Stuur bericht om huidige kleur uit te zetten
+          this.publishMessage(`vkl/${nummer}/verander`, '0'); // Stuur bericht om huidige kleur uit te zetten
         }
-    }
+      }
 
       // Stel de nieuwe kleur in of zet deze uit als het dezelfde kleur is
       if (this.stoplichtKleur[nummer] === kleur) {
@@ -182,25 +193,30 @@ export default {
     },
 
     toggleSlagboom(nummer) {
-      // Controleer de huidige status om de juiste tijdelijke status te bepalen
-      const temporaryStatus = this.slagboomStatus[nummer] ? '4' : '3';
-      const topicStart = `asb/${nummer}/verander`;
-      this.publishMessage(topicStart, temporaryStatus);
+  if (this.foutStatus[nummer]) {
+    console.log(`Slagboom ${nummer} kan niet bediend worden vanwege foutmelding`);
+    return; // Stop als er een foutmelding actief is
+    }
 
-      // Status van de slagboom wijzigen
-      this.slagboomStatus[nummer] = !this.slagboomStatus[nummer];
+    // Controleer de huidige status om de juiste status te bepalen
+    const nieuweStatus = this.slagboomStatus[nummer] ? '0' : '1';
+    const topic = `asb/${nummer}/verander`;
+    this.publishMessage(topic, nieuweStatus);
 
-      // Wacht 10 seconden voordat de definitieve status wordt gepubliceerd
-      setTimeout(() => {
-        const topicFinal = `asb/${nummer}/verander`;
-        const messageFinal = this.slagboomStatus[nummer] ? '1' : '0';
-        this.publishMessage(topicFinal, messageFinal);
-      }, 10000); // 10 seconden
+    // Status van de slagboom wijzigen
+    this.slagboomStatus[nummer] = !this.slagboomStatus[nummer];
+  },
+
+    resetSlagboom(nummer) {
+      this.foutStatus[nummer] = false; // Reset de foutstatus voor de specifieke slagboom
+      this.removeNotification(nummer); // Verwijder eventuele meldingen
     },
     resetAlles() {
       for (let i = 1; i <= 2; i++) {
         this.stoplichtKleur[i] = null;
         this.slagboomStatus[i] = false;
+        this.foutStatus[i] = false; // Reset de foutstatus
+        this.removeNotification(i); // Verwijder eventuele meldingen
         this.publishMessage(`asb/${i}/verander`, '2');
         this.publishMessage(`vkl/${i}/verander`, '0');
         this.publishMessage(`vkl/${i}/verander`, '0');
@@ -213,6 +229,11 @@ export default {
       }
     },
     knipperGeel(nummer) {
+      if (this.foutStatus[nummer]) {
+        console.log(`Slagboom ${nummer} kan niet bediend worden vanwege foutmelding`);
+        return; // Stop als er een foutmelding actief is
+      }
+
       if (this.knipperStatus[nummer]) {
         // Deactiveer de knipperfunctie als deze actief is
         clearInterval(this.knipperInterval);
@@ -287,11 +308,13 @@ export default {
     simulateSlagboomError(nummer) {
       console.log(`Normaal sluiten van slagboom ${nummer} mislukt (object gedetecteerd)`);
       this.notifications.push(`Normaal sluiten van slagboom ${nummer} mislukt (object gedetecteerd)`);
+      this.foutStatus[nummer] = true; // Zet foutstatus voor de slagboom
     },
     simulateSlagboomOpen(nummer) {
       console.log(`Simulatie: Slagboom ${nummer} is geopend`);
       this.slagboomStatus[nummer] = false;
       this.removeNotification(nummer);
+      this.foutStatus[nummer] = false; // Reset de foutstatus
     },
     publishMessage(topic, message) {
       client.publish(topic, message, {qos: 1}, (error) => {
