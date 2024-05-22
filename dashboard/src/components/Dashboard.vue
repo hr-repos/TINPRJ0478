@@ -369,7 +369,7 @@ export default {
   position: absolute;
   top: 50%;
   left: 0;
-  width: calc(100% - 200px); 
+  width: calc(130% - 200px); 
   height: 4px;
   background: repeating-linear-gradient(
     to right,
@@ -453,7 +453,7 @@ export default {
 summary {
   cursor: pointer;
   font-weight: bold;
-  padding: 10px;
+  padding: 20px;
   background-color: #f0f0f0; 
   border-radius: 5px; 
   transition: background-color 0.3s ease;
