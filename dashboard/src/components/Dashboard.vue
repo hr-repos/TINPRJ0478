@@ -217,7 +217,7 @@ export default {
         this.slagboomStatus[i] = false;
         this.foutStatus[i] = false; // Reset de foutstatus
         this.removeNotification(i); // Verwijder eventuele meldingen
-        this.publishMessage(`asb/${i}/verander`, '2');
+        this.publishMessage(`asb/${i}/verander`, '3');
         this.publishMessage(`vkl/${i}/verander`, '0');
         this.publishMessage(`vkl/${i}/verander`, '0');
         this.publishMessage(`vkl/${i}/verander`, '0');
