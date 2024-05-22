@@ -126,19 +126,19 @@ export default {
   
   methods: {
     processIncomingMessage(topic, message) {
+    console.log(`Ontvangen bericht op topic: ${topic}: ${message.toString()}`);
     // Converteer het bericht naar een string
-    const msg = message.toString();
-
+    const msg = message.toString(); 
+    const [prefix, nummer, suffix] = topic.split('/'); // Split het topic in delen
     // Controleer of het bericht van de slagboom terugkoppeling komt
-    if ((topic === 'asb/1/terugkoppeling' || topic === 'asb/2/terugkoppeling') && msg === '5') {
-      // Haal het slagboom nummer op uit het topic
-      const nummer = topic.split('/')[1];
-
-      this.notifications.push(`Normaal sluiten van slagboom ${nummer} mislukt (object gedetecteerd)`);
+    if (prefix === 'asb' && (nummer === '1' || nummer === '2') && suffix === 'terugkoppeling') {
+      if (msg === '5') {
+        this.notifications.push(`Normaal sluiten van slagboom ${nummer} mislukt (object gedetecteerd)`);
+      } else if (msg === '0' || msg === '1') {
+        this.removeNotification(nummer);
+      }
     }
-  },
-
-
+    },
     removeNotification(nummer) {
       const notification = `Normaal sluiten van slagboom ${nummer} mislukt (object gedetecteerd)`;
       const index = this.notifications.indexOf(notification);
@@ -180,7 +180,6 @@ export default {
       const topic = `vkl/${nummer}/verander`;
       this.publishMessage(topic, message);
     },
-
 
     toggleSlagboom(nummer) {
       // Controleer de huidige status om de juiste tijdelijke status te bepalen
@@ -286,9 +285,11 @@ export default {
       }
     },
     simulateSlagboomError(nummer) {
+      console.log(`Normaal sluiten van slagboom ${nummer} mislukt (object gedetecteerd)`);
       this.notifications.push(`Normaal sluiten van slagboom ${nummer} mislukt (object gedetecteerd)`);
     },
     simulateSlagboomOpen(nummer) {
+      console.log(`Simulatie: Slagboom ${nummer} is geopend`);
       this.slagboomStatus[nummer] = false;
       this.removeNotification(nummer);
     },
