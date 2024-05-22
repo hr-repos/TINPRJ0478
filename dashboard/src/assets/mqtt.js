@@ -2,12 +2,10 @@ import mqtt from 'mqtt'
 
 //'ws://mq.nl.eu.org:8884'
 
-const client = mqtt.connect('ws://localhost:8801', {
+const client = mqtt.connect('ws://145.24.223.210:8801', {
     clean: true,
     connectTimeout: 4000,
     reconnectPeriod: 5000,
-    username: 'connectedsystems',
-    password: 'tincos',
     keepalive: 60,
     resubscribe: true
 })
