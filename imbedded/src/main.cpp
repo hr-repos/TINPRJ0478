@@ -148,10 +148,14 @@ void processIncomingVKLMessage(uint8_t message) {
             stopLight->setLight(Colors::green, true);
             Serial.println("Turned all lights off and set green light on.");
             break;
+        case veranderProtocolVKL::ALLEENORANJEKNIPPEREN:
+            stopLight->setAllLightsOff();
+            stopLight->setOrangeBlinking(true);
+            Serial.println("Turned all lights off and set orange light to blinking.");
+            break;
         default:
             client.publish(VKL_MESSAGE_TOPIC, "6");
             Serial.println("Bericht is geen commando.");
-            break;
     }
 }
 
