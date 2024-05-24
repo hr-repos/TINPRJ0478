@@ -65,6 +65,9 @@ public:
     // get boolean if the servo is down
     bool isDown();
 
+
+    bool getEstopStatus();
+
     // get current location of the servo
     uint8_t getLocation();
 };
