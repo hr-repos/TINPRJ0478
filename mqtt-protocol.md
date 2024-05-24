@@ -37,7 +37,8 @@
     - 3 is normaal gesloten
     - 4 is geforceerd gesloten
     - 5 normaal sluiten mislukt (object detected)
-    - 6 bericht niet herkend
+    - 6 reset uitgevoerd
+    - 7 bericht niet herkend
 
 # globaal
 
