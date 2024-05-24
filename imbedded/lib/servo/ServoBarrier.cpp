@@ -80,14 +80,17 @@ void ServoBarrier::callback()
 
     if (requestedPosition != currentPosition && !eStopActive) {
 
-        if (servoTimer->waitTime(25))
+        if (servoTimer->waitTime(15))
         {
             moveBarrier();
         }
     }
 
-    if (!isDown())
+    if (!isDown()) {
+        digitalWrite(config.ledPin1, LOW);
+        digitalWrite(config.ledPin2, LOW);
         return;
+    }
 
     if (ledTimer->waitTime(500))
     {
