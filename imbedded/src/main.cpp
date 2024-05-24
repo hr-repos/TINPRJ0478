@@ -7,6 +7,7 @@
 #include "ServoBarrier.h"
 #include "StopLight.h"
 #include "Ultrasonic.h"
+#define BOT_MESSAGE_TOPIC "bot1/messages"
 #define ASB_MESSAGE_TOPIC "asb/1/terugkoppeling"
 #define ASB_INCOMING_TOPIC "asb/1/verander"
 #define VKL_MESSAGE_TOPIC "vkl/1/terugkoppeling"
@@ -194,7 +195,7 @@ void reconnect() {
             Serial.println("connected");
 
             // Once connected, publish an announcement...
-            client.publish(ASB_MESSAGE_TOPIC, "Bot connected!");
+            client.publish(BOT_MESSAGE_TOPIC, "Bot connected!");
 
             // ... and resubscribe
             client.subscribe(ASB_INCOMING_TOPIC);
