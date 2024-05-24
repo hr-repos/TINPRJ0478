@@ -67,6 +67,7 @@ public:
 
 
     bool getEstopStatus();
+    void setEstopStatus(bool newStatus);
 
     // get current location of the servo
     uint8_t getLocation();

@@ -68,8 +68,12 @@ void ServoBarrier::moveBarrier() {
     servo.write(currentPosition);
 }
 
-bool ServoBarrier::getEstopStatus(){
+bool ServoBarrier::getEstopStatus() {
     return eStopActive;
+}
+
+void ServoBarrier::setEstopStatus(bool newStatus) {
+    eStopActive = newStatus;
 }
 
 void ServoBarrier::moveBarrierForced() {
