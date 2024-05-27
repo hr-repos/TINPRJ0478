@@ -62,8 +62,20 @@ uint8_t asbLedPin1 = 33;
 uint8_t asbLedPin2 = 32;
 // ServoBarrier servo(asbServoPin, asbLedPin);
 
+void processEstopActivate() {
+    client.publish(ASB_MESSAGE_TOPIC, "5");
+    Serial.println("E-stop is geactiveerd.");
+}
+
 auto ultrasoon = new Ultrasonic(13, 12);
-barrierData asbConfig = {asbServoPin, asbLedPin1, asbLedPin2, LANE_WIDTH_CM, ultrasoon, &client};
+barrierData asbConfig = {
+    asbServoPin,
+    asbLedPin1,
+    asbLedPin2,
+    LANE_WIDTH_CM,
+    ultrasoon,
+    processEstopActivate
+};
 auto servo = new ServoBarrier(asbConfig);
 auto stopLight = new StopLight(21, 19, 18);
 
@@ -120,6 +132,12 @@ void processIncomingASBMessage(uint8_t message) {
             client.publish(ASB_MESSAGE_TOPIC, "1");
             Serial.println("Slagboom wordt geforceerd gesloten.");
             break;
+        case veranderProtocolASB::RESETESTOP:
+            servo->setRequestedPositionDown();
+            servo->setEstopStatus(false);
+            client.publish(ASB_MESSAGE_TOPIC, "1");
+            Serial.println("Slagboom wordt geforceerd gesloten.");
+            break;
         default:
             client.publish(ASB_MESSAGE_TOPIC, "6");
             Serial.println("Bericht is geen commando.");
@@ -159,6 +177,8 @@ void processIncomingVKLMessage(uint8_t message) {
             Serial.println("Bericht is geen commando.");
     }
 }
+
+
 
 void callback(char* topic, byte* payload, unsigned int length) {
     char message[length + 1]; // +1 for null terminator
@@ -230,4 +250,6 @@ void loop() {
     client.loop();
     servo->callback();
     stopLight->callback();
+
+
 }

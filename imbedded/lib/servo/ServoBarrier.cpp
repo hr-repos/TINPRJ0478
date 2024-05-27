@@ -54,8 +54,9 @@ void ServoBarrier::switchLeds()
 }
 
 void ServoBarrier::moveBarrier() {
-    if (objectDetected()){
+    if (objectDetected()) {
         eStopActive = true;
+        config.EStopHandlerMainLoop();
         return;
     }
 

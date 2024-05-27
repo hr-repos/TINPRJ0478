@@ -14,7 +14,7 @@ struct barrierData {
     uint8_t ledPin2;
     uint8_t laneWidth;
     Ultrasonic *sonic;
-    PubSubClient *client;
+    void (*EStopHandlerMainLoop)();
 };
 
 class ServoBarrier
