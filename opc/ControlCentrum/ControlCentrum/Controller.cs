@@ -80,6 +80,8 @@ namespace ControlCentrum
             { 
                 (variable, node) = GetVariableAndNode("mode", nodeID);
 
+                Int32.Parse(message.Trim(' ', '\n'));
+
                 if (!await node.TrySetNodeValue("mode", message, Opcua.Client))
                     Console.Out.WriteLine($"!!<error> node: {node.NodeID.Split('\"')[1]} variable: {variable.Name} no value set!!");
             }
