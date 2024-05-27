@@ -104,6 +104,7 @@ export default {
       slagboomStatus: {},
       foutStatus: { 1: false, 2: false }, // Status om bij te houden of er een foutmelding actief is
       geforceerdGesloten: { 1: false, 2: false }, // Status om bij te houden of de slagboom geforceerd gesloten is
+      resetPressed: { 1: false, 2: false }, // Status om bij te houden of de resetknop is ingedrukt
       verkeersintensiteit: 'laag',
       simulatieInterval: null,
       knipperInterval: null,
@@ -131,6 +132,7 @@ export default {
           }
           this.foutStatus[nummer] = true; // Zet foutstatus voor de slagboom
           this.geforceerdGesloten[nummer] = false; // Reset geforceerde sluiting status
+          this.resetPressed[nummer] = false; // Reset de reset status
         } else if (msg === '0' || msg === '1') {
           if (!this.foutStatus[nummer]) {
             this.removeNotification(nummer);
@@ -184,9 +186,9 @@ export default {
     },
 
     toggleSlagboom(nummer) {
-      if (this.foutStatus[nummer] && !this.geforceerdGesloten[nummer]) {
-        console.log(`Slagboom ${nummer} kan niet bediend worden vanwege foutmelding`);
-        return; // Stop als er een foutmelding actief is en de slagboom niet geforceerd gesloten is
+      if (this.foutStatus[nummer] && !this.resetPressed[nummer]) {
+        console.log(`Slagboom ${nummer} kan niet bediend worden vanwege foutmelding of reset niet ingedrukt`);
+        return; // Stop als er een foutmelding actief is en de resetknop niet is ingedrukt
       }
 
       const message = this.slagboomStatus[nummer] ? '0' : '1';
@@ -206,6 +208,7 @@ export default {
     resetSlagboom(nummer) {
       this.foutStatus[nummer] = false; // Reset de foutstatus voor de specifieke slagboom
       this.geforceerdGesloten[nummer] = false; // Reset de geforceerde sluiting status
+      this.resetPressed[nummer] = true; // Markeer de resetknop als ingedrukt
       this.removeNotification(nummer); // Verwijder eventuele meldingen
       this.slagboomStatus[nummer] = false; // Zet de slagboom terug naar de open status
 
@@ -221,6 +224,7 @@ export default {
         this.slagboomStatus[i] = false;
         this.foutStatus[i] = false; // Reset de foutstatus
         this.geforceerdGesloten[i] = false; // Reset geforceerde sluiting status
+        this.resetPressed[i] = false; // Reset de reset status
         this.removeNotification(i); // Verwijder eventuele meldingen
         this.publishMessage(`asb/${i}/verander`, '3'); // Reset noodstop
         this.publishMessage(`asb/${i}/verander`, '0'); // Voeg deze regel toe om '0' te publiceren
@@ -335,6 +339,8 @@ export default {
   }
 };
 </script>
+
+
 
 
 <style scoped>
