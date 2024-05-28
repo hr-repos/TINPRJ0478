@@ -85,14 +85,9 @@ void ServoBarrier::moveBarrierForced() {
 void ServoBarrier::callback()
 {
     static Timer *ledTimer = new Timer(SET_TIMER_IN_MS);
-    static Timer *servoTimer = new Timer(SET_TIMER_IN_MS);
 
     if (requestedPosition != currentPosition && !eStopActive) {
-
-        if (servoTimer->waitTime(15))
-        {
-            moveBarrier();
-        }
+        moveBarrier();
     }
 
     if (!isDown()) {
