@@ -91,6 +91,7 @@ void syncTimeWithServer() {
         configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
     } while (!getLocalTime(&timeinfo));
 
+    Serial.println("Time is synced with server");
     timeIsSynced = true;
 }
 
