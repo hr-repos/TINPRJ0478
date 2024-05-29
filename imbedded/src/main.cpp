@@ -169,13 +169,11 @@ void processIncomingASBMessage(uint8_t message) {
             Serial.println("Slagboom wordt geforceerd gesloten.");
             break;
         case veranderProtocolASB::RESETESTOP:
-            servo->setRequestedPositionDown();
             servo->setEstopStatus(false);
-            client.publish(ASB_MESSAGE_TOPIC, "1");
-            Serial.println("Slagboom wordt geforceerd gesloten.");
+            client.publish(ASB_MESSAGE_TOPIC, "6");
             break;
         default:
-            client.publish(ASB_MESSAGE_TOPIC, "6");
+            client.publish(ASB_MESSAGE_TOPIC, "7");
             Serial.println("Bericht is geen commando.");
             break;
     }
