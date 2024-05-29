@@ -6,6 +6,7 @@
 #include "./secret.h"
 #include "ServoBarrier.h"
 #include "StopLight.h"
+#include "Timer/Timer.h"
 #include "Ultrasonic.h"
 // #include "time_functions.cpp"
 #define BOT_MESSAGE_TOPIC "bot1/messages"
@@ -272,7 +273,6 @@ void setup() {
     servo->setRequestedPositionUp();
     servo->moveBarrierForced();
     syncTimeWithServer();
-    printLocalTime();
 }
 
 void loop() {
@@ -281,6 +281,17 @@ void loop() {
         reconnect();
     }
     client.loop();
+
+    static uint8_t updateTimeCounter = 0;
+    static Timer *updateTimeTimer = new Timer(SET_TIMER_IN_MS);
+
+    if (updateTimeTimer->waitTime(60000)) {
+        updateTimeCounter++;
+        if (updateTimeCounter >= 5) {
+            syncTimeWithServer();
+            updateTimeCounter = 0;
+        }
+    }
 
     if (readyForNextSensorReading()) {
         servo->callback();
