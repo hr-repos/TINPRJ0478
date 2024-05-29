@@ -7,6 +7,7 @@
 #include "ServoBarrier.h"
 #include "StopLight.h"
 #include "Ultrasonic.h"
+// #include "time_functions.cpp"
 #define BOT_MESSAGE_TOPIC "bot1/messages"
 #define ASB_MESSAGE_TOPIC "asb/1/terugkoppeling"
 #define ASB_INCOMING_TOPIC "asb/1/verander"
@@ -30,13 +31,13 @@ enum veranderProtocolASB {
 };
 
 enum terugkoppeling {
-    GEOPEND = 0,
-    GESLOTEN = 1,
-    GEFORCEERDGESLOTEN = 2,
-    WORDTGEOPEND = 3,
-    WORDTGESLOTEN = 4,
-    WORDTGEFORCEERDGESLOTEN = 5,
-    STILGEZETTIJDENSBEWEGEN = 6
+    WORDTGEOPEND = 0,
+    WORDTGESLOTEN = 1,
+    GEOPEND = 2,
+    GESLOTEN = 3,
+    GEFORCEERDGESLOTEN = 4,
+    STILGEZETTIJDENSBEWEGEN = 5,
+    WORDTGEFORCEERDGESLOTEN = 6
 };
 
 enum veranderProtocolVKL {
@@ -46,9 +47,7 @@ enum veranderProtocolVKL {
     ALLEENGROEN = 3,
     ALLEENORANJEKNIPPEREN = 4,
 };
-// const char* ntpServer = "pool.ntp.org";
-// const long  gmtOffset_sec = 3600;
-// const int   daylightOffset_sec = 0;
+
 
 #define MSG_BUFFER_SIZE (50)
 char msg[MSG_BUFFER_SIZE];
@@ -79,6 +78,47 @@ barrierData asbConfig = {
 auto servo = new ServoBarrier(asbConfig);
 auto stopLight = new StopLight(21, 19, 18);
 
+const char* ntpServer = "pool.ntp.org";
+const long  gmtOffset_sec = 3600;
+const int   daylightOffset_sec = 0;
+bool timeIsSynced = false;
+
+void syncTimeWithServer() {
+    configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+    struct tm timeinfo;
+
+    do {
+        configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+    } while (!getLocalTime(&timeinfo));
+
+    Serial.println("Time is synced with server");
+    timeIsSynced = true;
+}
+
+// Function prints the current time
+// void printLocalTime() {
+//   struct tm timeinfo;
+//   if (!getLocalTime(&timeinfo)) {
+//     Serial.println("Failed to obtain time");
+//     return;
+//   }
+//   Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
+// }
+
+bool readyForNextSensorReading() {
+    static struct timeval timeStruct;
+    static uint16_t lastRoundedMs = 0;
+    gettimeofday(&timeStruct, NULL);
+
+    uint16_t currentMs = timeStruct.tv_usec / 1000;
+
+    if (currentMs >= lastRoundedMs + 200 - 15 && currentMs <= lastRoundedMs + 200 + 15) {
+        lastRoundedMs = (currentMs + 20) / 100 * 100;
+        return true;
+    }
+
+    return false;
+}
 void setup_wifi() {
     delay(10);
     // We start by connecting to a WiFi network
@@ -100,14 +140,6 @@ void setup_wifi() {
     Serial.println(WiFi.localIP());
 }
 
-void printLocalTime() {
-  struct tm timeinfo;
-  if (!getLocalTime(&timeinfo)) {
-    Serial.println("Failed to obtain time");
-    return;
-  }
-  Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
-}
 
 void moveBarrier(bool pos) {
     pos ? servo->setRequestedPositionUp() : servo->setRequestedPositionDown();
@@ -231,15 +263,16 @@ void reconnect() {
 }
 
 void setup() {
-    pinMode(BUILTIN_LED, OUTPUT);     // Initialize the BUILTIN_LED pin as an output
+    pinMode(BUILTIN_LED, OUTPUT);
     Serial.begin(115200);
 
     setup_wifi();
-
     client.setServer(mqtt_server, MQTT_PORT);
     client.setCallback(callback);
     servo->setRequestedPositionUp();
     servo->moveBarrierForced();
+    syncTimeWithServer();
+    printLocalTime();
 }
 
 void loop() {
@@ -248,8 +281,9 @@ void loop() {
         reconnect();
     }
     client.loop();
-    servo->callback();
+
+    if (readyForNextSensorReading()) {
+        servo->callback();
+    }
     stopLight->callback();
-
-
 }
