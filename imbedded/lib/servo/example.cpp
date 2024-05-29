@@ -32,6 +32,6 @@ void loop()
         }
     }
 
-    servo->callback();
+    servo->asbMoveCallback();
 }
 

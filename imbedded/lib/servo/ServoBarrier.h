@@ -24,6 +24,7 @@ private:
     Servo servo;
     bool ledSwitch = false;
     bool eStopActive = false;
+    uint8_t lastReadDistanceToObstacle = 0;
 
     barrierData config;
 
@@ -48,7 +49,10 @@ public:
     bool objectDetected();
 
     // update the leds of the barrier
-    void callback();
+    void asbMoveCallback();
+
+    //  continually checks for objects
+    void asbObjectDetectionCallback();
 
     // set the position of the servo
     void setServoPos(uint64_t);

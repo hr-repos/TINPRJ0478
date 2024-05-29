@@ -1,5 +1,6 @@
 #include "ServoBarrier.h"
 #include "Timer/Timer.h"
+#include "Ultrasonic.h"
 
 ServoBarrier::ServoBarrier(barrierData config)
     : config(config)
@@ -18,7 +19,12 @@ ServoBarrier::ServoBarrier(barrierData config)
 
 bool ServoBarrier::objectDetected()
 {
-    return config.sonic->readUltrasonic_cm() < config.laneWidth;
+    int value = READING_NOT_FOUND;
+    while (value == READING_NOT_FOUND) {
+        value = config.sonic->readUltrasonic_cm();
+    }
+    Serial.printf("Distance to object: %d\n", value);
+    return value < config.laneWidth;
 }
 
 void ServoBarrier::setServoPos(uint64_t pos)
@@ -82,7 +88,7 @@ void ServoBarrier::moveBarrierForced() {
     servo.write(currentPosition);
 }
 
-void ServoBarrier::callback()
+void ServoBarrier::asbMoveCallback()
 {
     static Timer *ledTimer = new Timer(SET_TIMER_IN_MS);
 
@@ -103,3 +109,20 @@ void ServoBarrier::callback()
 
 
 }
+
+void ServoBarrier::asbObjectDetectionCallback() {
+    static int value = config.sonic->readUltrasonic_cm();
+    if (value == READING_NOT_FOUND) {
+        lastReadDistanceToObstacle = value;
+    }
+}
+
+
+
+
+
+
+
+
+
+

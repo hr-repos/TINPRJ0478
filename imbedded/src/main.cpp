@@ -295,7 +295,7 @@ void loop() {
     }
 
     if (readyForNextSensorReading()) {
-        servo->callback();
+        servo->asbMoveCallback();
     }
     stopLight->callback();
 }
