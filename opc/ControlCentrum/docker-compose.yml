@@ -15,6 +15,7 @@ services:
       - ./mosquitto/log:/mosquitto/log:rw
   controlcentrum:
     image: ${DOCKER_REGISTRY-}controlcentrum
+    restart: unless-stopped
     build:
       context: .
       dockerfile: ControlCentrum/Dockerfile

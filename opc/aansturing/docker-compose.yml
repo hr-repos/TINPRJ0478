@@ -16,6 +16,7 @@ services:
     
   aansturing:
     image: ${DOCKER_REGISTRY-}backend
+    restart: unless-stopped
     build:
       context: .
       dockerfile: Backend/Dockerfile
