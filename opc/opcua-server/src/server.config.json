@@ -1,4 +1,4 @@
-{
+{ 
     "address": "0.0.0.0",
     "port": 8100,
     "name": "tunnel_OPCUA_server",
@@ -12,14 +12,25 @@
     "nodes":
     [
         {
-            "name": "verkeerslight_1",
+            "name": "verkeerslicht_1",
             "nodeID": "vkl1",
             "namespace": "verander",
             "variables":
             [
                 {"id": "vkl1_ID", "value": 1, "writeable": false},
-                {"id": "vkl1_ID", "value": "vkl", "writeable": false},
+                {"id": "vkl1_type", "value": "vkl", "writeable": false},
                 {"id": "vkl1_mode", "value": 0}
+            ]
+        },
+        {
+            "name": "verkeerslicht_2",
+            "nodeID": "vkl2",
+            "namespace": "verander",
+            "variables":
+            [
+                {"id": "vkl2_ID", "value": 2, "writeable": false},
+                {"id": "vkl2_type", "value": "vkl", "writeable": false},
+                {"id": "vkl2_mode", "value": 0}
             ]
         },
         {
@@ -29,8 +40,19 @@
             "variables":
             [
                 {"id": "asb1_ID", "value": 1, "writeable": false},
-                {"id": "asb1_ID", "value": "asb", "writeable": false},
+                {"id": "asb1_type", "value": "asb", "writeable": false},
                 {"id": "asb1_mode", "value": 0}
+            ]
+        },
+        {
+            "name": "afsluitboom_2",
+            "nodeID": "asb2",
+            "namespace": "verander",
+            "variables":
+            [
+                {"id": "asb2_ID", "value": 2, "writeable": false},
+                {"id": "asb2_type", "value": "asb", "writeable": false},
+                {"id": "asb2_mode", "value": 0}
             ]
         }
     ]

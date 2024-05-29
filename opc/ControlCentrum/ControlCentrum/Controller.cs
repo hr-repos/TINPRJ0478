@@ -1,6 +1,7 @@
 ﻿using ControlCentrum.OPCUA;
 using ControlCentrum.Mqtt;
 using Newtonsoft.Json.Linq;
+using System.Collections.Specialized;
 
 namespace ControlCentrum
 {
@@ -20,8 +21,11 @@ namespace ControlCentrum
         {
             await Console.Out.WriteLineAsync("starting controller...");
 
-            await Mqtt.Connect();
-            await Opcua.Start();
+            bool isMqttStart = await Mqtt.Connect();
+            bool isOpcuaStart = await Opcua.Start();
+
+            if (isMqttStart || isOpcuaStart)
+                await Run();
 
             Mqtt.MessageHandler = MqttHandler;
             Opcua.Handler = OPCUA_Handler;
@@ -80,10 +84,12 @@ namespace ControlCentrum
             { 
                 (variable, node) = GetVariableAndNode("mode", nodeID);
 
-                Int32.Parse(message.Trim(' ', '\n'));
+                int intMessage = Int32.Parse(message.Trim(' ', '\n'));
+                if (intMessage == 6)
+                    await Console.Out.WriteLineAsync($"!!<error>topic: {topic} sent unknown message!!");
 
                 if (!await node.TrySetNodeValue("mode", message, Opcua.Client))
-                    Console.Out.WriteLine($"!!<error> node: {node.NodeID.Split('\"')[1]} variable: {variable.Name} no value set!!");
+                        await Console.Out.WriteLineAsync($"!!<error> node: {node.NodeID.Split('\"')[1]} variable: {variable.Name} no value set!!");
             }
             catch (Exception ex)
             {

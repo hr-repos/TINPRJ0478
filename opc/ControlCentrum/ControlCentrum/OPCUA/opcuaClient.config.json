@@ -4,13 +4,13 @@
 
   "nodes": [
     {
-      "name": "verkeerslight_1",
+      "name": "verkeerslicht_1",
       "nodeID": "vkl1",
       "namespace": "verander",
       "variables": [
         {
           "name": "id",
-          "id": "vkl1_id",
+          "id": "vkl1_ID",
           "readOnly": true
         },
         {
@@ -25,13 +25,34 @@
       ]
     },
     {
+      "name": "verkeerslicht_1",
+      "nodeID": "vkl2",
+      "namespace": "verander",
+      "variables": [
+        {
+          "name": "id",
+          "id": "vkl2_ID",
+          "readOnly": true
+        },
+        {
+          "name": "type",
+          "id": "vkl2_type",
+          "readOnly": true
+        },
+        {
+          "name": "mode",
+          "id": "vkl2_mode"
+        }
+      ]
+    },
+    {
       "name": "afsluitboom_1",
       "nodeID": "asb1",
       "namespace": "verander",
       "variables": [
         {
           "name": "id",
-          "id": "asb1_id",
+          "id": "asb1_ID",
           "readOnly": true
         },
         {
@@ -42,6 +63,27 @@
         {
           "name": "mode",
           "id": "asb1_mode"
+        }
+      ]
+    },
+    {
+      "name": "afsluitboom_2",
+      "nodeID": "asb2",
+      "namespace": "verander",
+      "variables": [
+        {
+          "name": "id",
+          "id": "asb2_ID",
+          "readOnly": true
+        },
+        {
+          "name": "type",
+          "id": "asb2_type",
+          "readOnly": true
+        },
+        {
+          "name": "mode",
+          "id": "asb2_mode"
         }
       ]
     }
