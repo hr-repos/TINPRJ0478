@@ -245,7 +245,7 @@ export default {
 
       // Publish the MQTT message to reset the barrier
       const topic = `asb/${nummer}/verander`;
-      const message = '0'; // '0' indicates reset/open command
+      const message = '3'; // '0' indicates reset/open command
       this.publishMessage(topic, message);
     },
 
