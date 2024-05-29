@@ -101,6 +101,7 @@ export default {
   data() {
     return {
       stoplichtKleur: {},
+      verwachteKleur: { 1: null, 2: null }, // Verwachte terugkoppeling kleur voor elk verkeerslicht
       slagboomStatus: {},
       foutStatus: { 1: false, 2: false }, // Status om bij te houden of er een foutmelding actief is
       geforceerdGesloten: { 1: false, 2: false }, // Status om bij te houden of de slagboom geforceerd gesloten is
@@ -116,27 +117,61 @@ export default {
     client.on('message', this.processIncomingMessage);
     // Abonneer op de relevante topics
     client.subscribe('asb/+/terugkoppeling', { qos: 1 });
+    client.subscribe('vkl/+/terugkoppeling', { qos: 1 });
+    
+    // Fetch initial state from the topics
+    this.fetchInitialState();
   },
   methods: {
+    fetchInitialState() {
+      // Simulate fetching initial state by publishing requests to MQTT topics
+      client.publish('asb/1/terugkoppeling/request', '', { qos: 1 });
+      client.publish('asb/2/terugkoppeling/request', '', { qos: 1 });
+      client.publish('vkl/1/terugkoppeling/request', '', { qos: 1 });
+      client.publish('vkl/2/terugkoppeling/request', '', { qos: 1 });
+    },
+
     processIncomingMessage(topic, message) {
       console.log(`Ontvangen bericht op topic: ${topic}: ${message.toString()}`);
       const msg = message.toString(); // Converteer het bericht naar een string
       const [prefix, nummer, suffix] = topic.split('/'); // Split het topic in delen
 
-      // Controleer of het bericht van de slagboom terugkoppeling komt
-      if (prefix === 'asb' && (nummer === '1' || nummer === '2') && suffix === 'terugkoppeling') {
-        if (msg === '5') {
-          const notification = `Normaal sluiten van slagboom ${nummer} mislukt (object gedetecteerd)`;
-          if (!this.notifications.includes(notification)) {
-            this.notifications.push(notification);
-          }
-          this.foutStatus[nummer] = true; // Zet foutstatus voor de slagboom
-          this.geforceerdGesloten[nummer] = false; // Reset geforceerde sluiting status
-          this.resetPressed[nummer] = false; // Reset de reset status
-        } else if (msg === '0' || msg === '1') {
-          if (!this.foutStatus[nummer]) {
-            this.removeNotification(nummer);
-          }
+      if (prefix === 'vkl' && (nummer === '1' || nummer === '2') && suffix === 'terugkoppeling') {
+        this.handleVerkeerslichtTerugkoppeling(nummer, msg);
+      } else if (prefix === 'asb' && (nummer === '1' || nummer === '2') && suffix === 'terugkoppeling') {
+        this.handleSlagboomTerugkoppeling(nummer, msg);
+      }
+    },
+
+    handleVerkeerslichtTerugkoppeling(nummer, msg) {
+      // Update the verkeerslicht state based on the received message
+      if (msg === '0') {
+        this.stoplichtKleur[nummer] = null;
+      } else if (msg === '1') {
+        this.stoplichtKleur[nummer] = 'rood';
+      } else if (msg === '2') {
+        this.stoplichtKleur[nummer] = 'geel';
+      } else if (msg === '3') {
+        this.stoplichtKleur[nummer] = 'groen';
+      } else if (msg === '4') {
+        this.knipperGeel(nummer);
+      }
+      this.verwachteKleur[nummer] = null;
+    },
+
+    handleSlagboomTerugkoppeling(nummer, msg) {
+      if (msg === '5') {
+        const notification = `Normaal sluiten van slagboom ${nummer} mislukt (object gedetecteerd)`;
+        if (!this.notifications.includes(notification)) {
+          this.notifications.push(notification);
+        }
+        this.foutStatus[nummer] = true; // Zet foutstatus voor de slagboom
+        this.geforceerdGesloten[nummer] = false; // Reset geforceerde sluiting status
+        this.resetPressed[nummer] = false; // Reset de reset status
+      } else if (msg === '0' || msg === '1') {
+        this.slagboomStatus[nummer] = msg === '1';
+        if (!this.foutStatus[nummer]) {
+          this.removeNotification(nummer);
         }
       }
     },
@@ -151,33 +186,29 @@ export default {
 
     toggleStoplicht(kleur, nummer) {
       let message = '0'; // Standaard waarde voor 'uit'
+      this.verwachteKleur[nummer] = '0'; // Standaard verwacht uit
 
       // Schakel de knipperfunctie uit als deze actief is
       if (this.knipperStatus[nummer]) {
         this.knipperGeel(nummer); // Deactiveer het knipperen
       }
 
-      // Schakel de huidige kleur uit
-      if (this.stoplichtKleur[nummer] !== null) {
-        if (this.stoplichtKleur[nummer] === 'knipper') {
-          this.publishMessage(`vkl/${nummer}/verander`, '0'); // Stuur bericht om knipperen uit te zetten
-        } else {
-          this.publishMessage(`vkl/${nummer}/verander`, '0'); // Stuur bericht om huidige kleur uit te zetten
-        }
-      }
-
       // Stel de nieuwe kleur in of zet deze uit als het dezelfde kleur is
       if (this.stoplichtKleur[nummer] === kleur) {
         this.stoplichtKleur[nummer] = null;
       } else {
-        this.stoplichtKleur[nummer] = kleur;
-
         if (kleur === 'rood') {
           message = '1';
+          this.verwachteKleur[nummer] = '1';
         } else if (kleur === 'geel') {
           message = '2';
+          this.verwachteKleur[nummer] = '2';
         } else if (kleur === 'groen') {
           message = '3';
+          this.verwachteKleur[nummer] = '3';
+        } else if (kleur === 'knipper') {
+          message = '4';
+          this.verwachteKleur[nummer] = '4';
         }
       }
 
@@ -246,11 +277,11 @@ export default {
         this.knipperInterval = null;
         this.knipperStatus[nummer] = false;
         this.stoplichtKleur[nummer] = null; // Zet de kleur terug naar 'uit'
-        this.publishMessage(`vkl/${nummer}/verander`, '0'); // Bericht voor knipperen uit
+       
       } else {
         // Activeer de knipperfunctie als deze niet actief is
         if (this.stoplichtKleur[nummer] !== null) {
-          this.publishMessage(`vkl/${nummer}/verander`, '0'); // Zet huidige kleur uit
+          
         }
         this.knipperStatus[nummer] = true;
         this.stoplichtKleur[nummer] = 'knipper';
@@ -339,6 +370,7 @@ export default {
   }
 };
 </script>
+
 
 
 
