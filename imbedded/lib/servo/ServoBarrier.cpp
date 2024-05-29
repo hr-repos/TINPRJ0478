@@ -41,9 +41,9 @@ u_int8_t ServoBarrier::getLocation()
     return currentPosition;
 }
 
-bool ServoBarrier::isDown()
+bool ServoBarrier::isUp()
 {
-    return currentPosition == closingPosition;
+    return currentPosition == openingPosition;
 }
 
 void ServoBarrier::switchLeds()
@@ -90,7 +90,7 @@ void ServoBarrier::callback()
         moveBarrier();
     }
 
-    if (!isDown()) {
+    if (isUp()) {
         digitalWrite(config.ledPin1, LOW);
         digitalWrite(config.ledPin2, LOW);
         return;

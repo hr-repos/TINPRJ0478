@@ -22,7 +22,7 @@ void loop()
 
     if (timer->waitTime(5000))
     {
-        if (servo->isDown())
+        if (servo->isUp())
         {
             // servo->setLocationUp();
         }

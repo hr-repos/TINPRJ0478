@@ -63,7 +63,7 @@ public:
     void moveBarrierForced();
 
     // get boolean if the servo is down
-    bool isDown();
+    bool isUp();
 
 
     bool getEstopStatus();
