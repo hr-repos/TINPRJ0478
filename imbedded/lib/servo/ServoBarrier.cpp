@@ -12,7 +12,7 @@ ServoBarrier::ServoBarrier(barrierData config)
     ESP32PWM::allocateTimer(1);
     ESP32PWM::allocateTimer(2);
     ESP32PWM::allocateTimer(3);
-    servo.setPeriodHertz(3);
+    servo.setPeriodHertz(25);
     servo.attach(config.servoPin);
 }
 

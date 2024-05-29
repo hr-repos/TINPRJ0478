@@ -31,8 +31,8 @@ private:
     // make sure the clsoingposition and opening position
     // values can be devided by the stepsize
     const uint8_t servoStepSize = 5;
-    uint8_t currentPosition = 25;
-    uint8_t requestedPosition = 25;
+    uint8_t currentPosition = 115;
+    uint8_t requestedPosition = 115;
 
     void switchLeds();      // switch the leds of the barrier
     void moveBarrier();     // moves the barrier if it's not at the requested location
@@ -41,8 +41,8 @@ public:
     // create object and set the pin for the stepper motor
     explicit ServoBarrier(barrierData);
 
-    const uint8_t closingPosition = 105;
-    const uint8_t openingPosition = 25;
+    const uint8_t closingPosition = 25;
+    const uint8_t openingPosition = 115;
 
     // returns if the sonic detects an
     bool objectDetected();
