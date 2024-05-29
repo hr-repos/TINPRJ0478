@@ -67,7 +67,7 @@ void processEstopActivate() {
     Serial.println("E-stop is geactiveerd.");
 }
 
-auto ultrasoon = new Ultrasonic(13, 12);
+auto ultrasoon = new Ultrasonic(13, 12);    // Trigger pin, Echo pin
 barrierData asbConfig = {
     asbServoPin,
     asbLedPin1,
@@ -115,6 +115,9 @@ bool readyForNextSensorReading() {
 
     if (currentMs >= lastRoundedMs + 200 - 15 && currentMs <= lastRoundedMs + 200 + 15) {
         lastRoundedMs = (currentMs + 20) / 100 * 100;
+        if (lastRoundedMs >= 800) {
+            lastRoundedMs = 0;
+        }
         return true;
     }
 
