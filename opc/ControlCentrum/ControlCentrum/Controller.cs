@@ -21,11 +21,8 @@ namespace ControlCentrum
         {
             await Console.Out.WriteLineAsync("starting controller...");
 
-            bool isMqttStart = await Mqtt.Connect();
-            bool isOpcuaStart = await Opcua.Start();
-
-            if (isMqttStart || isOpcuaStart)
-                await Run();
+            await Mqtt.Connect();
+            await Opcua.Start();
 
             Mqtt.MessageHandler = MqttHandler;
             Opcua.Handler = OPCUA_Handler;
@@ -85,7 +82,8 @@ namespace ControlCentrum
                 (variable, node) = GetVariableAndNode("mode", nodeID);
 
                 int intMessage = Int32.Parse(message.Trim(' ', '\n'));
-                if (intMessage == 6)
+
+                if (intMessage == 7)
                     await Console.Out.WriteLineAsync($"!!<error>topic: {topic} sent unknown message!!");
 
                 if (!await node.TrySetNodeValue("mode", message, Opcua.Client))
