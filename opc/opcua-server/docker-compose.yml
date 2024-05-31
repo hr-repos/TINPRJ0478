@@ -1,0 +1,11 @@
+version: '3.4'
+
+services:
+  opcuaserver:
+    image: ${DOCKER_REGISTRY-}opcuaserver
+    restart: unless-stopped
+    ports: 
+      - "8100:8100"
+    build:
+      context: .
+      dockerfile: Dockerfile
