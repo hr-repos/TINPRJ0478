@@ -8,21 +8,51 @@
 #include "StopLight.h"
 #include "Timer/Timer.h"
 #include "Ultrasonic.h"
-// #include "time_functions.cpp"
+
 #define BOT_MESSAGE_TOPIC "bot1/messages"
 #define ASB_MESSAGE_TOPIC "asb/1/terugkoppeling"
 #define ASB_INCOMING_TOPIC "asb/1/verander"
 #define VKL_MESSAGE_TOPIC "vkl/1/terugkoppeling"
 #define VKL_INCOMING_TOPIC "vkl/1/verander"
-// #define ASB_FORCED_TOPIC "asb/1/forced"
-// #define ASB_STANDARD_TOPIC "asb/1/standard"
 #define LANE_WIDTH_CM 10
 
+// Bot number is used to determine the time offset for the sensor readings
+// This is to prevent the bots from reading the sensor at the same time
+// use 1 for the left lane and 2 for the right lane
+const int botNumber = 1;
+
 const char* BOT_ID = "asb1";
+#define MSG_BUFFER_SIZE (50)
+char msg[MSG_BUFFER_SIZE];
+WiFiClient espClient;
+PubSubClient client(espClient);
+unsigned long lastMsg = 0;
+
+void processEstopActivate() {
+    client.publish(ASB_MESSAGE_TOPIC, "5");
+    Serial.println("E-stop is geactiveerd.");
+}
+
+uint8_t asbServoPin = 26;
+uint8_t asbLedPin1 = 33;
+uint8_t asbLedPin2 = 32;
 
 const char* ssid = SECRET_SSID;
 const char* password = SECRET_PASS;
 const char* mqtt_server = MQTT_HOST;
+
+auto ultrasoon = new Ultrasonic(13, 12);    // Trigger pin, Echo pin
+barrierData asbConfig = {
+    asbServoPin,
+    asbLedPin1,
+    asbLedPin2,
+    LANE_WIDTH_CM,
+    ultrasoon,
+    processEstopActivate
+};
+
+auto servo = new ServoBarrier(asbConfig);
+auto stopLight = new StopLight(21, 19, 18);
 
 enum veranderProtocolASB {
     OPENEN = 0,
@@ -50,34 +80,8 @@ enum veranderProtocolVKL {
 };
 
 
-#define MSG_BUFFER_SIZE (50)
-char msg[MSG_BUFFER_SIZE];
-WiFiClient espClient;
-PubSubClient client(espClient);
-unsigned long lastMsg = 0;
-
 bool eStopActive = false;
-uint8_t asbServoPin = 26;
-uint8_t asbLedPin1 = 33;
-uint8_t asbLedPin2 = 32;
-// ServoBarrier servo(asbServoPin, asbLedPin);
 
-void processEstopActivate() {
-    client.publish(ASB_MESSAGE_TOPIC, "5");
-    Serial.println("E-stop is geactiveerd.");
-}
-
-auto ultrasoon = new Ultrasonic(13, 12);    // Trigger pin, Echo pin
-barrierData asbConfig = {
-    asbServoPin,
-    asbLedPin1,
-    asbLedPin2,
-    LANE_WIDTH_CM,
-    ultrasoon,
-    processEstopActivate
-};
-auto servo = new ServoBarrier(asbConfig);
-auto stopLight = new StopLight(21, 19, 18);
 
 const char* ntpServer = "pool.ntp.org";
 const long  gmtOffset_sec = 3600;
@@ -96,16 +100,6 @@ void syncTimeWithServer() {
     timeIsSynced = true;
 }
 
-// Function prints the current time
-// void printLocalTime() {
-//   struct tm timeinfo;
-//   if (!getLocalTime(&timeinfo)) {
-//     Serial.println("Failed to obtain time");
-//     return;
-//   }
-//   Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
-// }
-
 bool readyForNextSensorReading() {
     static struct timeval timeStruct;
     static uint16_t lastRoundedMs = 0;
@@ -113,9 +107,9 @@ bool readyForNextSensorReading() {
 
     uint16_t currentMs = timeStruct.tv_usec / 1000;
 
-    if (currentMs >= lastRoundedMs + 200 - 15 && currentMs <= lastRoundedMs + 200 + 15) {
+    if (currentMs >= lastRoundedMs + (botNumber * 100) - 15 && currentMs <= lastRoundedMs + (botNumber * 100) + 15) {
         lastRoundedMs = (currentMs + 20) / 100 * 100;
-        if (lastRoundedMs >= 800) {
+        if (lastRoundedMs >= 700 + (botNumber * 100)) {
             lastRoundedMs = 0;
         }
         return true;
@@ -123,6 +117,7 @@ bool readyForNextSensorReading() {
 
     return false;
 }
+
 void setup_wifi() {
     delay(10);
     // We start by connecting to a WiFi network
