@@ -114,6 +114,7 @@ namespace Backend
 
                 if (!await node.TrySetNodeValue("mode", message, Opcua.Client))
                     Console.Out.WriteLine($"!!<error> node: {node.NodeID.Split('\"')[1]} variable: {variable.Name} no value set!!");
+                Console.WriteLine($"<opcua> node:{nodeID} value changed to: {message}");
             }
             catch (Exception ex)
             {
