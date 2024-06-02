@@ -137,7 +137,7 @@ client.on("connect", () => {
 })
 
 export default client
-
+```
 
 
 ### Build
