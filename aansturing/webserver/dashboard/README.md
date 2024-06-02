@@ -137,3 +137,13 @@ client.on("connect", () => {
 })
 
 export default client
+
+
+
+### Build
+
+```sh
+npm run build
+```
+
+This produces a `dist` folder, which needs to be moved to the Raspberry Pi. Then you can do `docker compose up -d --build`.
