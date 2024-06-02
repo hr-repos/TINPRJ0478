@@ -1,0 +1,15 @@
+{
+    "cSpell.words": [
+        "groen",
+        "MQTTHANDELER",
+        "MQTTHANDLER",
+        "oranje",
+        "SERVOBARRIER",
+        "SIMPLELIST"
+    ],
+    "files.associations": {
+        "string_view": "cpp",
+        "new": "cpp",
+        "cstdint": "cpp"
+    }
+}
