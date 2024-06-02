@@ -23,7 +23,7 @@ services:
 
   aansturing-webserver:
     container_name: aansturing-webserver
-    build: ./aansturing-webserver
+    build: ./dashboard
     restart: unless-stopped
     ports: [80:80]
 
